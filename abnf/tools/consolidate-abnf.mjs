@@ -53,7 +53,7 @@ async function parseABNF(rfcNum, profile) {
   if (!importedAbnf[rfcNum]) {
     importedAbnf[rfcNum] = {base, content};
   }
-  await preparserDependencies(rfcNum, profile);
+  await preParserDependencies(rfcNum, profile);
   return parseString(base + "\n" + importedAbnf[rfcNum].content, file);
 }
 
