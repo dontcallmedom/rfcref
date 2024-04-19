@@ -145,7 +145,7 @@ async function preprocessDependencies(rfcNum, profile) {
   return preprocessedDependencies[rfcNum];
 }
 
-async function preparserDependencies(rfcNum, profile) {
+async function preParserDependencies(rfcNum, profile) {
   const dependenciesDesc = await loadDependencies(rfcNum, profile);
   // optimistically assume that definitions marked as "ignore"
   // are "=/" rules we don't want to trip over when parsing
@@ -159,7 +159,7 @@ async function preparserDependencies(rfcNum, profile) {
   }
 }
 
-async function applyDependencies(rfcNum, rfcRules, profile) {
+async function postParserDependencies(rfcNum, rfcRules, profile) {
   if (appliedDependencies[rfcNum]) return;
   console.error("Applying dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
   const dependenciesDesc = await loadDependencies(rfcNum, profile);
@@ -203,7 +203,7 @@ async function importDependency(name, rfcNum, profile) {
   if (imported[rfcNum][name]) return imported[rfcNum][name];
   const importedRules = await parseABNF(rfcNum, profile);
   // TODO: replace by loading consolidated ABNF?
-  await applyDependencies(rfcNum, importedRules, profile);
+  await postParserDependencies(rfcNum, importedRules, profile);
   imported[rfcNum][name] = importedRules.defs[name];
   if (importedRules.defs[name]?.def?.type === "ruleref") {
     await importDependency(importedRules.defs[name].def.name, rfcNum);
@@ -217,7 +217,7 @@ async function importDependency(name, rfcNum, profile) {
 }
 
 const topRules = await parseABNF(topRfcNum, topProfile);
-await applyDependencies(topRfcNum, topRules, topProfile);
+await postParserDependencies(topRfcNum, topRules, topProfile);
 
 const consolidatedAbnfPreamble = `; Extracted from IETF ${Object.keys(importedAbnf).map(rfc => `RFC ${rfc}`).join(", ")}
 ; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
