@@ -1,0 +1,45 @@
+; Extracted from IETF RFC 9394
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust’s Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+SP                  = <Defined in RFC 5234>
+MINUS               = "-"
+
+capability          =/ "PARTIAL"
+                       ;; <capability> from [RFC3501].
+
+modifier-partial    = "PARTIAL" SP partial-range
+
+partial-range-first = nz-number ":" nz-number
+    ;; Request to search from oldest (lowest UIDs) to
+    ;; more recent messages.
+    ;; A range 500:400 is the same as 400:500.
+    ;; This is similar to <seq-range> from [RFC3501]
+    ;; but cannot contain "*".
+
+partial-range-last  = MINUS nz-number ":" MINUS nz-number
+    ;; Request to search from newest (highest UIDs) to
+    ;; oldest messages.
+    ;; A range -500:-400 is the same as -400:-500.
+
+partial-range       = partial-range-first / partial-range-last
+
+search-return-opt   =/ modifier-partial
+    ;; All conform to <search-return-opt> from
+    ;; [RFC4466] and [RFC9051].
+
+search-return-data  =/ ret-data-partial
+
+ret-data-partial    = "PARTIAL"
+                      SP "(" partial-range SP partial-results ")"
+    ;; <partial-range> is the requested range.
+
+partial-results     = sequence-set / "NIL"
+    ;; <sequence-set> from [RFC3501].
+    ;; NIL indicates that no results correspond to
+    ;; the requested range.
+
+tagged-ext-simple   =/ partial-range-last
+
+fetch-modifier      =/ modifier-partial
+                       ;; <fetch-modifier> from [RFC4466].

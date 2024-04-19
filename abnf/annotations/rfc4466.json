@@ -1,0 +1,6 @@
+{
+  "extends": {
+    "mailbox-data": "rfc3501"
+  },
+  "updates": "rfc3501"
+}

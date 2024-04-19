@@ -1,0 +1,31 @@
+[
+  {
+    "name": "imapv1",
+    "imports": {
+      "sequence-set": "rfc3501",
+      "nz-number": "rfc3501"
+    },
+    "extends": {
+      "fetch-modifier": "rfc4466",
+      "tagged-ext-simple": "rfc4466",
+      "capability": "rfc3501"
+    },
+    "ignore": ["search-return-opt", "search-return-data", "mailbox-data"]
+  },
+  {
+    "name": "imapv2",
+    "imports": {
+      "sequence-set": "rfc9051",
+      "nz-number": "rfc9051"
+    },
+    "extends": {
+      "capability": "rfc9051",
+      "search-return-opt": "rfc9051",
+      "search-return-data": "rfc9051"
+    },
+    "supersedes": {
+      "partial-range": "rfc9051"
+    },
+    "ignore": [ "fetch-modifier", "tagged-ext-simple"]
+  }
+]
