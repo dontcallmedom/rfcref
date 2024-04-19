@@ -53,7 +53,8 @@ async function parseABNF(rfcNum, profile) {
   if (!importedAbnf[rfcNum]) {
     importedAbnf[rfcNum] = {base, content};
   }
-  return parseString(base + "\n" + content, file);
+  await preparserDependencies(rfcNum, profile);
+  return parseString(base + "\n" + importedAbnf[rfcNum].content, file);
 }
 
 function deleteRule(rfcNum, def) {
@@ -142,6 +143,20 @@ async function preprocessDependencies(rfcNum, profile) {
     }
   }
   return preprocessedDependencies[rfcNum];
+}
+
+async function preparserDependencies(rfcNum, profile) {
+  const dependenciesDesc = await loadDependencies(rfcNum, profile);
+  // optimistically assume that definitions marked as "ignore"
+  // are "=/" rules we don't want to trip over when parsing
+  for (const name of (dependenciesDesc.ignore || [])) {
+    console.error(`Transforming '=/' ${name} rules from ${rfcNum} into '='`);
+    const r = new RegExp(`^(${name} +)(=\/)`, "mi");
+    if (!r.test(importedAbnf[rfcNum].content)) {
+      throw new Error(`Could not find ${name} rule to neuter`);
+    }
+    importedAbnf[rfcNum].content = importedAbnf[rfcNum].content.replace(r, "$1 =");
+  }
 }
 
 async function applyDependencies(rfcNum, rfcRules, profile) {
