@@ -967,7 +967,6 @@ partial-results     = sequence-set / "NIL"
     ;; NIL indicates that no results correspond to
     ;; the requested range.
 
-tagged-ext-simple   =/ partial-range-last
+;-tagged-ext-simple                      
 
-fetch-modifier      =/ modifier-partial
-                       ;; <fetch-modifier> from [RFC4466].
+;-fetch-modifier                                                                                  
