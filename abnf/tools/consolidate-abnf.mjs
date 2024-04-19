@@ -8,8 +8,16 @@ const importedAbnf = {};
 const appliedDependencies = {};
 const preprocessedDependencies = {};
 
-const rfcNum = process.argv[2];
-const profile = process.argv[3];
+const coreAbnfImports = ["ALPHA", "BIT", "CHAR", "CR", "CRLF", "CTL", "DIGIT",
+			 "DQUOTE", "HEXDIG", "HTAB", "LF", "LWSP", "OCTET",
+			 "SP", "VCHAR", "WSP"];
+const coreAbnf = coreAbnfImports.reduce((acc, b) => {
+  acc[b] = "rfc5234";
+  return acc;
+}, {});
+
+const topRfcNum = process.argv[2];
+const topProfile = process.argv[3];
 
 const dependencies = {};
 
@@ -36,7 +44,10 @@ function check_refs(rules) {
   return ret;
 }
 
-async function parseABNF(rfcNum, base = "") {
+async function parseABNF(rfcNum, profile) {
+  // TODO: load consolidated instead when importing a dependency
+  const base = await preprocessDependencies(rfcNum, profile);
+
   const file = `../source/rfc${rfcNum}.abnf`;
   const content = await readFile(file, 'utf-8');
   if (!importedAbnf[rfcNum]) {
@@ -92,52 +103,69 @@ async function loadDependencies(rfcNum, profile) {
       }
     }
   }
+  if (rfcNum !== 5234) {
+    // load RFC5234 systematically
+    // TODO: may need revisiting if we import consolidated dependencies?
+    if (!dependenciesDesc.imports) {
+      dependenciesDesc.imports = {};
+    }
+    Object.assign(dependenciesDesc.imports, coreAbnf);
+  }
   return dependenciesDesc;
 }
+
+function numAndProfile(rfc) {
+  if (!rfc) return [];
+  const m = rfc.match(/^rfc([0-9]+)\|?(.+)?$/);
+  if (m) {
+    return [parseInt(m[1], 10), m[2]];
+  } else {
+    throw new Error(`Cannot parse ${rfc} as refering to an RFC number (and optionally a profile)`);
+  }
+}
+
 
 async function preprocessDependencies(rfcNum, profile) {
   if (!preprocessedDependencies[rfcNum]) {
     console.error("Pre-processing dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
     preprocessedDependencies[rfcNum] = "";
-    const dependenciesDesc = loadDependencies(rfcNum, profile);
+    const dependenciesDesc = await loadDependencies(rfcNum, profile);
     // TODO: sorting helps with ensuring "updates" relationship get taken up
     // in order of publication of RFC (which parallels their number)
     // but this may need to be done more generally than in pre-processing
     for (const [name, rfc] of Object.entries(dependenciesDesc.extends || {}).sort(([,a],[,b]) => a.localeCompare(b))) {
-      const targetRfcNum = rfc.substr(3);
-      // TODO: preprocess this rfc itself
-      const rule = await importDependency(name, targetRfcNum);
-      if (rule)
+      const [targetRfcNum, targetProfile] = numAndProfile(rfc);
+      const rule = await importDependency(name, targetRfcNum, targetProfile);
+      if (rule) {
 	preprocessedDependencies[rfcNum] += extractRule(targetRfcNum, rule) + "\n";
+      }
     }
   }
   return preprocessedDependencies[rfcNum];
 }
 
 async function applyDependencies(rfcNum, rfcRules, profile) {
-  // TODO: can be removed once preprocessing is made recursive
   if (appliedDependencies[rfcNum]) return;
-  console.error("Applyng dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
-  const dependenciesDesc = loadDependencies(rfcNum, profile);
-  // TODO: load RFC5234 systematically
+  console.error("Applying dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
+  const dependenciesDesc = await loadDependencies(rfcNum, profile);
   // Improvement: only when the relevant terms are being used/redefined
   for (const [name, rfc] of Object.entries(dependenciesDesc.imports || {})) {
-    await importDependency(name, rfc.substr(3));
+    await importDependency(name, ...numAndProfile(rfc));
     deleteRule(rfcNum, rfcRules.defs[name.toUpperCase()]);
   }
 
   for (const [name, rfc] of Object.entries(dependenciesDesc.supersedes || {})) {
-    const targetRfcNum = rfc.substr(3);
-    const supersededRule = await importDependency(name, targetRfcNum);
+    const [ targetRfcNum, targetProfile ] = numAndProfile(rfc);
+    const supersededRule = await importDependency(name, targetRfcNum, targetProfile);
     deleteRule(targetRfcNum, supersededRule);
   }
 
   const updatedRfc = dependenciesDesc.updates;
-  const targetRfcNum = updatedRfc?.substr(3);
+  const [targetRfcNum, targetProfile] = numAndProfile(updatedRfc);
   if (updatedRfc && imported[targetRfcNum]) {
     console.error("Updating " + updatedRfc);
     for (const name of Object.keys(rfcRules.defs)) {
-      const supersededRule = await importDependency(name, targetRfcNum);
+      const supersededRule = await importDependency(name, targetRfcNum, targetProfile);
       deleteRule(targetRfcNum, supersededRule);
     }
   }
@@ -158,7 +186,8 @@ async function importDependency(name, rfcNum, profile) {
     imported[rfcNum] = {};
   }
   if (imported[rfcNum][name]) return imported[rfcNum][name];
-  const importedRules = await parseABNF(rfcNum);
+  const importedRules = await parseABNF(rfcNum, profile);
+  // TODO: replace by loading consolidated ABNF?
   await applyDependencies(rfcNum, importedRules, profile);
   imported[rfcNum][name] = importedRules.defs[name];
   if (importedRules.defs[name]?.def?.type === "ruleref") {
@@ -172,9 +201,8 @@ async function importDependency(name, rfcNum, profile) {
   return imported[rfcNum][name];
 }
 
-const baseABNF = await preprocessDependencies(rfcNum, profile);
-const topRules = await parseABNF(rfcNum, baseABNF);
-await applyDependencies(rfcNum, topRules, profile);
+const topRules = await parseABNF(topRfcNum, topProfile);
+await applyDependencies(topRfcNum, topRules, topProfile);
 
 const consolidatedAbnfPreamble = `; Extracted from IETF ${Object.keys(importedAbnf).map(rfc => `RFC ${rfc}`).join(", ")}
 ; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
@@ -182,9 +210,10 @@ const consolidatedAbnfPreamble = `; Extracted from IETF ${Object.keys(importedAb
 `;
 
 const consolidatedAbnf = consolidatedAbnfPreamble + Object.entries(importedAbnf).map(([rfc, { content }]) => `;;;; from RFC ${rfc}\n${content}`).join("\n");
-writeFile(`../consolidated/rfc${rfcNum}${profile ? `-${profile}` : ''}.abnf`, consolidatedAbnf);
 
 const consolidatedRules = parseString(consolidatedAbnf);
+writeFile(`../consolidated/rfc${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, consolidatedAbnf);
+
 
 // TODO: this doesn't detect extension of an unknown rule
 check_refs(consolidatedRules);
