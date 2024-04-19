@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "uri": "rfc3986",
+    "port": "rfc3986",
+    "addr-spec": "rfc2822"
+  }
+}

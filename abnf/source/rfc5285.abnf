@@ -1,0 +1,22 @@
+; Extracted from IETF RFC 5285
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+extmap = mapentry SP extensionname [SP extensionattributes]
+
+extensionname = URI
+
+direction = "sendonly" / "recvonly" / "sendrecv" / "inactive"
+
+mapentry = "extmap:" 1*5DIGIT ["/" direction]
+
+extensionattributes = byte-string
+
+URI = <Defined in RFC 3986>
+
+byte-string = <Defined in RFC 4566>
+
+SP = <Defined in RFC 5234>
+
+DIGIT = <Defined in RFC 5234>
+

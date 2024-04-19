@@ -1,0 +1,51 @@
+; Extracted from IETF RFC 8839
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+candidate-attribute   = "candidate" ":" foundation SP component-id SP
+                        transport SP
+                        priority SP
+                        connection-address SP     ;from RFC 4566
+                        port         ;port from RFC 4566
+                        SP cand-type
+                        [SP rel-addr]
+                        [SP rel-port]
+                        *(SP cand-extension)
+
+foundation            = 1*32ice-char
+component-id          = 1*3DIGIT
+transport             = "UDP" / transport-extension
+transport-extension   = token              ; from RFC 3261
+priority              = 1*10DIGIT
+cand-type             = "typ" SP candidate-types
+candidate-types       = "host" / "srflx" / "prflx" / "relay" / token
+rel-addr              = "raddr" SP connection-address
+rel-port              = "rport" SP port
+cand-extension        = extension-att-name SP extension-att-value
+extension-att-name    = token
+extension-att-value   = *VCHAR
+ice-char              = ALPHA / DIGIT / "+" / "/"
+
+
+remote-candidate-att = "remote-candidates:" remote-candidate
+                         0*(SP remote-candidate)
+remote-candidate = component-id SP connection-address SP port
+
+
+ice-lite               = "ice-lite"
+ice-mismatch           = "ice-mismatch"
+
+
+ice-pwd-att           = "ice-pwd:" password
+ice-ufrag-att         = "ice-ufrag:" ufrag
+password              = 22*256ice-char
+ufrag                 = 4*256ice-char
+
+
+ice-pacing-att            = "ice-pacing:" pacing-value
+pacing-value              = 1*10DIGIT
+
+
+ice-options           = "ice-options:" ice-option-tag
+                          *(SP ice-option-tag)
+ice-option-tag        = 1*ice-char

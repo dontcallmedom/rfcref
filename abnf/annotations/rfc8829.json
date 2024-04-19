@@ -1,0 +1,31 @@
+{
+  "imports": {
+    "ptime": "rfc4566",
+    "maxptime": "rfc4566",
+    "rtpmap": "rfc4566",
+    "recvonly": "rfc4566",
+    "sendrecv": "rfc4566",
+    "sendonly": "rfc4566",
+    "inactive": "rfc4566",
+    "ftmp": "rfc4566",
+    "rtcp": "rfc3605",
+    "setup": "rfc4145",
+    "fingerprint": "rfc8122",
+    "rtcp-fb": "rfc4585",
+    "extmap": "rfc5285",
+    "mid": "rfc5888",
+    "group": "rfc5888",
+    "imageattr": "rfc6236",
+    "extmap": "rfc6904",
+    "candidate": "rfc8839",
+    "remote-candidates": "rfc8839",
+    "ice-lite": "rfc8839",
+    "ice-ufrag": "rfc8839",
+    "ice-pwd": "rfc8839",
+    "ice-options": "rfc8839",
+    "msid": "rfc8830",
+    "rid": "rfc8851",
+    "simulcast": "rfc8853",
+    "tls-id": "rfc8842"
+  }
+}

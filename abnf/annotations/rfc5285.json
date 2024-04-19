@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "URI": "rfc3986",
+    "byte-string": "rfc4566"
+  }
+}

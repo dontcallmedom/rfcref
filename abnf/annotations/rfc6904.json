@@ -1,0 +1,8 @@
+{
+  "extends": {
+    "mapentry": "rfc5285",
+    "extmap": "rfc5285",
+    "extensionname": "rfc5285",
+    "extensionattributes": "rfc5285"
+  }
+}

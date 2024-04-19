@@ -1,0 +1,57 @@
+; Extracted from IETF RFC 8851
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rid-syntax        = %s"a=rid:" rid-id SP rid-dir
+                    [ rid-pt-param-list / rid-param-list ]
+
+rid-id            = 1*(alpha-numeric / "-" / "_")
+
+alpha-numeric     = < as defined in [RFC4566] >
+
+rid-dir           = %s"send" / %s"recv"
+
+rid-pt-param-list = SP rid-fmt-list *(";" rid-param)
+
+rid-param-list    = SP rid-param *(";" rid-param)
+
+rid-fmt-list      = %s"pt=" fmt *( "," fmt )
+
+fmt               = < as defined in [RFC4566] >
+
+rid-param         = rid-width-param
+                    / rid-height-param
+                    / rid-fps-param
+                    / rid-fs-param
+                    / rid-br-param
+                    / rid-pps-param
+                    / rid-bpp-param
+                    / rid-depend-param
+                    / rid-param-other
+
+rid-width-param   = %s"max-width" [ "=" int-param-val ]
+
+rid-height-param  = %s"max-height" [ "=" int-param-val ]
+
+rid-fps-param     = %s"max-fps" [ "=" int-param-val ]
+
+rid-fs-param      = %s"max-fs" [ "=" int-param-val ]
+
+rid-br-param      = %s"max-br" [ "=" int-param-val ]
+
+rid-pps-param     = %s"max-pps" [ "=" int-param-val ]
+
+rid-bpp-param     = %s"max-bpp" [ "=" float-param-val ]
+
+rid-depend-param  = %s"depend=" rid-list
+
+rid-param-other   = 1*(alpha-numeric / "-") [ "=" param-val ]
+
+rid-list          = rid-id *( "," rid-id )
+
+int-param-val     = 1*DIGIT
+
+float-param-val   = 1*DIGIT "." 1*DIGIT
+
+param-val         = *(%x20-3A / %x3C-7E)
+                    ; Any printable character except semicolon

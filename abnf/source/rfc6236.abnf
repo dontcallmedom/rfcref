@@ -1,0 +1,67 @@
+; Extracted from IETF RFC 6236
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+image-attr = "imageattr:" PT 1*2( 1*WSP ( "send" / "recv" )
+                                         1*WSP attr-list )
+PT = 1*DIGIT / "*"
+attr-list = ( set *(1*WSP set) ) / "*"
+         ;  WSP and DIGIT defined in [RFC5234]
+
+set= "[" "x=" xyrange "," "y=" xyrange *( "," key-value ) "]"
+                  ; x is the horizontal image size range (pixel count)
+                  ; y is the vertical image size range (pixel count)
+key-value = ( "sar=" srange )
+                 / ( "par=" prange )
+                 / ( "q=" qvalue )
+                  ; Key-value MAY be extended with other keyword
+                  ;  parameters.
+                  ; At most, one instance each of sar, par, or q
+                  ;  is allowed in a set.
+                  ;
+                  ; sar (sample aspect ratio) is the sample aspect ratio
+                  ;  associated with the set (optional, MAY be ignored)
+                  ; par (picture aspect ratio) is the allowed
+                  ;  ratio between the display's x and y physical
+                  ;  size (optional)
+                  ; q (optional, range [0.0..1.0], default value 0.5)
+                  ;  is the preference for the given set,
+                  ;  a higher value means a higher preference
+
+onetonine = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+                  ; Digit between 1 and 9
+xyvalue = onetonine *5DIGIT
+                  ; Digit between 1 and 9 that is
+                  ; followed by 0 to 5 other digits
+step = xyvalue
+xyrange = ( "[" xyvalue ":" [ step ":" ] xyvalue "]" )
+                  ; Range between a lower and an upper value
+                  ; with an optional step, default step = 1
+                  ; The rightmost occurrence of xyvalue MUST have a
+                  ; higher value than the leftmost occurrence.
+               / ( "[" xyvalue 1*( "," xyvalue ) "]" )
+                  ; Discrete values separated by ','
+               / ( xyvalue )
+                  ; A single value
+spvalue = ( "0" "." onetonine *3DIGIT )
+                  ; Values between 0.1000 and 0.9999
+               / ( onetonine "." 1*4DIGIT )
+                  ; Values between 1.0000 and 9.9999
+srange =  ( "[" spvalue 1*( "," spvalue ) "]" )
+                  ; Discrete values separated by ','.
+                  ; Each occurrence of spvalue MUST be
+                  ; greater than the previous occurrence.
+               / ( "[" spvalue "-" spvalue "]" )
+                  ; Range between a lower and an upper level (inclusive)
+                  ; The second occurrence of spvalue MUST have a higher
+                  ; value than the first
+               / ( spvalue )
+                  ; A single value
+prange =  ( "[" spvalue "-" spvalue "]" )
+                  ; Range between a lower and an upper level (inclusive)
+                  ; The second occurrence of spvalue MUST have a higher
+                  ; value than the first
+
+qvalue  = ( "0" "." 1*2DIGIT )
+               / ( "1" "." 1*2("0") )
+                  ; Values between 0.00 and 1.00
