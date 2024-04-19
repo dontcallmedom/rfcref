@@ -3,5 +3,9 @@
     "uri": "rfc3986",
     "port": "rfc3986",
     "addr-spec": "rfc2822"
+  },
+  "conflicts": {
+    "time": ["rfc2822", "rfc3501", "rfc9051"],
+    "text": ["rfc2822", "rfc3501", "rfc9051"]
   }
 }

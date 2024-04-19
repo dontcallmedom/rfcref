@@ -1,0 +1,5 @@
+{
+  "conflicts": {
+    "path": ["rfc2822"]
+  }
+}

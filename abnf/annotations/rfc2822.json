@@ -1,0 +1,7 @@
+{
+  "conflicts": {
+    "path": ["rfc3986"],
+    "time": ["rfc3501", "rfc4566", "rfc9051"],
+    "text": ["rfc3501", "rfc4566", "rfc9051"]
+  }
+}
