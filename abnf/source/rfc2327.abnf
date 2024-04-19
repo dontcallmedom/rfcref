@@ -55,13 +55,13 @@ zone-adjustments =    time space ["-"] typed-time
 key-field =           ["k=" key-type CRLF]
 
 
-key-type =            "prompt" |
-                         "clear:" key-data |
-                         "base64:" key-data |
+key-type =            "prompt" /
+                         "clear:" key-data /
+                         "base64:" key-data /
                          "uri:" uri
 
 
-key-data =            email-safe | "~" | "
+key-data =            email-safe / "~" / "
 
 
 attribute-fields =    *("a=" attribute CRLF)
@@ -95,7 +95,7 @@ port =                1*(DIGIT)
                          ;for UDP based media
 
 
-attribute =           (att-field ":" att-value) | att-field
+attribute =           (att-field ":" att-value) / att-field
 
 
 att-field =           1*(alpha-numeric)
@@ -113,7 +113,7 @@ sess-version =        1*(DIGIT)
 
 
 connection-address =  multicast-address
-                         | addr
+                         / addr
 
 
 multicast-address =   3*(decimal-uchar ".") decimal-uchar "/" ttl
@@ -123,9 +123,9 @@ multicast-address =   3*(decimal-uchar ".") decimal-uchar "/" ttl
 
 ttl =                 decimal-uchar
 
-start-time =          time | "0"
+start-time =          time / "0"
 
-stop-time =           time | "0"
+stop-time =           time / "0"
 
 time =                POS-DIGIT 9*(DIGIT)
                          ;sufficient for 2 more centuries
@@ -135,7 +135,7 @@ repeat-interval =     typed-time
 typed-time =          1*(DIGIT) [fixed-len-time-unit]
 
 
-fixed-len-time-unit = "d" | "h" | "m" | "s"
+fixed-len-time-unit = "d" / "h" / "m" / "s"
 
 
 bwtype =              1*(alpha-numeric)
@@ -147,7 +147,7 @@ username =            safe
                          ;pretty wide definition, but doesn't include space
 
 
-email-address =       email | email "(" email-safe ")" |
+email-address =       email / email "(" email-safe ")" /
                          email-safe "<" email ">"
 
 
@@ -157,11 +157,11 @@ email =               ;defined in RFC822
 uri=                  ;defined in RFC1630
 
 
-phone-number =        phone | phone "(" email-safe ")" |
+phone-number =        phone / phone "(" email-safe ")" /
                          email-safe "<" phone ">"
 
 
-phone =               "+" POS-DIGIT 1*(space | "-" | DIGIT)
+phone =               "+" POS-DIGIT 1*(space / "-" / DIGIT)
                          ;there must be a space or hyphen between the
                          ;international code and the rest of the number.
 
@@ -170,16 +170,16 @@ nettype =             "IN"
                          ;list to be extended
 
 
-addrtype =            "IP4" | "IP6"
+addrtype =            "IP4" / "IP6"
                          ;list to be extended
 
 
-addr =                FQDN | unicast-address
+addr =                FQDN / unicast-address
 
 
-FQDN =                4*(alpha-numeric|"-"|".")
+FQDN =                4*(alpha-numeric/"-"/".")
                          ;fully qualified domain name as specified in RFC1035
-unicast-address =     IP4-address | IP6-address
+unicast-address =     IP4-address / IP6-address
 
 
 IP4-address =         b1 "." decimal-uchar "." decimal-uchar "." b4
@@ -197,42 +197,42 @@ text =                byte-string
                          ;session-level attribute to be used
 
 
-byte-string =         1*(0x01..0x09|0x0b|0x0c|0x0e..0xff)
+byte-string =         1*(%x01-09/0x0b/0x0c/0x0e..0xff)
                          ;any byte except NUL, CR or LF
 
 
 decimal-uchar =       DIGIT
-                         | POS-DIGIT DIGIT
-                         | ("1" 2*(DIGIT))
-                         | ("2" ("0"|"1"|"2"|"3"|"4") DIGIT)
-                         | ("2" "5" ("0"|"1"|"2"|"3"|"4"|"5"))
+                         / POS-DIGIT DIGIT
+                         / ("1" 2*(DIGIT))
+                         / ("2" ("0"/"1"/"2"/"3"/"4") DIGIT)
+                         / ("2" "5" ("0"/"1"/"2"/"3"/"4"/"5"))
 
 
 integer =             POS-DIGIT *(DIGIT)
 
 
-alpha-numeric =       ALPHA | DIGIT
+alpha-numeric =       ALPHA / DIGIT
 
 
-DIGIT =               "0" | POS-DIGIT
+DIGIT =               "0" / POS-DIGIT
 
 
-POS-DIGIT =           "1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+POS-DIGIT =           "1"/"2"/"3"/"4"/"5"/"6"/"7"/"8"/"9"
 
 
-ALPHA =               "a"|"b"|"c"|"d"|"e"|"f"|"g"|"h"|"i"|"j"|"k"|
-                         "l"|"m"|"n"|"o "|"p"|"q"|"r"|"s"|"t"|"u"|"v"|
-                         "w"|"x"|"y"|"z"|"A"|"B"|"C "|"D"|"E"|"F"|"G"|
-                         "H"|"I"|"J"|"K"|"L"|"M"|"N"|"O"|"P"|" Q"|"R"|
-                         "S"|"T"|"U"|"V"|"W"|"X"|"Y"|"Z"
-email-safe =          safe | space | tab
+ALPHA =               "a"/"b"/"c"/"d"/"e"/"f"/"g"/"h"/"i"/"j"/"k"/
+                         "l"/"m"/"n"/"o "/"p"/"q"/"r"/"s"/"t"/"u"/"v"/
+                         "w"/"x"/"y"/"z"/"A"/"B"/"C "/"D"/"E"/"F"/"G"/
+                         "H"/"I"/"J"/"K"/"L"/"M"/"N"/"O"/"P"/" Q"/"R"/
+                         "S"/"T"/"U"/"V"/"W"/"X"/"Y"/"Z"
+email-safe =          safe / space / tab
 
 
-safe =                alpha-numeric |
-                         "'" | "'" | "-" | "." | "/" | ":" | "?" | """ |
-                         "#" | "$" | "&" | "*" | ";" | "=" | "@" | "[" |
-                         "]" | "^" | "_" | "`" | "{" | "|" | "}" | "+" |
-                         "~" | "
+safe =                alpha-numeric /
+                         "'" / "'" / "-" / "." / "/" / ":" / "?" / DQUOTE /
+                         "#" / "$" / "&" / "*" / ";" / "=" / "@" / "[" /
+                         "]" / "^" / "_" / "`" / "{" / "/" / "}" / "+" /
+                         "~" / DQUOTE
 
 
 space =               %d32
