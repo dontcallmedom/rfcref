@@ -1,6 +1,27 @@
 {
   "conflicts": {
-    "time": ["rfc2822", "rfc4566", "rfc9051"],
-    "text": ["rfc2822", "rfc4566", "rfc9051"]
+    "address": ["rfc2822"],
+    "append": ["rfc4466", "rfc9051"],
+    "atom": ["rfc2822"],
+    "base64": ["rfc2327", "rfc4566", "rfc9051"],
+    "base64-char": ["rfc4566", "rfc9051"],
+    "body": ["rfc2822"],
+    "create": ["rfc4466", "rfc9051"],
+    "date": ["rfc2822", "rfc9051"],
+    "date-time": ["rfc2822", "rfc9051"],
+    "examine": ["rfc4466", "rfc9051"],
+    "fetch": ["rfc4466", "rfc9051"],
+    "mailbox": ["rfc2822", "rfc9051"],
+    "mailbox-list": ["rfc2822", "rfc9051"],
+    "password": ["rfc8839", "rfc9051"],
+    "rename": ["rfc4466", "rfc9051"],
+    "response-data": ["rfc4466", "rfc9051"],
+    "search": ["rfc4466", "rfc9051"],
+    "select": ["rfc4466", "rfc9051"],
+    "status-att-list": ["rfc4466", "rfc9051"],
+    "store": ["rfc4466", "rfc9051"],
+    "text": ["rfc2327", "rfc2822", "rfc4566", "rfc9051"],
+    "time": ["rfc2327", "rfc2822", "rfc4566", "rfc9051"],
+    "zone": ["rfc2822", "rfc9051"]
   }
 }

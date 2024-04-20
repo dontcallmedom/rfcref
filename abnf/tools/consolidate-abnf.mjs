@@ -4,6 +4,7 @@ import assert from "assert";
 
 
 const imported = {};
+const importers = {};
 const importedAbnf = {};
 const appliedDependencies = {};
 const preprocessedDependencies = {};
@@ -11,6 +12,9 @@ const preprocessedDependencies = {};
 const coreAbnfImports = ["ALPHA", "BIT", "CHAR", "CR", "CRLF", "CTL", "DIGIT",
 			 "DQUOTE", "HEXDIG", "HTAB", "LF", "LWSP", "OCTET",
 			 "SP", "VCHAR", "WSP"];
+
+const toUpdateDependencies = {};
+
 const coreAbnf = coreAbnfImports.reduce((acc, b) => {
   acc[b] = "rfc5234";
   return acc;
@@ -57,24 +61,33 @@ async function parseABNF(rfcNum, profile) {
   return parseString(base + "\n" + importedAbnf[rfcNum].content, file);
 }
 
-function renameRule(rfcNum, name) {
-  console.error(`Prefixing ${name} from ${rfcNum}`);
+function renameRule(rfcNum, name, importRfc = rfcNum) {
+  console.error(`Prefixing ${name} from ${rfcNum} with ${importRfc}`);
   let {content, base } = importedAbnf[rfcNum];
   const offset = base.length + 1; // trailing "\n"
-  const rules = parseString(importedAbnf[rfcNum].base + "\n" + importedAbnf[rfcNum].content);
+
+  const rules = parseString(base + "\n" + content);
+  const instances = rules.refs.filter(r => r.name.toUpperCase() === name.toUpperCase());
   const def = rules.defs[name.toUpperCase()];
-  const instances = rules.refs.filter(r => r.name === name.toUpperCase());
-  instances.push(def);
-  instances.sort((r1, r2) => r2.loc.start.offset - r1.local.start.offset);
+  if (def) {
+    instances.push(def);
+  }
+  instances.sort((r1, r2) => r2.loc.start.offset - r1.loc.start.offset);
   // rename all the instance of the rules (both in its definition
   // and its references) starting from the end, to avoid disrupting
   // location information
   for (const r of instances) {
     const {offset: start} = r.loc.start;
     const end = start + name.length;
-    content = content.substr(0, start - offset) + `rfc${rfcNum}${name}` + content.substr(end - offset);
+    if (start > offset) {
+      // FIXME: rfcNum may contain profile which wouldn't be ABNF valid?
+      content = content.substr(0, start - offset) + `rfc${importRfc}${name}` + content.substr(end - offset);
+    } else {
+      base = base.substr(0, start) + `rfc${importRfc}${name}` + base.substr(end);
+    }
   }
   importedAbnf[rfcNum].content = content;
+  importedAbnf[rfcNum].base = base;
 }
 
 function deleteRule(rfcNum, def) {
@@ -145,15 +158,17 @@ function numAndProfile(rfc) {
   }
 }
 
+function toRfcKey(num, profile) {
+  return `rfc${num}${profile ? `|${profile}`: ''}`;
+}
 
 async function preprocessDependencies(rfcNum, profile) {
   if (!preprocessedDependencies[rfcNum]) {
     console.error("Pre-processing dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
     preprocessedDependencies[rfcNum] = "";
     const dependenciesDesc = await loadDependencies(rfcNum, profile);
-    // TODO: sorting helps with ensuring "updates" relationship get taken up
+    // sorting helps with ensuring "updates" relationship get taken up
     // in order of publication of RFC (which parallels their number)
-    // but this may need to be done more generally than in pre-processing
     for (const [name, rfc] of Object.entries(dependenciesDesc.extends || {}).sort(([,a],[,b]) => a.localeCompare(b))) {
       const [targetRfcNum, targetProfile] = numAndProfile(rfc);
       const rule = await importDependency(name, targetRfcNum, targetProfile);
@@ -179,13 +194,38 @@ async function preParserDependencies(rfcNum, profile) {
   }
 }
 
+async function updateRfc(updated, updater, updatedRules, updaterRules) {
+  console.error("Updating " + updated);
+  const [updatedRfcNum, updatedProfile] = numAndProfile(updated);
+  const [updaterRfcNum, updaterProfile] = numAndProfile(updater);
+  if (!updaterRules) {
+    updaterRules = toUpdateDependencies[updater];
+  }
+  if (!updaterRules) return;
+  for (const name of Object.keys(updaterRules.defs)) {
+    let supersededRule;
+    if (!updatedRules) {
+      supersededRule = await importDependency(name, updatedRfcNum, updatedProfile);
+    } else {
+      supersededRule = updatedRules.defs[name.toUpperCase()];
+    }
+    deleteRule(updatedRfcNum, supersededRule);
+  }
+  delete toUpdateDependencies[updated];
+}
+
 async function postParserDependencies(rfcNum, rfcRules, profile) {
   if (appliedDependencies[rfcNum]) return;
+
   console.error("Applying dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
   const dependenciesDesc = await loadDependencies(rfcNum, profile);
   // Improvement: only when the relevant terms are being used/redefined
   for (const [name, rfc] of Object.entries(dependenciesDesc.imports || {})) {
     await importDependency(name, ...numAndProfile(rfc));
+    if (!importers[name]) {
+      importers[name] = [];
+    }
+    importers[name].push({"importer": toRfcKey(rfcNum, profile), "imported": rfc});
     deleteRule(rfcNum, rfcRules.defs[name.toUpperCase()]);
   }
 
@@ -197,11 +237,22 @@ async function postParserDependencies(rfcNum, rfcRules, profile) {
 
   const updatedRfc = dependenciesDesc.updates;
   const [targetRfcNum, targetProfile] = numAndProfile(updatedRfc);
-  if (updatedRfc && imported[targetRfcNum]) {
-    console.error("Updating " + updatedRfc);
-    for (const name of Object.keys(rfcRules.defs)) {
-      const supersededRule = await importDependency(name, targetRfcNum, targetProfile);
-      deleteRule(targetRfcNum, supersededRule);
+  const rfcKey = toRfcKey(rfcNum, profile);
+  if (updatedRfc) {
+    if (imported[targetRfcNum]) {
+      await updateRfc(updatedRfc, rfcKey , null, rfcRules);
+    } else {
+      if (!toUpdateDependencies[updatedRfc]) {
+	toUpdateDependencies[updatedRfc] = {};
+      }
+      toUpdateDependencies[updatedRfc][rfcKey] = rfcRules;
+      console.log(updatedRfc + " may need to be updated");
+    }
+  }
+
+  if (toUpdateDependencies[rfcKey]) {
+    for (const [updaterRfc, rules] of Object.entries(toUpdateDependencies[rfcKey])) {
+      await updateRfc(rfcKey, updaterRfc, rfcRules, rules);
     }
   }
 
@@ -216,23 +267,22 @@ async function postParserDependencies(rfcNum, rfcRules, profile) {
 
 async function preConsolidationDependencies() {
   const conflicts = {};
-  const importedNames = Object.entries(imported).reduce((acc, [rfc, rules]) => {
-    const names = Object.keys(rules);
-    for (const n of names) {
-      if (!acc[n]) {
-	acc[n] = [];
+  const importConflicts = {};
+  const importedNames = Object.entries(importers).reduce((acc, [name, links]) => {
+    for (const {imported, importer} of links) {
+      if (!acc[name]) {
+	acc[name] = [];
       }
-      acc[n].push(rfc);
+      if (!acc[name].includes(imported)) {
+	acc[name].push(imported);
+      }
     }
     return acc;
   }, {});
-  console.log(importedNames);
   // Is there any known conflicting named definition
   // across our list of dependencies?
-  // If so, check if the rule is imported in the chain from at most one source
-  // and rename the rule elsewhere
-  // if it is imported from multiple sources, fail
-  // (for now - this could probably be worked around if really needed)
+  // If so, rename the rule (if possible, don't rename in a given source
+  // when it's imported  only from that source)
   for (const rfc of Object.keys(imported).sort()) {
     const [rfcNum, profile] = numAndProfile(rfc);
     const dependenciesDesc = await loadDependencies(rfcNum, profile);
@@ -245,10 +295,16 @@ async function preConsolidationDependencies() {
   }
   for (const name of Object.keys(conflicts)) {
     if (conflicts[name].length > 1) {
+      console.log(name, conflicts[name]);
       let winner = conflicts[name][0];
       if (importedNames[name]) {
 	if (importedNames[name].length > 1) {
-	  throw new Error(`${name} is defined and imported as a rule from more than one source: ${imported[name].join(', ')}`);
+	  // walk back the list importers and rename them there as well
+	  importConflicts[name] = [];
+	  for (const {importer, imported} of importers[name]) {
+	    importConflicts[name].push([importer, imported]);
+	  }
+	  throw new Error(`${name} is defined and imported as a rule from more than one source: ${importedNames[name].join(', ')} ${importConflicts[name]}`);
 	}
 	if (importedNames[name].length === 1) {
 	  winner = importedNames[name][0];
@@ -261,12 +317,18 @@ async function preConsolidationDependencies() {
 	const [rfcNum, profile] = numAndProfile(rfc);
 	renameRule(rfcNum, name);
       }
+      for (const [rfc, importRfc] of (importConflicts[name] ?? [])) {
+	const [rfcNum, profile] = numAndProfile(rfc);
+	const [importRfcNum] = numAndProfile(importRfc);
+	renameRule(rfcNum, name, importRfcNum);
+
+      }
     }
   }
 }
 
 async function importDependency(name, rfcNum, profile) {
-  const key = profile ? `rfc${rfcNum}|${profile}` : "rfc" + rfcNum;
+  const key = toRfcKey(rfcNum, profile);
   console.error(`importing ${name} from ${key}`);
   name = name.toUpperCase();
   if (!imported[key]) {
@@ -300,11 +362,17 @@ const consolidatedAbnfPreamble = `; Extracted from IETF ${Object.keys(importedAb
 
 const consolidatedAbnf = consolidatedAbnfPreamble + Object.entries(importedAbnf).map(([rfc, { content }]) => `;;;; from RFC ${rfc}\n${content}`).join("\n");
 
-const consolidatedRules = parseString(consolidatedAbnf);
-writeFile(`../consolidated/rfc${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, consolidatedAbnf);
+await writeFile(`../consolidated/rfc${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, consolidatedAbnf);
 
 
-// TODO: this doesn't detect extension of an unknown rule
+try {
+  const consolidatedRules = parseString(consolidatedAbnf);
 check_refs(consolidatedRules);
-// TODO: remove unused rules?
+} catch(e) {
+  console.error(e.message);
+}
+  // TODO: remove unused rules?
+
+
+
 

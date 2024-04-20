@@ -1,7 +1,15 @@
 {
   "conflicts": {
+    "address": ["rfc3501"],
+    "atom": ["rfc3501"],
+    "body": ["rfc3501"],
+    "date": ["rfc3501", "rfc9051"],
+    "date-time": ["rfc3501", "rfc9051"],
+    "mailbox": ["rfc3501", "rfc9051"],
+    "mailbox-list": ["rfc3501", "rfc9051"],
+    "zone": ["rfc3501", "rfc9051"],
     "path": ["rfc3986"],
-    "time": ["rfc3501", "rfc4566", "rfc9051"],
-    "text": ["rfc3501", "rfc4566", "rfc9051"]
+    "time": ["rfc2327", "rfc3501", "rfc4566", "rfc9051"],
+    "text": ["rfc2327", "rfc3501", "rfc4566", "rfc9051"]
   }
 }

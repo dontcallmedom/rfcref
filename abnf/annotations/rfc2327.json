@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "email": "rfc2822",
+    "uri": "rfc3986"
+  },
+  "conflicts": {
+    "base64": ["rfc3501", "rfc4566", "rfc9051"],
+    "port": ["rfc3986"],
+    "time": ["rfc2822", "rfc3501", "rfc4566", "rfc9051"],
+    "text": ["rfc2822", "rfc3501", "rfc4566", "rfc9051"]
+  }
+}

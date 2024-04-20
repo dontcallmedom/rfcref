@@ -1,0 +1,5 @@
+{
+  "conflicts": {
+    "password": ["rfc3501", "rfc9051"]
+  }
+}

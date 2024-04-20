@@ -61,7 +61,7 @@ key-type =            "prompt" /
                          "uri:" uri
 
 
-key-data =            email-safe / "~" / "
+key-data =            email-safe / "~" / DQUOTE
 
 
 attribute-fields =    *("a=" attribute CRLF)
@@ -151,10 +151,10 @@ email-address =       email / email "(" email-safe ")" /
                          email-safe "<" email ">"
 
 
-email =               ;defined in RFC822
+email =               <defined in RFC822>
 
 
-uri=                  ;defined in RFC1630
+uri=                  <defined in RFC1630>
 
 
 phone-number =        phone / phone "(" email-safe ")" /
@@ -188,7 +188,7 @@ b1 =                  decimal-uchar
 b4 =                  decimal-uchar
                          ;not "0"
 
-IP6-address =         ;to be defined
+IP6-address =         <to be defined>
 
 
 text =                byte-string
@@ -197,7 +197,7 @@ text =                byte-string
                          ;session-level attribute to be used
 
 
-byte-string =         1*(%x01-09/0x0b/0x0c/0x0e..0xff)
+byte-string =         1*(%x01-09/%x0b/%x0c/%x0e-ff)
                          ;any byte except NUL, CR or LF
 
 

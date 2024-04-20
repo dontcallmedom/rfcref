@@ -1,6 +1,7 @@
 {
   "imports": {
     "media": "rfc4566",
-    "media-field": "rfc4566"
+    "media-field": "rfc4566",
+    "space": "rfc2327"
   }
 }
