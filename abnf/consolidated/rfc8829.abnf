@@ -1,0 +1,1268 @@
+; Extracted from IETF RFC 2327, RFC 2822, RFC 3605, RFC 3986, RFC 4145, RFC 4566, RFC 4585, RFC 5234, RFC 5285, RFC 5888, RFC 6236, RFC 6904, RFC 8122, RFC 8829, RFC 8830, RFC 8839, RFC 8842, RFC 8851, RFC 8853
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+;;;; from RFC 2327
+announcement =        proto-version
+                         origin-field
+                         session-name-field
+                         information-field
+                         uri-field
+                         email-fields
+                         phone-fields
+                         connection-field
+                         bandwidth-fields
+                         time-fields
+                         key-field
+                         attribute-fields
+                         media-descriptions
+
+;-proto-version                                                                                
+
+;-origin-field                                                                                                                                                                              
+
+;-session-name-field                
+
+;-information-field                   
+
+;-uri-field                          
+
+;-email-fields                                  
+
+;-phone-fields                                 
+
+
+;-connection-field                                                                                                                                                                                                                                                            
+
+
+;-bandwidth-fields                                     
+;-time-fields                                                                                                                                                  
+
+
+;-repeat-fields                                                                                          
+
+
+;-zone-adjustments                                                                                             
+
+
+;-key-field                               
+
+
+;-key-type                                                                                                                                                     
+
+
+key-data =            email-safe / "~" / DQUOTE
+
+
+;-attribute-fields                          
+
+
+;-media-descriptions                                                                                                                                                                                                                                 
+
+
+;-media-field                                                                                                    
+
+
+;-media                                                                                                                                        
+
+;-fmt                                                                                                                                              
+;-proto                                                                                               
+
+
+;-port                                                                                                                                                 
+
+
+;-attribute                                                
+
+
+;-att-field                            
+
+
+;-att-value                      
+
+
+;-sess-id                                                                                                    
+
+
+;-sess-version                                                              
+
+
+;-connection-address                                                   
+
+
+;-multicast-address                                                                                                                                                                                                                
+
+;-ttl                              
+
+;-start-time                    
+
+;-stop-time                     
+
+;-time                                                                                             
+
+
+;-repeat-interval               
+;-typed-time                                         
+
+
+;-fixed-len-time-unit                      
+
+
+;-bwtype                               
+
+;-bandwidth                    
+
+
+;-username                                                                                            
+
+
+;-email-address                                                                                           
+
+
+;-email                                  
+
+
+;-uri                                     
+
+
+;-phone-number                                                                                            
+
+
+;-phone                                                                                                                                                                                                   
+
+
+;-nettype                                                               
+
+
+;-addrtype                                                                       
+
+
+addr =                FQDN / unicast-address
+
+
+;-FQDN                                                                                                                       
+;-unicast-address                              
+
+
+;-IP4-address                                                      
+;-b1                                                                                           
+b4 =                  decimal-uchar
+                         ;not "0"
+
+;-IP6-address                        
+
+
+;-text                                                                                                                                                                                                                                        
+
+
+;-byte-string                                                                                              
+
+
+;-decimal-uchar                                                                                                                                                                                                                              
+
+
+;-integer                               
+
+
+;-alpha-numeric                    
+
+
+;-DIGIT                              
+
+
+;-POS-DIGIT                                              
+
+
+;-ALPHA                                                                                                                                                                                                                                                                                                                                         
+;-email-safe                            
+
+
+safe =                alpha-numeric /
+                         "'" / "'" / "-" / "." / "/" / ":" / "?" / DQUOTE /
+                         "#" / "$" / "&" / "*" / ";" / "=" / "@" / "[" /
+                         "]" / "^" / "_" / "`" / "{" / "/" / "}" / "+" /
+                         "~" / DQUOTE
+
+
+space =               %d32
+tab =                 %d9
+;-CRLF                       
+
+;;;; from RFC 2822
+; Extracted from IETF RFC 4522
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+
+NO-WS-CTL       =       %d1-8 /         ; US-ASCII control characters
+                        %d11 /          ;  that do not include the
+                        %d12 /          ;  carriage return, line feed,
+                        %d14-31 /       ;  and white space characters
+                        %d127
+
+rfc2822text            =       %d1-9 /         ; Characters excluding CR and LF
+                        %d11 /
+                        %d12 /
+                        %d14-127 /
+                        obs-text
+
+specials        =       "(" / ")" /     ; Special characters used in
+                        "<" / ">" /     ;  other parts of the syntax
+                        "[" / "]" /
+                        ":" / ";" /
+                        "@" / "\" /
+                        "," / "." /
+                        DQUOTE
+
+quoted-pair     =       ("\" rfc2822text) / obs-qp
+
+FWS             =       ([*WSP CRLF] 1*WSP) /   ; Folding white space
+                        obs-FWS
+
+ctext           =       NO-WS-CTL /     ; Non white space controls
+                        %d33-39 /       ; The rest of the US-ASCII
+                        %d42-91 /       ;  characters not including "(",
+                        %d93-126        ;  ")", or "\"
+
+ccontent        =       ctext / quoted-pair / comment
+
+comment         =       "(" *([FWS] ccontent) [FWS] ")"
+
+CFWS            =       *([FWS] comment) (([FWS] comment) / FWS)
+
+atext           =       ALPHA / DIGIT / ; Any character except controls,
+                        "!" / "#" /     ;  SP, and specials.
+                        "$" / "%" /     ;  Used for atoms
+                        "&" / "'" /
+                        "*" / "+" /
+                        "-" / "/" /
+                        "=" / "?" /
+                        "^" / "_" /
+                        "`" / "{" /
+                        "|" / "}" /
+                        "~"
+
+atom            =       [CFWS] 1*atext [CFWS]
+
+dot-atom        =       [CFWS] dot-atom-text [CFWS]
+
+dot-atom-text   =       1*atext *("." 1*atext)
+
+qtext           =       NO-WS-CTL /     ; Non white space controls
+                        %d33 /          ; The rest of the US-ASCII
+                        %d35-91 /       ;  characters not including "\"
+                        %d93-126        ;  or the quote character
+
+qcontent        =       qtext / quoted-pair
+
+quoted-string   =       [CFWS]
+                        DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                        [CFWS]
+
+word            =       atom / quoted-string
+
+phrase          =       1*word / obs-phrase
+utext           =       NO-WS-CTL /     ; Non white space controls
+                        %d33-126 /      ; The rest of US-ASCII
+                        obs-utext
+
+unstructured    =       *([FWS] utext) [FWS]
+
+date-time       =       [ day-of-week "," ] date FWS rfc2822time [CFWS]
+
+day-of-week     =       ([FWS] day-name) / obs-day-of-week
+
+day-name        =       "Mon" / "Tue" / "Wed" / "Thu" /
+                        "Fri" / "Sat" / "Sun"
+
+date            =       day month year
+
+year            =       4*DIGIT / obs-year
+
+month           =       (FWS month-name FWS) / obs-month
+
+month-name      =       "Jan" / "Feb" / "Mar" / "Apr" /
+                        "May" / "Jun" / "Jul" / "Aug" /
+                        "Sep" / "Oct" / "Nov" / "Dec"
+
+day             =       ([FWS] 1*2DIGIT) / obs-day
+
+rfc2822time            =       time-of-day FWS zone
+
+time-of-day     =       hour ":" minute [ ":" second ]
+
+hour            =       2DIGIT / obs-hour
+
+minute          =       2DIGIT / obs-minute
+
+second          =       2DIGIT / obs-second
+
+zone            =       (( "+" / "-" ) 4DIGIT) / obs-zone
+
+address         =       mailbox / group
+
+mailbox         =       name-addr / addr-spec
+
+name-addr       =       [display-name] angle-addr
+
+angle-addr      =       [CFWS] "<" addr-spec ">" [CFWS] / obs-angle-addr
+
+group           =       display-name ":" [mailbox-list / CFWS] ";"
+                        [CFWS]
+display-name    =       phrase
+
+mailbox-list    =       (mailbox *("," mailbox)) / obs-mbox-list
+
+address-list    =       (address *("," address)) / obs-addr-list
+
+
+addr-spec       =       local-part "@" domain
+
+local-part      =       dot-atom / quoted-string / obs-local-part
+
+domain          =       dot-atom / domain-literal / obs-domain
+
+domain-literal  =       [CFWS] "[" *([FWS] dcontent) [FWS] "]" [CFWS]
+
+dcontent        =       dtext / quoted-pair
+
+dtext           =       NO-WS-CTL /     ; Non white space controls
+                        %d33-90 /       ; The rest of the US-ASCII
+                        %d94-126        ;  characters not including "[",
+                                        ;  "]", or "\"
+
+message         =       (fields / obs-fields)
+                        [CRLF body]
+
+body            =       *(*998rfc2822text CRLF) *998rfc2822text
+
+
+fields          =       *(trace
+                          *(resent-date /
+                           resent-from /
+                           resent-sender /
+                           resent-to /
+                           resent-cc /
+                           resent-bcc /
+                           resent-msg-id))
+                        *(orig-date /
+                        from /
+                        sender /
+                        reply-to /
+                        to /
+                        cc /
+                        bcc /
+                        message-id /
+                        in-reply-to /
+                        references /
+                        subject /
+                        comments /
+                        keywords /
+                        optional-field)
+
+orig-date       =       "Date:" date-time CRLF
+
+
+from            =       "From:" mailbox-list CRLF
+
+sender          =       "Sender:" mailbox CRLF
+
+reply-to        =       "Reply-To:" address-list CRLF
+
+to              =       "To:" address-list CRLF
+
+cc              =       "Cc:" address-list CRLF
+
+bcc             =       "Bcc:" (address-list / [CFWS]) CRLF
+
+
+message-id      =       "Message-ID:" msg-id CRLF
+
+in-reply-to     =       "In-Reply-To:" 1*msg-id CRLF
+
+references      =       "References:" 1*msg-id CRLF
+
+msg-id          =       [CFWS] "<" id-left "@" id-right ">" [CFWS]
+
+id-left         =       dot-atom-text / no-fold-quote / obs-id-left
+
+id-right        =       dot-atom-text / no-fold-literal / obs-id-right
+
+no-fold-quote   =       DQUOTE *(qtext / quoted-pair) DQUOTE
+no-fold-literal =       "[" *(dtext / quoted-pair) "]"
+
+subject         =       "Subject:" unstructured CRLF
+
+comments        =       "Comments:" unstructured CRLF
+
+keywords        =       "Keywords:" phrase *("," phrase) CRLF
+
+
+resent-date     =       "Resent-Date:" date-time CRLF
+
+resent-from     =       "Resent-From:" mailbox-list CRLF
+
+resent-sender   =       "Resent-Sender:" mailbox CRLF
+
+resent-to       =       "Resent-To:" address-list CRLF
+
+resent-cc       =       "Resent-Cc:" address-list CRLF
+
+resent-bcc      =       "Resent-Bcc:" (address-list / [CFWS]) CRLF
+
+resent-msg-id   =       "Resent-Message-ID:" msg-id CRLF
+
+trace           =       [return]
+                        1*received
+
+return          =       "Return-Path:" path CRLF
+
+path            =       ([CFWS] "<" ([CFWS] / addr-spec) ">" [CFWS]) /
+                        obs-path
+
+received        =       "Received:" name-val-list ";" date-time CRLF
+
+name-val-list   =       [CFWS] [name-val-pair *(CFWS name-val-pair)]
+
+name-val-pair   =       item-name CFWS item-value
+
+item-name       =       ALPHA *(["-"] (ALPHA / DIGIT))
+
+item-value      =       1*angle-addr / addr-spec /
+                         atom / domain / msg-id
+
+optional-field  =       field-name ":" unstructured CRLF
+
+field-name      =       1*ftext
+
+ftext           =       %d33-57 /               ; Any character except
+                        %d59-126                ;  controls, SP, and
+                                                ;  ":".
+
+
+obs-qp          =       "\" (%d0-127)
+
+obs-text        =       *LF *CR *(obs-char *LF *CR)
+obs-char        =       %d0-9 / %d11 /          ; %d0-127 except CR and
+                        %d12 / %d14-127         ;  LF
+
+obs-utext       =       obs-text
+
+obs-phrase      =       word *(word / "." / CFWS)
+
+obs-phrase-list =       phrase / 1*([phrase] [CFWS] "," [CFWS]) [phrase]
+
+
+obs-FWS         =       1*WSP *(CRLF 1*WSP)
+
+obs-day-of-week =       [CFWS] day-name [CFWS]
+
+obs-year        =       [CFWS] 2*DIGIT [CFWS]
+
+obs-month       =       CFWS month-name CFWS
+
+obs-day         =       [CFWS] 1*2DIGIT [CFWS]
+
+obs-hour        =       [CFWS] 2DIGIT [CFWS]
+
+obs-minute      =       [CFWS] 2DIGIT [CFWS]
+
+obs-second      =       [CFWS] 2DIGIT [CFWS]
+
+obs-zone        =       "UT" / "GMT" /          ; Universal Time
+                                                ; North American UT
+                                                ; offsets
+                        "EST" / "EDT" /         ; Eastern:  - 5/ - 4
+                        "CST" / "CDT" /         ; Central:  - 6/ - 5
+                        "MST" / "MDT" /         ; Mountain: - 7/ - 6
+                        "PST" / "PDT" /         ; Pacific:  - 8/ - 7
+                        %d65-73 /               ; Military zones - "A"
+                        %d75-90 /               ; through "I" and "K"
+                        %d97-105 /              ; through "Z", both
+                        %d107-122               ; upper and lower case
+
+
+obs-angle-addr  =       [CFWS] "<" [obs-route] addr-spec ">" [CFWS]
+
+obs-route       =       [CFWS] obs-domain-list ":" [CFWS]
+
+obs-domain-list =       "@" domain *(*(CFWS / "," ) [CFWS] "@" domain)
+
+obs-local-part  =       word *("." word)
+
+obs-domain      =       atom *("." atom)
+
+obs-mbox-list   =       1*([mailbox] [CFWS] "," [CFWS]) [mailbox]
+
+obs-addr-list   =       1*([address] [CFWS] "," [CFWS]) [address]
+
+obs-fields      =       *(obs-return /
+                        obs-received /
+                        obs-orig-date /
+                        obs-from /
+                        obs-sender /
+                        obs-reply-to /
+                        obs-to /
+                        obs-cc /
+                        obs-bcc /
+                        obs-message-id /
+                        obs-in-reply-to /
+                        obs-references /
+                        obs-subject /
+                        obs-comments /
+                        obs-keywords /
+                        obs-resent-date /
+                        obs-resent-from /
+                        obs-resent-send /
+                        obs-resent-rply /
+                        obs-resent-to /
+                        obs-resent-cc /
+                        obs-resent-bcc /
+                        obs-resent-mid /
+                        obs-optional)
+
+
+obs-orig-date   =       "Date" *WSP ":" date-time CRLF
+
+obs-from        =       "From" *WSP ":" mailbox-list CRLF
+
+obs-sender      =       "Sender" *WSP ":" mailbox CRLF
+
+obs-reply-to    =       "Reply-To" *WSP ":" mailbox-list CRLF
+
+obs-to          =       "To" *WSP ":" address-list CRLF
+
+obs-cc          =       "Cc" *WSP ":" address-list CRLF
+
+obs-bcc         =       "Bcc" *WSP ":" (address-list / [CFWS]) CRLF
+
+obs-message-id  =       "Message-ID" *WSP ":" msg-id CRLF
+
+obs-in-reply-to =       "In-Reply-To" *WSP ":" *(phrase / msg-id) CRLF
+
+obs-references  =       "References" *WSP ":" *(phrase / msg-id) CRLF
+
+obs-id-left     =       local-part
+
+obs-id-right    =       domain
+
+obs-subject     =       "Subject" *WSP ":" unstructured CRLF
+
+obs-comments    =       "Comments" *WSP ":" unstructured CRLF
+
+obs-keywords    =       "Keywords" *WSP ":" obs-phrase-list CRLF
+
+obs-resent-from =       "Resent-From" *WSP ":" mailbox-list CRLF
+
+obs-resent-send =       "Resent-Sender" *WSP ":" mailbox CRLF
+obs-resent-date =       "Resent-Date" *WSP ":" date-time CRLF
+
+obs-resent-to   =       "Resent-To" *WSP ":" address-list CRLF
+
+obs-resent-cc   =       "Resent-Cc" *WSP ":" address-list CRLF
+
+obs-resent-bcc  =       "Resent-Bcc" *WSP ":"
+                         (address-list / [CFWS]) CRLF
+
+obs-resent-mid  =       "Resent-Message-ID" *WSP ":" msg-id CRLF
+
+obs-resent-rply =       "Resent-Reply-To" *WSP ":" address-list CRLF
+
+
+obs-return      =       "Return-Path" *WSP ":" path CRLF
+
+obs-received    =       "Received" *WSP ":" name-val-list CRLF
+
+obs-path        =       obs-angle-addr
+
+obs-optional    =       field-name *WSP ":" unstructured CRLF
+
+
+;;;; from RFC 3605
+; Extracted from IETF RFC 3605
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rtcp-attribute =  "a=rtcp:" port  [nettype space addrtype space
+                         connection-address] CRLF
+
+;;;; from RFC 3986
+; Extracted from IETF RFC 3986
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+URI           = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+
+hier-part     = "//" authority path-abempty
+                 / path-absolute
+                 / path-rootless
+                 / path-empty
+
+URI-reference = URI / relative-ref
+
+absolute-URI  = scheme ":" hier-part [ "?" query ]
+
+relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+
+relative-part = "//" authority path-abempty
+                 / path-absolute
+                 / path-noscheme
+                 / path-empty
+
+scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+
+authority     = [ userinfo "@" ] host [ ":" port ]
+userinfo      = *( unreserved / pct-encoded / sub-delims / ":" )
+host          = IP-literal / IPv4address / reg-name
+port          = *DIGIT
+
+IP-literal    = "[" ( IPv6address / IPvFuture  ) "]"
+
+IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+IPv6address   =                            6( h16 ":" ) ls32
+                 /                       "::" 5( h16 ":" ) ls32
+                 / [               h16 ] "::" 4( h16 ":" ) ls32
+                 / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+                 / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+                 / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+                 / [ *4( h16 ":" ) h16 ] "::"              ls32
+                 / [ *5( h16 ":" ) h16 ] "::"              h16
+                 / [ *6( h16 ":" ) h16 ] "::"
+
+h16           = 1*4HEXDIG
+ls32          = ( h16 ":" h16 ) / IPv4address
+IPv4address   = dec-octet "." dec-octet "." dec-octet "." dec-octet
+dec-octet     = DIGIT                 ; 0-9
+                 / %x31-39 DIGIT         ; 10-99
+                 / "1" 2DIGIT            ; 100-199
+                 / "2" %x30-34 DIGIT     ; 200-249
+                 / "25" %x30-35          ; 250-255
+
+reg-name      = *( unreserved / pct-encoded / sub-delims )
+
+rfc3986path          = path-abempty    ; begins with "/" or is empty
+                 / path-absolute   ; begins with "/" but not "//"
+                 / path-noscheme   ; begins with a non-colon segment
+                 / path-rootless   ; begins with a segment
+                 / path-empty      ; zero characters
+
+path-abempty  = *( "/" segment )
+path-absolute = "/" [ segment-nz *( "/" segment ) ]
+path-noscheme = segment-nz-nc *( "/" segment )
+path-rootless = segment-nz *( "/" segment )
+path-empty    = 0<pchar>
+
+segment       = *pchar
+segment-nz    = 1*pchar
+segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+                 ; non-zero-length segment without any colon ":"
+
+pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+
+query         = *( pchar / "/" / "?" )
+
+fragment      = *( pchar / "/" / "?" )
+
+pct-encoded   = "%" HEXDIG HEXDIG
+
+unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+reserved      = gen-delims / sub-delims
+gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+                 / "*" / "+" / "," / ";" / "="
+
+;;;; from RFC 4145
+; Extracted from IETF RFC 4145
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+;-media-field                                                                                                     
+
+setup-attr           =  "a=setup:" role
+role                 =  "active" / "passive" / "actpass"
+                                 / "holdconn"
+
+connection-attr        = "a=connection:" conn-value
+conn-value             = "new" / "existing"
+
+;;;; from RFC 4566
+; Extracted from IETF RFC 4566
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+session-description = proto-version
+                         origin-field
+                         session-name-field
+                         information-field
+                         uri-field
+                         email-fields
+                         phone-fields
+                         connection-field
+                         bandwidth-fields
+                         time-fields
+                         key-field
+                         attribute-fields
+                         media-descriptions
+
+proto-version =       %x76 "=" 1*DIGIT CRLF
+                         ;this memo describes version 0
+
+origin-field =        %x6f "=" username SP sess-id SP sess-version SP
+                         nettype SP addrtype SP unicast-address CRLF
+
+session-name-field =  %x73 "=" rfc4566text CRLF
+
+information-field =   [%x69 "=" rfc4566text CRLF]
+
+uri-field =           [%x75 "=" uri CRLF]
+
+email-fields =        *(%x65 "=" email-address CRLF)
+
+phone-fields =        *(%x70 "=" phone-number CRLF)
+
+connection-field =    [%x63 "=" nettype SP addrtype SP
+                         connection-address CRLF]
+                         ;a connection field must be present
+                         ;in every media description or at the
+                         ;session-level
+bandwidth-fields =    *(%x62 "=" bwtype ":" bandwidth CRLF)
+
+time-fields =         1*( %x74 "=" start-time SP stop-time
+                         *(CRLF repeat-fields) CRLF)
+                         [zone-adjustments CRLF]
+
+repeat-fields =       %x72 "=" repeat-interval SP typed-time
+                         1*(SP typed-time)
+
+zone-adjustments =    %x7a "=" rfc4566time SP ["-"] typed-time
+                         *(SP rfc4566time SP ["-"] typed-time)
+
+key-field =           [%x6b "=" key-type CRLF]
+
+attribute-fields =    *(%x61 "=" attribute CRLF)
+
+media-descriptions =  *( media-field
+                         information-field
+                         *connection-field
+                         bandwidth-fields
+                         key-field
+                         attribute-fields )
+
+media-field =         %x6d "=" media SP port ["/" integer]
+                         SP proto 1*(SP fmt) CRLF
+
+username =            non-ws-string
+                         ;pretty wide definition, but doesn't
+                         ;include space
+
+sess-id =             1*DIGIT
+                         ;should be unique for this username/host
+
+sess-version =        1*DIGIT
+
+nettype =             token
+                         ;typically "IN"
+
+addrtype =            token
+                         ;typically "IP4" or "IP6"
+
+;-uri                                                                      
+email-address        = address-and-comment / dispname-and-address
+                          / addr-spec
+address-and-comment  = addr-spec 1*SP "(" 1*email-safe ")"
+dispname-and-address = 1*email-safe 1*SP "<" addr-spec ">"
+
+phone-number =        phone *SP "(" 1*email-safe ")" /
+                         1*email-safe "<" phone ">" /
+                         phone
+
+phone =               ["+"] DIGIT 1*(SP / "-" / DIGIT)
+
+connection-address =  multicast-address / unicast-address
+
+bwtype =              token
+
+bandwidth =           1*DIGIT
+
+start-time =          rfc4566time / "0"
+
+stop-time =           rfc4566time / "0"
+
+rfc4566time =                POS-DIGIT 9*DIGIT
+                         ; Decimal representation of NTP time in
+                         ; seconds since 1900.  The representation
+                         ; of NTP time is an unbounded length field
+                         ; containing at least 10 digits.  Unlike the
+                         ; 64-bit representation used elsewhere, time
+                         ; in SDP does not wrap in the year 2036.
+
+repeat-interval =     POS-DIGIT *DIGIT [fixed-len-time-unit]
+
+typed-time =          1*DIGIT [fixed-len-time-unit]
+
+fixed-len-time-unit = %x64 / %x68 / %x6d / %x73
+
+key-type =            %x70 %x72 %x6f %x6d %x70 %x74 /     ; "prompt"
+                         %x63 %x6c %x65 %x61 %x72 ":" rfc4566text / ; "clear:"
+                         %x62 %x61 %x73 %x65 "64:" rfc4566base64 /  ; "base64:"
+                         %x75 %x72 %x69 ":" uri              ; "uri:"
+
+rfc4566base64      =         *base64-unit [base64-pad]
+base64-unit =         4base64-char
+base64-pad  =         2base64-char "==" / 3base64-char "="
+base64-char =         ALPHA / DIGIT / "+" / "/"
+
+attribute =           (att-field ":" att-value) / att-field
+
+att-field =           token
+
+att-value =           byte-string
+
+media =               token
+                         ;typically "audio", "video", "text", or
+                         ;"application"
+
+fmt =                 token
+                         ;typically an RTP payload type for audio
+                         ;and video media
+
+proto  =              token *("/" token)
+                         ;typically "RTP/AVP" or "udp"
+
+;-port                       
+
+unicast-address =     IP4-address / IP6-address / FQDN / extn-addr
+
+multicast-address =   IP4-multicast / IP6-multicast / FQDN
+                         / extn-addr
+
+IP4-multicast =       m1 3( "." decimal-uchar )
+                         "/" ttl [ "/" integer ]
+                         ; IPv4 multicast addresses may be in the
+                         ; range 224.0.0.0 to 239.255.255.255
+
+m1 =                  ("22" ("4"/"5"/"6"/"7"/"8"/"9")) /
+                         ("23" DIGIT )
+
+IP6-multicast =       hexpart [ "/" integer ]
+                         ; IPv6 address starting with FF
+
+ttl =                 (POS-DIGIT *2DIGIT) / "0"
+
+FQDN =                4*(alpha-numeric / "-" / ".")
+                         ; fully qualified domain name as specified
+                         ; in RFC 1035 (and updates)
+IP4-address =         b1 3("." decimal-uchar)
+
+b1 =                  decimal-uchar
+                         ; less than "224"
+
+IP6-address =         hexpart [ ":" IP4-address ]
+
+hexpart =             hexseq / hexseq "::" [ hexseq ] /
+                         "::" [ hexseq ]
+
+hexseq  =             hex4 *( ":" hex4)
+
+hex4    =             1*4HEXDIG
+
+extn-addr =           non-ws-string
+
+rfc4566text =                byte-string
+                         ;default is to interpret this as UTF8 text.
+                         ;ISO 8859-1 requires "a=charset:ISO-8859-1"
+                         ;session-level attribute to be used
+
+byte-string =         1*(%x01-09/%x0B-0C/%x0E-FF)
+                         ;any byte except NUL, CR, or LF
+
+non-ws-string =       1*(VCHAR/%x80-FF)
+                         ;string of visible characters
+
+token-char =          %x21 / %x23-27 / %x2A-2B / %x2D-2E / %x30-39
+                         / %x41-5A / %x5E-7E
+
+token =               1*(token-char)
+
+email-safe =          %x01-09/%x0B-0C/%x0E-27/%x2A-3B/%x3D/%x3F-FF
+                         ;any byte except NUL, CR, LF, or the quoting
+                         ;characters ()<>
+
+integer =             POS-DIGIT *DIGIT
+
+alpha-numeric =       ALPHA / DIGIT
+
+POS-DIGIT =           %x31-39 ; 1 - 9
+decimal-uchar =       DIGIT
+                         / POS-DIGIT DIGIT
+                         / ("1" 2*(DIGIT))
+                         / ("2" ("0"/"1"/"2"/"3"/"4") DIGIT)
+                         / ("2" "5" ("0"/"1"/"2"/"3"/"4"/"5"))
+
+
+;;;; from RFC 4585
+; Extracted from IETF RFC 4585
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rtcp-fb-syntax = "a=rtcp-fb:" rtcp-fb-pt SP rtcp-fb-val CRLF
+
+rtcp-fb-pt         = "*"   ; wildcard: applies to all formats
+                         / fmt   ; as defined in SDP spec
+
+rtcp-fb-val        = "ack" rtcp-fb-ack-param
+                         / "nack" rtcp-fb-nack-param
+                         / "trr-int" SP 1*DIGIT
+                         / rtcp-fb-id rtcp-fb-param
+
+rtcp-fb-id         = 1*(alpha-numeric / "-" / "_")
+
+rtcp-fb-param      = SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
+
+rtcp-fb-ack-param  = SP "rpsi"
+                         / SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
+
+rtcp-fb-nack-param = SP "pli"
+                         / SP "sli"
+                         / SP "rpsi"
+                         / SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
+
+;;;; from RFC 5234
+; Extracted from IETF RFC 5234
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+ALPHA          =  %x41-5A / %x61-7A   ; A-Z / a-z
+
+BIT            =  "0" / "1"
+
+CHAR           =  %x01-7F
+                       ; any 7-bit US-ASCII character,
+                       ;  excluding NUL
+
+CR             =  %x0D
+                       ; carriage return
+
+CRLF           =  CR LF
+                       ; Internet standard newline
+
+CTL            =  %x00-1F / %x7F
+                       ; controls
+
+DIGIT          =  %x30-39
+                       ; 0-9
+
+DQUOTE         =  %x22
+                       ; " (Double Quote)
+
+HEXDIG         =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+
+HTAB           =  %x09
+                       ; horizontal tab
+
+LF             =  %x0A
+                       ; linefeed
+
+LWSP           =  *(WSP / CRLF WSP)
+                       ; white space
+
+OCTET          =  %x00-FF
+                                ; 8 bits of data
+
+SP             =  %x20
+
+VCHAR          =  %x21-7E
+                                ; visible (printing) characters
+
+WSP            =  SP / HTAB
+                                ; white space
+;;;; from RFC 5285
+; Extracted from IETF RFC 5285
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+extmap = mapentry SP extensionname [SP extensionattributes]
+
+extensionname = URI
+
+direction = "sendonly" / "recvonly" / "sendrecv" / "inactive"
+
+mapentry = "extmap:" 1*5DIGIT ["/" direction]
+
+extensionattributes = byte-string
+
+;-URI                      
+
+;-byte-string                      
+
+;-SP                      
+
+;-DIGIT                      
+
+
+;;;; from RFC 5888
+; Extracted from IETF RFC 5888
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+mid-attribute      = "a=mid:" identification-tag
+identification-tag = token
+                                ; token is defined in RFC 4566
+
+group-attribute     = "a=group:" semantics
+                                 *(SP identification-tag)
+semantics           = "LS" / "FID" / semantics-extension
+semantics-extension = token
+                                 ; token is defined in RFC 4566
+
+;;;; from RFC 6236
+; Extracted from IETF RFC 6236
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+image-attr = "imageattr:" PT 1*2( 1*WSP ( "send" / "recv" )
+                                         1*WSP attr-list )
+PT = 1*DIGIT / "*"
+attr-list = ( set *(1*WSP set) ) / "*"
+         ;  WSP and DIGIT defined in [RFC5234]
+
+set= "[" "x=" xyrange "," "y=" xyrange *( "," key-value ) "]"
+                  ; x is the horizontal image size range (pixel count)
+                  ; y is the vertical image size range (pixel count)
+key-value = ( "sar=" srange )
+                 / ( "par=" prange )
+                 / ( "q=" qvalue )
+                  ; Key-value MAY be extended with other keyword
+                  ;  parameters.
+                  ; At most, one instance each of sar, par, or q
+                  ;  is allowed in a set.
+                  ;
+                  ; sar (sample aspect ratio) is the sample aspect ratio
+                  ;  associated with the set (optional, MAY be ignored)
+                  ; par (picture aspect ratio) is the allowed
+                  ;  ratio between the display's x and y physical
+                  ;  size (optional)
+                  ; q (optional, range [0.0..1.0], default value 0.5)
+                  ;  is the preference for the given set,
+                  ;  a higher value means a higher preference
+
+onetonine = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+                  ; Digit between 1 and 9
+xyvalue = onetonine *5DIGIT
+                  ; Digit between 1 and 9 that is
+                  ; followed by 0 to 5 other digits
+step = xyvalue
+xyrange = ( "[" xyvalue ":" [ step ":" ] xyvalue "]" )
+                  ; Range between a lower and an upper value
+                  ; with an optional step, default step = 1
+                  ; The rightmost occurrence of xyvalue MUST have a
+                  ; higher value than the leftmost occurrence.
+               / ( "[" xyvalue 1*( "," xyvalue ) "]" )
+                  ; Discrete values separated by ','
+               / ( xyvalue )
+                  ; A single value
+spvalue = ( "0" "." onetonine *3DIGIT )
+                  ; Values between 0.1000 and 0.9999
+               / ( onetonine "." 1*4DIGIT )
+                  ; Values between 1.0000 and 9.9999
+srange =  ( "[" spvalue 1*( "," spvalue ) "]" )
+                  ; Discrete values separated by ','.
+                  ; Each occurrence of spvalue MUST be
+                  ; greater than the previous occurrence.
+               / ( "[" spvalue "-" spvalue "]" )
+                  ; Range between a lower and an upper level (inclusive)
+                  ; The second occurrence of spvalue MUST have a higher
+                  ; value than the first
+               / ( spvalue )
+                  ; A single value
+prange =  ( "[" spvalue "-" spvalue "]" )
+                  ; Range between a lower and an upper level (inclusive)
+                  ; The second occurrence of spvalue MUST have a higher
+                  ; value than the first
+
+qvalue  = ( "0" "." 1*2DIGIT )
+               / ( "1" "." 1*2("0") )
+                  ; Values between 0.00 and 1.00
+
+;;;; from RFC 6904
+; Extracted from IETF RFC 6904
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+enc-extensionname = %x75.72.6e.3a.69.65.74.66.3a.70.61.72.61.6d.73.3a
+       %x72.74.70.2d.68.64.72.65.78.74.3a.65.6e.63.72.79.70.74
+       ; "urn:ietf:params:rtp-hdrext:encrypt" in lower case
+
+extmap =/ mapentry SP enc-extensionname SP extensionname
+       [SP extensionattributes]
+
+;;;; from RFC 8122
+; Extracted from IETF RFC 8122
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+attribute              =/ fingerprint-attribute
+
+fingerprint-attribute  =  "fingerprint" ":" hash-func SP fingerprint
+
+hash-func              =  "sha-1" / "sha-224" / "sha-256" /
+                             "sha-384" / "sha-512" /
+                             "md5" / "md2" / token
+                             ; Additional hash functions can only come
+                             ; from updates to RFC 3279
+
+fingerprint            =  2UHEX *(":" 2UHEX)
+                             ; Each byte in upper-case hex, separated
+                             ; by colons.
+
+UHEX                   =  DIGIT / %x41-46 ; A-F uppercase
+
+
+;;;; from RFC 8829
+; only defined as a list of references
+;;;; from RFC 8830
+; Extracted from IETF RFC 8830
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+msid-value = msid-id [ SP msid-appdata ]
+msid-id = 1*64token-char ; see RFC 4566
+msid-appdata = 1*64token-char  ; see RFC 4566
+
+;;;; from RFC 8839
+; Extracted from IETF RFC 8839
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+candidate-attribute   = "candidate" ":" foundation SP component-id SP
+                        transport SP
+                        priority SP
+                        connection-address SP     ;from RFC 4566
+                        port         ;port from RFC 4566
+                        SP cand-type
+                        [SP rel-addr]
+                        [SP rel-port]
+                        *(SP cand-extension)
+
+foundation            = 1*32ice-char
+component-id          = 1*3DIGIT
+transport             = "UDP" / transport-extension
+transport-extension   = token              ; from RFC 3261
+priority              = 1*10DIGIT
+cand-type             = "typ" SP candidate-types
+candidate-types       = "host" / "srflx" / "prflx" / "relay" / token
+rel-addr              = "raddr" SP connection-address
+rel-port              = "rport" SP port
+cand-extension        = extension-att-name SP extension-att-value
+extension-att-name    = token
+extension-att-value   = *VCHAR
+ice-char              = ALPHA / DIGIT / "+" / "/"
+
+
+remote-candidate-att = "remote-candidates:" remote-candidate
+                         0*(SP remote-candidate)
+remote-candidate = component-id SP connection-address SP port
+
+
+ice-lite               = "ice-lite"
+ice-mismatch           = "ice-mismatch"
+
+
+ice-pwd-att           = "ice-pwd:" password
+ice-ufrag-att         = "ice-ufrag:" ufrag
+password              = 22*256ice-char
+ufrag                 = 4*256ice-char
+
+
+ice-pacing-att            = "ice-pacing:" pacing-value
+pacing-value              = 1*10DIGIT
+
+
+ice-options           = "ice-options:" ice-option-tag
+                          *(SP ice-option-tag)
+ice-option-tag        = 1*ice-char
+
+;;;; from RFC 8842
+; Extracted from IETF RFC 8842
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+tls-id-value = 20*255(tls-id-char)
+tls-id-char = ALPHA / DIGIT / "+" / "/" / "-" / "_"
+
+;;;; from RFC 8851
+; Extracted from IETF RFC 8851
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rid-syntax        = %s"a=rid:" rid-id SP rid-dir
+                    [ rid-pt-param-list / rid-param-list ]
+
+rid-id            = 1*(alpha-numeric / "-" / "_")
+
+;-alpha-numeric                                
+
+rid-dir           = %s"send" / %s"recv"
+
+rid-pt-param-list = SP rid-fmt-list *(";" rid-param)
+
+rid-param-list    = SP rid-param *(";" rid-param)
+
+rid-fmt-list      = %s"pt=" fmt *( "," fmt )
+
+;-fmt                                          
+
+rid-param         = rid-width-param
+                    / rid-height-param
+                    / rid-fps-param
+                    / rid-fs-param
+                    / rid-br-param
+                    / rid-pps-param
+                    / rid-bpp-param
+                    / rid-depend-param
+                    / rid-param-other
+
+rid-width-param   = %s"max-width" [ "=" int-param-val ]
+
+rid-height-param  = %s"max-height" [ "=" int-param-val ]
+
+rid-fps-param     = %s"max-fps" [ "=" int-param-val ]
+
+rid-fs-param      = %s"max-fs" [ "=" int-param-val ]
+
+rid-br-param      = %s"max-br" [ "=" int-param-val ]
+
+rid-pps-param     = %s"max-pps" [ "=" int-param-val ]
+
+rid-bpp-param     = %s"max-bpp" [ "=" float-param-val ]
+
+rid-depend-param  = %s"depend=" rid-list
+
+rid-param-other   = 1*(alpha-numeric / "-") [ "=" param-val ]
+
+rid-list          = rid-id *( "," rid-id )
+
+int-param-val     = 1*DIGIT
+
+float-param-val   = 1*DIGIT "." 1*DIGIT
+
+param-val         = *(%x20-3A / %x3C-7E)
+                    ; Any printable character except semicolon
+
+;;;; from RFC 8853
+; Extracted from IETF RFC 8853
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+sc-value     = ( sc-send [SP sc-recv] ) / ( sc-recv [SP sc-send] )
+sc-send      = %s"send" SP sc-str-list
+sc-recv      = %s"recv" SP sc-str-list
+sc-str-list  = sc-alt-list *( ";" sc-alt-list )
+sc-alt-list  = sc-id *( "," sc-id )
+sc-id-paused = "~"
+sc-id        = [sc-id-paused] rid-id
+; SP defined in [RFC5234]
+; rid-id defined in [RFC8851]
