@@ -25,6 +25,10 @@ const topProfile = process.argv[3];
 
 const dependencies = {};
 
+function log(message) {
+  console.error(message);
+}
+
 // from node-abnf/bin/abnf_check.js
 function check_refs(rules) {
   let ret = 0;
@@ -34,14 +38,14 @@ function check_refs(rules) {
       ref.name.toUpperCase()
     )) {
       const loc = ref.loc;
-      console.error(`Reference to unknown rule "${ref.name}" at ${loc.source}:${loc.start.line}`);
+      log(`Reference to unknown rule "${ref.name}" at ${loc.source}:${loc.start.line}`);
       ret = 3;
     }
   });
   for (const name in rules.defs) {
     if ((rules.findRefs(name).length === 0) && (name !== rules.first)) {
       const loc = rules.defs[name].loc;
-      console.error(`Unreferenced rule "${name}" at ${loc.source}:${loc.start.line}`);
+      log(`Unreferenced rule "${name}" at ${loc.source}:${loc.start.line}`);
       ret = 3;
     }
   }
@@ -49,20 +53,27 @@ function check_refs(rules) {
 }
 
 async function parseABNF(rfcNum, profile) {
-  // TODO: load consolidated instead when importing a dependency
-  const base = await preprocessDependencies(rfcNum, profile);
-
+  // TODO: load consolidated instead when importing a dependency?
+  let base, content;
   const file = `../source/rfc${rfcNum}.abnf`;
-  const content = await readFile(file, 'utf-8');
-  if (!importedAbnf[rfcNum]) {
+  if (importedAbnf[rfcNum]) {
+    ({base, content} = importedAbnf[rfcNum]);
+  } else {
+    base = await preprocessDependencies(rfcNum, profile);
+    content = await readFile(file, 'utf-8');
     importedAbnf[rfcNum] = {base, content};
+    await preParserDependencies(rfcNum, profile);
   }
-  await preParserDependencies(rfcNum, profile);
   return parseString(base + "\n" + importedAbnf[rfcNum].content, file);
 }
 
-function renameRule(rfcNum, name, importRfc = rfcNum) {
-  console.error(`Prefixing ${name} from ${rfcNum} with ${importRfc}`);
+function renameRule(rfcNum, name, importRfc = rfcNum, newName) {
+  if (newName) {
+    log(`Renaming ${name}  from ${rfcNum} into ${newName}`);
+  } else {
+    log(`Prefixing ${name} from ${rfcNum} with ${importRfc}`);
+    newName = `rfc${importRfc}${name}`;
+  }
   let {content, base } = importedAbnf[rfcNum];
   const offset = base.length + 1; // trailing "\n"
 
@@ -81,9 +92,9 @@ function renameRule(rfcNum, name, importRfc = rfcNum) {
     const end = start + name.length;
     if (start > offset) {
       // FIXME: rfcNum may contain profile which wouldn't be ABNF valid?
-      content = content.substr(0, start - offset) + `rfc${importRfc}${name}` + content.substr(end - offset);
+      content = content.substr(0, start - offset) + `${newName}` + content.substr(end - offset);
     } else {
-      base = base.substr(0, start) + `rfc${importRfc}${name}` + base.substr(end);
+      base = base.substr(0, start) + `${newName}` + base.substr(end);
     }
   }
   importedAbnf[rfcNum].content = content;
@@ -93,7 +104,7 @@ function renameRule(rfcNum, name, importRfc = rfcNum) {
 function deleteRule(rfcNum, def) {
   if (def) {
     const {name,loc} = def;
-    console.error(`Deleting ${name} from ${rfcNum}`);
+    log(`Deleting ${name} from ${rfcNum}`);
     let {content, base } = importedAbnf[rfcNum];
     const offset = base.length + 1; // trailing "\n"
     const {offset: start} = loc.start;
@@ -164,7 +175,7 @@ function toRfcKey(num, profile) {
 
 async function preprocessDependencies(rfcNum, profile) {
   if (!preprocessedDependencies[rfcNum]) {
-    console.error("Pre-processing dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
+    log("Pre-processing dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
     preprocessedDependencies[rfcNum] = "";
     const dependenciesDesc = await loadDependencies(rfcNum, profile);
     // sorting helps with ensuring "updates" relationship get taken up
@@ -185,7 +196,7 @@ async function preParserDependencies(rfcNum, profile) {
   // optimistically assume that definitions marked as "ignore"
   // are "=/" rules we don't want to trip over when parsing
   for (const name of (dependenciesDesc.ignore || [])) {
-    console.error(`Transforming '=/' ${name} rules from ${rfcNum} into '='`);
+    log(`Transforming '=/' ${name} rules from ${rfcNum} into '='`);
     const r = new RegExp(`^(${name} +)(=\/)`, "mi");
     if (!r.test(importedAbnf[rfcNum].content)) {
       throw new Error(`Could not find ${name} rule to neuter`);
@@ -195,7 +206,7 @@ async function preParserDependencies(rfcNum, profile) {
 }
 
 async function updateRfc(updated, updater, updatedRules, updaterRules) {
-  console.error("Updating " + updated);
+  log("Updating " + updated);
   const [updatedRfcNum, updatedProfile] = numAndProfile(updated);
   const [updaterRfcNum, updaterProfile] = numAndProfile(updater);
   if (!updaterRules) {
@@ -217,15 +228,20 @@ async function updateRfc(updated, updater, updatedRules, updaterRules) {
 async function postParserDependencies(rfcNum, rfcRules, profile) {
   if (appliedDependencies[rfcNum]) return;
 
-  console.error("Applying dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
+  log("Applying dependencies rule for " + rfcNum + (profile ? " with profile " + profile : ""));
   const dependenciesDesc = await loadDependencies(rfcNum, profile);
   // Improvement: only when the relevant terms are being used/redefined
-  for (const [name, rfc] of Object.entries(dependenciesDesc.imports || {})) {
-    await importDependency(name, ...numAndProfile(rfc));
+  for (let [name, rfc] of Object.entries(dependenciesDesc.imports || {})) {
+    let importedName = name;
+    if (rfc.name) {
+      importedName = rfc.name;
+      rfc = rfc.source;
+    }
+    await importDependency(importedName, ...numAndProfile(rfc));
     if (!importers[name]) {
       importers[name] = [];
     }
-    importers[name].push({"importer": toRfcKey(rfcNum, profile), "imported": rfc});
+    importers[name].push({"importer": toRfcKey(rfcNum, profile), "imported": rfc, importedName: importedName !== name ? importedName : undefined});
     deleteRule(rfcNum, rfcRules.defs[name.toUpperCase()]);
   }
 
@@ -258,7 +274,7 @@ async function postParserDependencies(rfcNum, rfcRules, profile) {
 
   // remove "ignore" definitions
   for (const name of (dependenciesDesc.ignore || [])) {
-    console.error(`ignoring ${name} from ${rfcNum}`);
+    log(`ignoring ${name} from ${rfcNum}`);
     deleteRule(rfcNum, rfcRules.defs[name.toUpperCase()]);
   }
 
@@ -267,14 +283,22 @@ async function postParserDependencies(rfcNum, rfcRules, profile) {
 
 async function preConsolidationDependencies() {
   const conflicts = {};
+  const renames = {};
   const importConflicts = {};
   const importedNames = Object.entries(importers).reduce((acc, [name, links]) => {
-    for (const {imported, importer} of links) {
+    for (const {imported, importer, importedName} of links) {
       if (!acc[name]) {
 	acc[name] = [];
       }
       if (!acc[name].includes(imported)) {
 	acc[name].push(imported);
+      }
+      if (importedName) {
+	if (!renames[imported]) {
+	  renames[imported] = {};
+	}
+	// TODO: detect if several distinct renames occur
+	renames[imported][importedName] = name;
       }
     }
     return acc;
@@ -295,7 +319,6 @@ async function preConsolidationDependencies() {
   }
   for (const name of Object.keys(conflicts)) {
     if (conflicts[name].length > 1) {
-      console.log(name, conflicts[name]);
       let winner = conflicts[name][0];
       if (importedNames[name]) {
 	if (importedNames[name].length > 1) {
@@ -325,11 +348,17 @@ async function preConsolidationDependencies() {
       }
     }
   }
+  for (const [rfc, rename] of Object.entries(renames)) {
+    const [rfcNum, profile] = numAndProfile(rfc);
+    for (const [origName, newName] of Object.entries(rename)) {
+      renameRule(rfcNum, origName, rfcNum, newName);
+    }
+  }
 }
 
 async function importDependency(name, rfcNum, profile) {
   const key = toRfcKey(rfcNum, profile);
-  console.error(`importing ${name} from ${key}`);
+  log(`importing ${name} from ${key}`);
   name = name.toUpperCase();
   if (!imported[key]) {
     imported[key] = {};
@@ -350,7 +379,13 @@ async function importDependency(name, rfcNum, profile) {
   return imported[key][name];
 }
 
-const topRules = await parseABNF(topRfcNum, topProfile);
+let topRules;
+try {
+  topRules = await parseABNF(topRfcNum, topProfile);
+} catch (e) {
+  console.error(e.message, e.grammarSource, e.grammarText?.substr(e.location.start.offset, e.location.end.offset - e.location.start.offset));
+  process.exit(2);
+}
 await postParserDependencies(topRfcNum, topRules, topProfile);
 
 await preConsolidationDependencies();
