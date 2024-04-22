@@ -10,7 +10,7 @@
       "tagged-ext-simple": "rfc4466",
       "capability": "rfc3501"
     },
-    "ignore": ["search-return-opt", "search-return-data", "mailbox-data"]
+    "ignore": ["search-return-opt", "search-return-data"]
   },
   {
     "name": "imapv2",

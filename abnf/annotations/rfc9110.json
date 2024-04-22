@@ -1,0 +1,40 @@
+{
+  "imports": {
+    "absolute-URI": "rfc3986",
+    "authority": "rfc3986",
+    "language-range": "rfc4647",
+    "language-tag": "rfc5646",
+    "mailbox": "rfc5322",
+    "path-abempty": "rfc3986",
+    "port": "rfc3986",
+    "query": "rfc3986",
+    "relative-part": "rfc3986",
+    "segment": "rfc3986",
+    "uri-reference": "rfc3986",
+    "uri-host": {
+      "source": "rfc3986",
+      "name": "host"
+    }
+  },
+  "conflicts": {
+    "comment": ["rfc5322"],
+    "ctext": ["rfc5322"],
+    "date": ["rfc5322"],
+    "day": ["rfc5322"],
+    "day-name": ["rfc5322"],
+    "field-name": ["rfc5322", "rfc5646"],
+    "from": ["rfc5322"],
+    "hour": ["rfc5322"],
+    "method": ["rfc5322"],
+    "minute": ["rfc5322"],
+    "month": ["rfc5322"],
+    "obs-text": ["rfc5322"],
+    "quoted-pair": ["rfc5322"],
+    "quoted-string": ["rfc5322"],
+    "second": ["rfc5322"],
+    "time-of-day": ["rfc5322"],
+    "year": ["rfc5322"]
+
+  }
+
+}

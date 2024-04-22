@@ -1,0 +1,21 @@
+{
+  "imports": {
+    "absolute-path": "rfc9110",
+    "absolute-URI": "rfc3986",
+    "authority": "rfc3986",
+    "BWS": "rfc9110",
+    "field-name": "rfc9110",
+    "field-value": "rfc9110",
+    "OWS": "rfc9110",
+    "port": "rfc9110",
+    "query": "rfc9110",
+    "quoted-string": "rfc9110",
+    "RWS": "rfc9110",
+    "token": "rfc9110",
+    "transfer-coding": "rfc9110",
+    "uri-host": {
+      "source": "rfc3986",
+      "name": "host"
+    }
+  }
+}

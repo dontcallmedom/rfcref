@@ -1,0 +1,5 @@
+{
+  "conflicts": {
+    "alphanum": ["rfc5646"]
+  }
+}
