@@ -3,5 +3,8 @@
     "abnf": "^2.0.0",
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
+  },
+  "scripts": {
+    "test": "node --test"
   }
 }
