@@ -26,17 +26,23 @@ async function annotationLoader(rfcNum) {
   return JSON.parse(data);
 }
 
-const consolidatedAbnf = await processAnnotations(process.argv[2], rfcLoader, annotationLoader);
+let consolidatedAbnf;
+if (!Object.keys(annotationLoader(topRfcNum)).length) {
+  console.error(`No annotations found for ${topRfcNum}, no consolidation needed`);
+} else {
+  consolidatedAbnf = await processAnnotations(process.argv[2], rfcLoader, annotationLoader);
+}
 
 const consolidatedAbnfPreamble = `; Extracted from IETF ${[...importedRfcs].map(rfc => `RFC ${rfc.slice(3)}`).join(", ")}
 ; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
 ; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
 `;
 
-await writeFile(`../consolidated/${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, consolidatedAbnf);
 
 try {
-  const consolidatedRules = parseString(consolidatedAbnf);
+  parseString(consolidatedAbnf);
 } catch(e) {
-  console.error(e.message);
+  console.error("Consolidated ABNF cannot be parsed", e.message);
+  process.exit(2);
 }
+await writeFile(new URL(`../consolidated/${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, import.meta.url), consolidatedAbnf);
