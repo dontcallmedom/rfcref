@@ -28,7 +28,7 @@ export function listMissingExtendedDefs(abnf) {
     } catch (e) {
       // Dedicated error types in node-abnf would be more robust
       if (e.message.match(/non-existant/)) {
-	const m = e.message.match(/: ([A-Za-z0-9]+)$/);
+	const m = e.message.match(/: ([A-Za-z0-9-]+)$/);
 	assert(m, `Could not parse error from node-abnf to find non-existant definition: ${e.message}`);
 	assert(!missingDefs.includes(m[1]), `hideMissingDefs failed to hide ${m[1]}`);
 	missingDefs.push(m[1].toUpperCase());
