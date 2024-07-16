@@ -1,0 +1,51 @@
+; Extracted from IETF RFC 9517
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+; Rules are case sensitive, if not stated otherwise.
+ddi-urn              = urn separator ddi separator ddi-irdi
+; urn is case insensitive, see [RFC8141].
+urn                  = "urn"
+; ddi is the URN namespace identifier.
+; ddi is case insensitive, see [RFC8141], Section 2.1.
+ddi                  = "ddi"
+; ddi-irdi is the namespace specific string (NSS).
+; ddi-irdi - international registration data identifier,
+; see [IS11179] Annex A.2.
+ddi-irdi             = agency-identifier separator
+                       resource-identifier separator
+                       version-identifier
+; agency-identifier is case insensitive, see [RFC4343], Section 2.
+; For allowed characters, see [RFC1035], Section 2.3.1.
+; For length restrictions, see [RFC2181], Section 11.
+agency-identifier    = top-level-domain
+                         sub-separator ddi-authority-id
+                         *(sub-separator ddi-sub-authority-id)
+                       ; length limit is 255 characters
+                       ; see Section 11 of [RFC2181]
+top-level-domain     = dns-label
+ddi-authority-id     = dns-label
+ddi-sub-authority-id = dns-label
+dns-label            = (ALPHA / DIGIT)
+                         [ *(ALPHA / DIGIT / "-")
+                           (ALPHA / DIGIT) ]
+                       ; length limit is 63 characters
+                       ; see Section 11 of [RFC2181]
+resource-identifier  = restricted-string
+                       *("/" restricted-string)
+version-identifier   = restricted-string
+                       *("/" restricted-string)
+restricted-string    = 1*(unreserved / sub-delims / "@")
+; Definitions for unreserved and sub-delims from
+; [RFC3986], Section 2.2.
+unreserved           = ALPHA / DIGIT / "-" / "." / "_" / "~"
+sub-delims           = "!" / "$" / "&" / "'" / "(" / ")" /
+                       "*" / "+" / "," / ";" / "="
+separator            = ":"
+sub-separator        = "."
+; ALPHA and DIGIT are actually defined in the ABNF
+; specification. They are declared here for convenience
+; purposes.
+ALPHA                = %x41-5A /  ; uppercase letters
+                       %x61-7A    ; lowercase letters
+DIGIT                = %x30-39    ; digits
