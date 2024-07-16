@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "email": "rfc2822",
-    "uri": "rfc3986"
-  }
-}

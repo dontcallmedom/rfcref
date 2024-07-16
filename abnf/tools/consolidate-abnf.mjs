@@ -1,5 +1,6 @@
 import { readFile, writeFile, readdir } from "fs/promises";
 import { processAnnotations } from "./lib/processAnnotations.mjs";
+import { listMissingReferencedDefs, coreNames } from "./lib/processAbnf.mjs";
 
 import { parseString } from "abnf";
 
@@ -20,14 +21,13 @@ async function annotationLoader(rfcNum) {
   try {
     data = await readFile(new URL(`../annotations/${rfcNum}.json`, import.meta.url));
   } catch (e) {
-    console.info("No annotations found for " + rfcNum);
     return {};
   }
   return JSON.parse(data);
 }
 
 let consolidatedAbnf;
-if (!Object.keys(annotationLoader(topRfcNum)).length) {
+if (!Object.keys(await annotationLoader(topRfcNum)).length) {
   console.error(`No annotations found for ${topRfcNum}, no consolidation needed`);
   consolidatedAbnf = await rfcLoader(topRfcNum);
 } else {
@@ -46,4 +46,10 @@ try {
   console.error("Consolidated ABNF cannot be parsed", e.message);
   process.exit(2);
 }
+const missing = listMissingReferencedDefs(consolidatedAbnf).filter(n => !coreNames.has(n));
+if (missing.length) {
+  console.error("The following rules are missing - likely needs to be imported:", missing.join(", "));
+  process.exit(2);
+}
+
 await writeFile(new URL(`../consolidated/${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, import.meta.url), consolidatedAbnf);
