@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "reg-name": "rfc3986",
+    "ipv6address": "rfc3986",
+    "ipv4address": "rfc3986"
+  }
+}
