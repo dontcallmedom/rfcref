@@ -46,9 +46,9 @@ try {
   console.error("Consolidated ABNF cannot be parsed", e.message);
   process.exit(2);
 }
-const missing = listMissingReferencedDefs(consolidatedAbnf).filter(n => !coreNames.has(n));
-if (missing.length) {
-  console.error("The following rules are missing - likely needs to be imported:", missing.join(", "));
+const missing = new Set(listMissingReferencedDefs(consolidatedAbnf)).difference(coreNames);
+if (missing.size) {
+  console.error("The following rules are missing - likely needs to be imported:", [...missing].join(", "));
   process.exit(2);
 }
 
