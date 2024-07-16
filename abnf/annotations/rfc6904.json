@@ -1,4 +1,8 @@
 {
+  "imports": {
+    "uri": "rfc3986",
+    "byte-string": "rfc4566"
+  },
   "extends": {
     "mapentry": "rfc5285",
     "extmap": "rfc5285",
