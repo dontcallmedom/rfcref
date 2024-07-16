@@ -113,7 +113,7 @@ export async function processAnnotations(sourceName, abnfLoader, annotationLoade
   let filteredAbnf = sourceAbnf;
 
   // FIXME: breaks if filteredAbnf is not parsable due to missing extension base
-  for (const imported of Object.keys(annotations.imports).concat([...coreNames.intersection(names)])) {
+  for (const imported of Object.keys(annotations.imports)) {
     filteredAbnf = removeRule(imported, filteredAbnf).trim();
   }
 
