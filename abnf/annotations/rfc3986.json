@@ -1,6 +1,0 @@
-{
-  "conflicts": {
-    "path": ["rfc2822"],
-    "port": ["rfc2327"]
-  }
-}

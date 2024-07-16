@@ -1,6 +1,0 @@
-{
-  "conflicts": {
-    "alphanum": ["rfc4647"],
-    "field-name": ["rfc5322", "rfc9110"]
-  }
-}
