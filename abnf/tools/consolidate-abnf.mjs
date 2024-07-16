@@ -39,9 +39,9 @@ const consolidatedAbnfPreamble = `; Extracted from IETF ${[...importedRfcs].map(
 ; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
 `;
 
-
+let consolidatedRules;
 try {
-  parseString(consolidatedAbnf);
+  consolidatedRules = parseString(consolidatedAbnf);
 } catch(e) {
   console.error("Consolidated ABNF cannot be parsed", e.message);
   process.exit(2);
@@ -50,6 +50,11 @@ const missing = new Set(listMissingReferencedDefs(consolidatedAbnf)).difference(
 if (missing.size) {
   console.error("The following rules are missing - likely needs to be imported:", [...missing].join(", "));
   process.exit(2);
+}
+
+const proseRules = Object.values(consolidatedRules.defs).filter(d => d.type === "prose");
+if (proseRules.length) {
+  console.warning("The following rules are prose declaration - check they're not hiding imports:", proseRules.map(r => r.name));
 }
 
 await writeFile(new URL(`../consolidated/${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, import.meta.url), consolidatedAbnf);
