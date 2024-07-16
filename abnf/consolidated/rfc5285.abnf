@@ -1,3 +1,6 @@
+DIGIT = %x30-39
+SP = %d32
+
 URI = scheme ":" hier-part ["?" query] ["#" fragment]
 scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
 hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
