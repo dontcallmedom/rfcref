@@ -34,5 +34,5 @@ if (rfcNum < 8650) {
 ; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
 `;
   const extract = extractPreamble + abnfNodes.map(n => n.data).join("\n");
-  fs.writeFile(`../source/rfc${rfcNum}.abnf`, extract);
+  fs.writeFile(__dirname + `/../source/rfc${rfcNum}.abnf`, extract);
 })();
