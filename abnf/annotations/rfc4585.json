@@ -1,6 +1,8 @@
 {
   "imports": {
     "fmt": "rfc4566",
-    "alpha-numeric": "rfc4566"
+    "alpha-numeric": "rfc4566",
+    "byte-string": "rfc4566",
+    "token": "rfc4566"
   }
 }

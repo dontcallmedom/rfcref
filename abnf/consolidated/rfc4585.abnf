@@ -1,0 +1,33 @@
+fmt = token
+alpha-numeric = ALPHA / DIGIT
+byte-string = 1*(%x1-9 / %xb-c / %xe-ff)
+token = 1*(rfc4566-TOKEN-CHAR)
+rfc4566-TOKEN-CHAR = %d33 / %x23-27 / %x2a-2b / %x2d-2e / %x30-39 / %x41-5a / %x5e-7e
+; Extracted from IETF RFC 4585
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rtcp-fb-syntax = "a=rtcp-fb:" rtcp-fb-pt SP rtcp-fb-val CRLF
+
+rtcp-fb-pt         = "*"   ; wildcard: applies to all formats
+                         / fmt   ; as defined in SDP spec
+
+rtcp-fb-val        = "ack" rtcp-fb-ack-param
+                         / "nack" rtcp-fb-nack-param
+                         / "trr-int" SP 1*DIGIT
+                         / rtcp-fb-id rtcp-fb-param
+
+rtcp-fb-id         = 1*(alpha-numeric / "-" / "_")
+
+rtcp-fb-param      = SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
+
+rtcp-fb-ack-param  = SP "rpsi"
+                         / SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
+
+rtcp-fb-nack-param = SP "pli"
+                         / SP "sli"
+                         / SP "rpsi"
+                         / SP "app" [SP byte-string]
+                         / SP token [SP byte-string]
