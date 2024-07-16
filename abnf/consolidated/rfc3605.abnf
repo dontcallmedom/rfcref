@@ -1,0 +1,24 @@
+space = %d32
+port = 1*(DIGIT)
+nettype = "IN"
+addrtype = "IP4" / "IP6"
+connection-address = multicast-address / addr
+multicast-address = 3*(decimal-uchar ".") decimal-uchar "/" ttl ["/" integer]
+addr = FQDN / unicast-address
+decimal-uchar = DIGIT / POS-DIGIT DIGIT / ("1" 2*(DIGIT)) / ("2" ("0" / "1" / "2" / "3" / "4") DIGIT) / ("2" "5" ("0" / "1" / "2" / "3" / "4" / "5"))
+ttl = decimal-uchar
+integer = POS-DIGIT *(DIGIT)
+FQDN = 4*(alpha-numeric / "-" / ".")
+unicast-address = IP4-address / IP6-address
+POS-DIGIT = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+alpha-numeric = ALPHA / DIGIT
+IP4-address = b1 "." decimal-uchar "." decimal-uchar "." b4
+IP6-address = <to be defined>
+b1 = decimal-uchar
+b4 = decimal-uchar
+; Extracted from IETF RFC 3605
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+rtcp-attribute =  "a=rtcp:" port  [nettype space addrtype space
+                         connection-address] CRLF

@@ -1,6 +1,9 @@
 {
   "imports": {
     "space": "rfc2327",
-    "port": "rfc3986"
+    "port": "rfc2327",
+    "nettype": "rfc2327",
+    "addrtype": "rfc2327",
+    "connection-address": "rfc2327"
   }
 }
