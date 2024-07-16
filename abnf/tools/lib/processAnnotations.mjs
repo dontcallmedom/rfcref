@@ -2,7 +2,7 @@ import promises from "node:fs";
 import assert from "node:assert";
 import { parseString } from "abnf";
 
-import { listMissingExtendedDefs, extractRulesFromDependency, renameRule, makeParsable, listNames, removeRule, rfc5234Abnf, coreNames } from "./processAbnf.mjs";
+import { listMissingExtendedDefs, extractRulesFromDependency, renameRule, makeParsable, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs } from "./processAbnf.mjs";
 
 const readFile = { promises };
 
@@ -109,16 +109,21 @@ export async function processAnnotations(sourceName, abnfLoader, annotationLoade
       base = removeRule(coreName, base).trim();
     }
   }
-  // remove rules marked as imported from original ABNF
-  let filteredAbnf = sourceAbnf;
-
-  // FIXME: breaks if filteredAbnf is not parsable due to missing extension base
-  for (const imported of Object.keys(annotations.imports)) {
-    filteredAbnf = removeRule(imported, filteredAbnf).trim();
-  }
 
   // only import what's actually needed (if anything) from core ABNF
   if (top) {
+    // remove rules marked as imported from original ABNF
+    let filteredAbnf = sourceAbnf;
+
+    // remove imported declarations (they're sometimes listed as prose rules)
+    // (but we need to make filteredAbnf parsable first)
+    const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(filteredAbnf));
+    let parsableAbnf = parsableBase + filteredAbnf;
+    for (const imported of Object.keys(annotations.imports)) {
+      parsableAbnf = removeRule(imported, parsableAbnf).trim();
+    }
+    filteredAbnf = parsableAbnf.slice(parsableBase.length);
+
     let consolidated = base + "\n" + filteredAbnf;
     const fromCore = listNames(consolidated).intersection(coreNames);
     if (fromCore.size > 0) {

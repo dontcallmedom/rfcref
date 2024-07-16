@@ -6,7 +6,7 @@ import { parseString, parseFile } from "abnf";
 
 import serialize from "./serialize.mjs";
 
-function hideMissingExtendedDefs(names) {
+export function hideMissingExtendedDefs(names) {
   return names.map(n => `${n} = <missing>`).join("\n");
 }
 
