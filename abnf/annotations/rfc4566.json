@@ -4,11 +4,5 @@
     "port": "rfc3986",
     "addr-spec": "rfc2822"
   },
-  "conflicts": {
-    "base64": ["rfc2327", "rfc3501", "rfc9051"],
-    "base64-char": ["rfc3501", "rfc9051"],
-    "text": ["rfc2327", "rfc2822", "rfc3501", "rfc9051"],
-    "time": ["rfc2327", "rfc2822", "rfc3501", "rfc9051"]
-  },
   "updates": "rfc2327"
 }

@@ -2,17 +2,5 @@
   "extends": {
     "mailbox-data": "rfc3501"
   },
-  "updates": "rfc3501",
-  "conflicts": {
-    "append": ["rfc3501", "rfc9051"],
-    "create": ["rfc3501", "rfc9051"],
-    "examine": ["rfc3501", "rfc9051"],
-    "fetch": ["rfc3501", "rfc9051"],
-    "rename": ["rfc3501", "rfc9051"],
-    "response-data": ["rfc3501", "rfc9051"],
-    "search": ["rfc3501", "rfc9051"],
-    "select": ["rfc3501", "rfc9051"],
-    "status-att-list": ["rfc3501", "rfc9051"],
-    "store": ["rfc3501", "rfc9051"]
-  }
+  "updates": "rfc3501"
 }
