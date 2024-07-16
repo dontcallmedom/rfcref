@@ -29,6 +29,7 @@ async function annotationLoader(rfcNum) {
 let consolidatedAbnf;
 if (!Object.keys(annotationLoader(topRfcNum)).length) {
   console.error(`No annotations found for ${topRfcNum}, no consolidation needed`);
+  consolidatedAbnf = await rfcLoader(topRfcNum);
 } else {
   consolidatedAbnf = await processAnnotations(process.argv[2], rfcLoader, annotationLoader);
 }
