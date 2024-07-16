@@ -119,10 +119,14 @@ export async function processAnnotations(sourceName, abnfLoader, annotationLoade
 
   // only import what's actually needed (if anything) from core ABNF
   if (top) {
-    const consolidated = base + "\n" + filteredAbnf;
+    let consolidated = base + "\n" + filteredAbnf;
     const fromCore = listNames(consolidated).intersection(coreNames);
     if (fromCore.size > 0) {
       const filteredCoreAbnf = extractRulesFromDependency([...fromCore], rfc5234Abnf);
+      for (const coreName of fromCore) {
+	consolidated = removeRule(coreName, consolidated).trim();
+      }
+
       return filteredCoreAbnf + "\n" + consolidated;
     }
     return consolidated;
