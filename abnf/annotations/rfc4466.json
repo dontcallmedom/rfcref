@@ -2,5 +2,16 @@
   "extends": {
     "mailbox-data": "rfc3501"
   },
+  "imports": {
+    "DATE-TIME": "rfc3501",
+    "FETCH-ATT": "rfc3501",
+    "RESP-COND-STATE": "rfc3501",
+    "RESP-COND-BYE": "rfc3501",
+    "MESSAGE-DATA": "rfc3501",
+    "CAPABILITY-DATA": "rfc3501",
+    "SEARCH-KEY": "rfc3501",
+    "SEQUENCE-SET": "rfc3501",
+    "STORE-ATT-FLAGS": "rfc3501"
+  },
   "updates": "rfc3501"
 }
