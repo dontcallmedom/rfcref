@@ -52,9 +52,9 @@ if (missing.size) {
   process.exit(2);
 }
 
-const proseRules = Object.values(consolidatedRules.defs).filter(d => d.type === "prose");
+const proseRules = Object.values(consolidatedRules.defs).filter(d => d.def?.type === "prose");
 if (proseRules.length) {
-  console.warning("The following rules are prose declaration - check they're not hiding imports:", proseRules.map(r => r.name));
+  console.warn("The following rules are prose declaration - check they're not hiding imports:", proseRules.map(r => `${r.name} (${r.def.str})`).join(", "));
 }
 
 await writeFile(new URL(`../consolidated/${topRfcNum}${topProfile ? `-${topProfile}` : ''}.abnf`, import.meta.url), consolidatedAbnf);
