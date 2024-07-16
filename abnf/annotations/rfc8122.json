@@ -1,4 +1,7 @@
 {
+  "imports": {
+    "token": "rfc4566"
+  },
   "extends": {
     "attribute": "rfc4566"
   }
