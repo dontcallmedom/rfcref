@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "uri-reference": "rfc3986"
+  }
+}
