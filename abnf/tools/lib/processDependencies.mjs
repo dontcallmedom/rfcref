@@ -16,6 +16,15 @@ function UC(obj) {
 }
 
 
+function removeRules(abnf, names) {
+  //  we need to make the abnf parsable first
+  const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(abnf));
+  let parsableAbnf = parsableBase + abnf;
+  for (const name of names) {
+    parsableAbnf = removeRule(name, parsableAbnf).trim();
+  }
+  return parsableAbnf.slice(parsableBase.length);
+}
 
 export async function processDependencies(sourceName, abnfLoader, dependencyLoader, stack = { sources: {}, names: []}, callers = []) {
   const top = Object.keys(stack.sources).length === 0;
@@ -72,10 +81,9 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
       continue;
     }
 
-    const sourceBase = await processDependencies(source, abnfLoader, dependencyLoader, stack, callers.slice());
-    const processedSourceAbnf = sourceBase + "\n" + importedAbnf;
+    const { base: sourceBase, abnf: processedSourceAbnf} = await processDependencies(source, abnfLoader, dependencyLoader, stack, callers.slice());
 
-    const filteredSourceAbnf = extractRulesFromDependency(sourceImported, processedSourceAbnf, new Set(stack.sources[sourceName]));
+    const filteredSourceAbnf = extractRulesFromDependency(sourceImported, sourceBase + "\n" + processedSourceAbnf, new Set(stack.sources[sourceName]));
 
     let unconflictedAbnf = filteredSourceAbnf;
     // handle previous collected aliases
@@ -106,10 +114,7 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
     base += unconflictedAbnf;
 
     for (const importedName of importedNames) {
-      if (stack.sources[source].includes(importedName)) {
-	// already imported previously, removing it
-	base = removeRule(importedName, base);
-      } else {
+      if (!stack.sources[source].includes(importedName)) {
 	// marking it as imported to avoid dup
 	stack.sources[source].push(importedName.toUpperCase());
       }
@@ -122,21 +127,11 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
     }
   }
 
-  // only import what's actually needed (if anything) from core ABNF
+  // remove rules marked as imported from original ABNF
+  let filteredAbnf = removeRules(sourceAbnf, Object.keys(dependencies.imports));
   if (top) {
-    // remove rules marked as imported from original ABNF
-    let filteredAbnf = sourceAbnf;
-
-    // remove imported declarations (they're sometimes listed as prose rules)
-    // (but we need to make filteredAbnf parsable first)
-    const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(filteredAbnf));
-    let parsableAbnf = parsableBase + filteredAbnf;
-    for (const imported of Object.keys(dependencies.imports)) {
-      parsableAbnf = removeRule(imported, parsableAbnf).trim();
-    }
-    filteredAbnf = parsableAbnf.slice(parsableBase.length);
-
     let consolidated = base + "\n" + filteredAbnf;
+    // only import what's actually needed (if anything) from core ABNF
     const fromCore = listNames(consolidated).intersection(coreNames);
     if (fromCore.size > 0) {
       const filteredCoreAbnf = extractRulesFromDependency([...fromCore], rfc5234Abnf);
@@ -144,11 +139,9 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
 	consolidated = removeRule(coreName, consolidated).trim();
       }
 
-      return filteredCoreAbnf + "\n" + consolidated;
     }
-    return consolidated;
-  } else {
-    return base;
-  }
+    return {base: "", abnf: consolidated};
 
+  }
+  return { base, abnf: filteredAbnf };
 }
