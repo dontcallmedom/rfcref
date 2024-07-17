@@ -1,6 +1,5 @@
 {
   "imports": {
-    "token": "rfc4566",
     "token-char": "rfc4566"
   }
 }

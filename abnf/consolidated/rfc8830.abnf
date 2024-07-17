@@ -1,4 +1,3 @@
-token = 1*(token-char)
 token-char = %d33 / %x23-27 / %x2a-2b / %x2d-2e / %x30-39 / %x41-5a / %x5e-7e
 ; Extracted from IETF RFC 8830
 ; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
