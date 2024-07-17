@@ -51,14 +51,22 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
 
   // TODO: this probably ought to be done once for the full stack rather than
   // per level of recursion
-  const sources = [...new Set(Object.values(dependencies.imports).concat(Object.values(dependencies.extends)))];
+  const sources = [...new Set(Object.values(dependencies.imports).map(s => s.source ?? s).concat(Object.values(dependencies.extends)))];
   for (const source of sources) {
     // TODO: add comment on source
     const importedAbnf = await abnfLoader(source);
-    const sourceImported =
-      Object.keys(dependencies.imports).concat(Object.keys(dependencies.extends))
-	  .filter(n => dependencies.imports[n] === source || dependencies.extends[n] === source)
-	  .filter(n => !stack.sources[sourceName].includes(n) && !stack.sources[source]?.includes(n));
+
+    const sourceImported = Object.keys(dependencies.extends).filter(n => dependencies.extends[n] === source);
+    //  imports can have aliases
+    let aliases = {};
+    for (const i of Object.keys(dependencies.imports)) {
+      if (dependencies.imports[i].source === source) {
+	aliases[dependencies.imports[i].name] = i;
+	sourceImported.push(dependencies.imports[i].name);
+      } else if (dependencies.imports[i] === source) {
+	sourceImported.push(i);
+      }
+    }
 
     if (!sourceImported.length) {
       continue;
@@ -70,6 +78,10 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
     const filteredSourceAbnf = extractRulesFromDependency(sourceImported, processedSourceAbnf, new Set(stack.sources[sourceName]));
 
     let unconflictedAbnf = filteredSourceAbnf;
+    // handle previous collected aliases
+    for (const alias of Object.keys(aliases)) {
+      unconflictedAbnf = renameRule(alias, aliases[alias], unconflictedAbnf);
+    }
 
     let importedNames = listNames(unconflictedAbnf);
     do {
