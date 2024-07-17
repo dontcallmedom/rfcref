@@ -1,0 +1,42 @@
+VSCHAR     = %x20-7E
+NQCHAR     = %x21 / %x23-5B / %x5D-7E
+NQSCHAR    = %x20-21 / %x23-5B / %x5D-7E
+UNICODECHARNOCRLF = %x09 /%x20-7E / %x80-D7FF /
+                    %xE000-FFFD / %x10000-10FFFF
+client-id     = *VSCHAR
+
+client-secret = *VSCHAR
+response-type = response-name *( SP response-name )
+response-name = 1*response-char
+response-char = "_" / DIGIT / ALPHA
+scope       = scope-token *( SP scope-token )
+scope-token = 1*NQCHAR
+state      = 1*VSCHAR
+
+redirect-uri      = URI-reference
+error             = 1*NQSCHAR
+
+error-description = 1*NQSCHAR
+error-uri         = URI-reference
+
+
+grant-type = grant-name / URI-reference
+grant-name = 1*name-char
+name-char  = "-" / "." / "_" / DIGIT / ALPHA
+
+code       = 1*VSCHAR
+
+access-token = 1*VSCHAR
+token-type = type-name / URI-reference
+type-name  = 1*name-char
+name-char  = "-" / "." / "_" / DIGIT / ALPHA
+
+expires-in = 1*DIGIT
+
+username = *UNICODECHARNOCRLF
+password = *UNICODECHARNOCRLF
+
+
+refresh-token = 1*VSCHAR
+param-name = 1*name-char
+name-char  = "-" / "." / "_" / DIGIT / ALPHA
