@@ -22,14 +22,12 @@ error-uri         = URI-reference
 
 grant-type = grant-name / URI-reference
 grant-name = 1*name-char
-name-char  = "-" / "." / "_" / DIGIT / ALPHA
 
 code       = 1*VSCHAR
 
 access-token = 1*VSCHAR
 token-type = type-name / URI-reference
 type-name  = 1*name-char
-name-char  = "-" / "." / "_" / DIGIT / ALPHA
 
 expires-in = 1*DIGIT
 
