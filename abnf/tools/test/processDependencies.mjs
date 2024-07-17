@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "assert";
 
-import { processAnnotations } from "../lib/processAnnotations.mjs";
+import { processDependencies } from "../lib/processDependencies.mjs";
 
 const testSources = {
   "basic": 'TEST = KNOWN',
@@ -17,7 +17,7 @@ const testSources = {
   "basicWithProseImport": "TEST = KNOWN\nKNOWN = <imported>",
 };
 
-function annotationMapper(a) {
+function dependencyMapper(a) {
   let counter = 0;
   return name => {
     counter++;
@@ -39,11 +39,11 @@ function abnfLoader(name) {
   return testSources[name];
 }
 
-const annotationTests = [
+const dependencyTests = [
   {
     desc: "imports a single name",
     abnf: "basic",
-    annotations: {
+    dependencies: {
       imports: {
 	"known": "singleRule"
       }
@@ -53,7 +53,7 @@ const annotationTests = [
   {
     desc: "imports a single name but ignore unneeded one",
     abnf: "basic",
-    annotations: {
+    dependencies: {
       imports: {
 	"known": "singleRuleWithCruft"
       }
@@ -63,7 +63,7 @@ const annotationTests = [
   {
     desc: "imports a single name and its dependent",
     abnf: "basic",
-    annotations: {
+    dependencies: {
       imports: {
 	"known": "codependentRules"
       }
@@ -73,7 +73,7 @@ const annotationTests = [
   {
     desc: "imports a name for an extension",
     abnf: "extends",
-    annotations: {
+    dependencies: {
       extends: {
 	"known": "singleRule"
       }
@@ -83,13 +83,13 @@ const annotationTests = [
   {
     desc: "throws when hitting an unlisted extension",
     abnf: "extends",
-    annotations: {},
-    error: /not listed in its annotations/
+    dependencies: {},
+    error: /not listed in its dependencies/
   },
   {
     desc: "Does not cycle indefinitely in dependency resolution",
     abnf: "basicAndVal",
-    annotations: {
+    dependencies: {
       multiple: {
 	"basicAndVal": {
 	  extends: { known: "singleRule" }
@@ -104,7 +104,7 @@ const annotationTests = [
   {
     desc: "resolves conflicting name",
     abnf: "conflicting",
-    annotations: {
+    dependencies: {
       imports: {
 	"known": "codependentRules"
       }
@@ -114,7 +114,7 @@ const annotationTests = [
   {
     desc: "resolves conflicting name two levels down",
     abnf: "deeperConflicting",
-    annotations: {
+    dependencies: {
       multiple: {
 	"deeperConflicting": {
 	  imports: {
@@ -135,7 +135,7 @@ const annotationTests = [
   {
     desc: "imports a single name and removes it from the original",
     abnf: "basicWithProseImport",
-    annotations: {
+    dependencies: {
       imports: {
 	"known": "singleRule"
       }
@@ -145,12 +145,12 @@ const annotationTests = [
 
 ];
 
-test("the ABNF annotation processor", async (t) => {
-  for (const a of annotationTests) {
+test("the ABNF dependency processor", async (t) => {
+  for (const a of dependencyTests) {
     await t.test(a.desc, async () => {
       let out;
       try {
-	out = await processAnnotations(a.abnf, abnfLoader, annotationMapper(a.annotations) );
+	out = await processDependencies(a.abnf, abnfLoader, dependencyMapper(a.dependencies) );
       } catch (e) {
 	assert(!!a.error && e.message.match(a.error), `Unexpected error: ${e.message} ${e.stack}`);
 	return;

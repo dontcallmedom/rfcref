@@ -17,21 +17,21 @@ function UC(obj) {
 
 
 
-export async function processAnnotations(sourceName, abnfLoader, annotationLoader, stack = { sources: {}, names: []}, callers = []) {
+export async function processDependencies(sourceName, abnfLoader, dependencyLoader, stack = { sources: {}, names: []}, callers = []) {
   const top = Object.keys(stack.sources).length === 0;
 
   if (!stack.sources[sourceName]) {
     stack.sources[sourceName] = [];
   }
   if (callers.includes(sourceName)) {
-    throw new Error(`Loop detected in annotations: ${callers.join(" → ")} → ${sourceName}`);
+    throw new Error(`Loop detected in dependencies: ${callers.join(" → ")} → ${sourceName}`);
   }
   callers.push(sourceName);
   const sourceAbnf = await abnfLoader(sourceName);
 
-  const annotations = await annotationLoader(sourceName) || {};
-  annotations.extends = UC(annotations.extends ?? {});
-  annotations.imports = UC(annotations.imports ?? {});
+  const dependencies = await dependencyLoader(sourceName) || {};
+  dependencies.extends = UC(dependencies.extends ?? {});
+  dependencies.imports = UC(dependencies.imports ?? {});
 
   const extendedDefs = new Set(listMissingExtendedDefs(sourceAbnf));
 
@@ -39,32 +39,32 @@ export async function processAnnotations(sourceName, abnfLoader, annotationLoade
   const names = listNames(sourceAbnf);
   // Don't add extended and imported names in the pool of conflicts
   // TODO: deal with importing alias (e.g. host aliased as uri-host)
-  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(annotations.imports)));
+  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports)));
   stack.names.push(filteredNames);
 
-  const diff = extendedDefs.difference(new Set(Object.keys(annotations.extends)));
+  const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends)));
   if (diff.size > 0) {
-    throw new Error(`${sourceName} extends definitions that are not listed in its annotations: ${[...diff].join(", ")}`);
+    throw new Error(`${sourceName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
   }
 
   let base = "";
 
   // TODO: this probably ought to be done once for the full stack rather than
   // per level of recursion
-  const sources = [...new Set(Object.values(annotations.imports).concat(Object.values(annotations.extends)))];
+  const sources = [...new Set(Object.values(dependencies.imports).concat(Object.values(dependencies.extends)))];
   for (const source of sources) {
     // TODO: add comment on source
     const importedAbnf = await abnfLoader(source);
     const sourceImported =
-      Object.keys(annotations.imports).concat(Object.keys(annotations.extends))
-	  .filter(n => annotations.imports[n] === source || annotations.extends[n] === source)
+      Object.keys(dependencies.imports).concat(Object.keys(dependencies.extends))
+	  .filter(n => dependencies.imports[n] === source || dependencies.extends[n] === source)
 	  .filter(n => !stack.sources[sourceName].includes(n) && !stack.sources[source]?.includes(n));
 
     if (!sourceImported.length) {
       continue;
     }
 
-    const sourceBase = await processAnnotations(source, abnfLoader, annotationLoader, stack, callers.slice());
+    const sourceBase = await processDependencies(source, abnfLoader, dependencyLoader, stack, callers.slice());
     const processedSourceAbnf = sourceBase + "\n" + importedAbnf;
 
     const filteredSourceAbnf = extractRulesFromDependency(sourceImported, processedSourceAbnf, new Set(stack.sources[sourceName]));
@@ -119,7 +119,7 @@ export async function processAnnotations(sourceName, abnfLoader, annotationLoade
     // (but we need to make filteredAbnf parsable first)
     const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(filteredAbnf));
     let parsableAbnf = parsableBase + filteredAbnf;
-    for (const imported of Object.keys(annotations.imports)) {
+    for (const imported of Object.keys(dependencies.imports)) {
       parsableAbnf = removeRule(imported, parsableAbnf).trim();
     }
     filteredAbnf = parsableAbnf.slice(parsableBase.length);

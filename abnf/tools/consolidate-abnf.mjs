@@ -1,5 +1,5 @@
 import { readFile, writeFile, readdir } from "fs/promises";
-import { processAnnotations } from "./lib/processAnnotations.mjs";
+import { processDependencies } from "./lib/processDependencies.mjs";
 import { listMissingReferencedDefs, coreNames } from "./lib/processAbnf.mjs";
 
 import { parseString } from "abnf";
@@ -16,10 +16,10 @@ async function rfcLoader(rfcNum) {
   return readFile(new URL(`../source/${rfcNum}.abnf`, import.meta.url), 'utf-8');
 }
 
-async function annotationLoader(rfcNum) {
+async function dependencyLoader(rfcNum) {
   let data;
   try {
-    data = await readFile(new URL(`../annotations/${rfcNum}.json`, import.meta.url));
+    data = await readFile(new URL(`../dependencies/${rfcNum}.json`, import.meta.url));
   } catch (e) {
     return {};
   }
@@ -27,11 +27,11 @@ async function annotationLoader(rfcNum) {
 }
 
 let consolidatedAbnf;
-if (!Object.keys(await annotationLoader(topRfcNum)).length) {
-  console.error(`No annotations found for ${topRfcNum}, no consolidation needed`);
+if (!Object.keys(await dependencyLoader(topRfcNum)).length) {
+  console.error(`No dependencies found for ${topRfcNum}, no consolidation needed`);
   consolidatedAbnf = await rfcLoader(topRfcNum);
 } else {
-  consolidatedAbnf = await processAnnotations(process.argv[2], rfcLoader, annotationLoader);
+  consolidatedAbnf = await processDependencies(process.argv[2], rfcLoader, dependencyLoader);
 }
 
 const consolidatedAbnfPreamble = `; Extracted from IETF ${[...importedRfcs].map(rfc => `RFC ${rfc.slice(3)}`).join(", ")}
