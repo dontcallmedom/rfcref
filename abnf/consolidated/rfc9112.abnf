@@ -1,0 +1,102 @@
+
+absolute-path = 1*("/" rfc9110-SEGMENT)
+BWS = OWS
+field-name = token
+field-value = *rfc9110-FIELD-CONTENT
+obs-text = %x80-ff
+OWS = *(SP / HTAB)
+port = *DIGIT
+query = *(rfc9110-PCHAR / "/" / "?")
+quoted-string = DQUOTE *(rfc9110-QDTEXT / rfc9110-QUOTED-PAIR) DQUOTE
+RWS = 1*(SP / HTAB)
+token = 1*rfc9110-TCHAR
+transfer-coding = token *(OWS ";" OWS rfc9110-TRANSFER-PARAMETER)
+rfc9110-SEGMENT = *rfc9110-PCHAR
+rfc9110-FIELD-CONTENT = rfc9110-FIELD-VCHAR [1*(SP / HTAB / rfc9110-FIELD-VCHAR) rfc9110-FIELD-VCHAR]
+rfc9110-PCHAR = rfc9110-UNRESERVED / rfc9110-PCT-ENCODED / rfc9110-SUB-DELIMS / ":" / "@"
+rfc9110-QDTEXT = HTAB / SP / "!" / %x23-5b / %x5d-7e / obs-text
+rfc9110-QUOTED-PAIR = "\" (HTAB / SP / VCHAR / obs-text)
+rfc9110-TCHAR = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+rfc9110-TRANSFER-PARAMETER = token BWS "=" BWS (token / quoted-string)
+rfc9110-FIELD-VCHAR = VCHAR / obs-text
+rfc9110-UNRESERVED = ALPHA / DIGIT / "-" / "." / "_" / "~"
+rfc9110-PCT-ENCODED = "%" HEXDIG HEXDIG
+rfc9110-SUB-DELIMS = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+
+
+absolute-URI = rfc3986-SCHEME ":" rfc3986-HIER-PART ["?" rfc3986-QUERY]
+authority = [rfc3986-USERINFO "@"] URI-HOST [":" rfc3986-PORT]
+URI-HOST = rfc3986-IP-LITERAL / rfc3986-IPV4ADDRESS / rfc3986-REG-NAME
+rfc3986-SCHEME = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+rfc3986-HIER-PART = "//" authority rfc3986-PATH-ABEMPTY / rfc3986-PATH-ABSOLUTE / rfc3986-PATH-ROOTLESS / rfc3986-PATH-EMPTY
+rfc3986-QUERY = *(rfc3986-PCHAR / "/" / "?")
+rfc3986-USERINFO = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS / ":")
+rfc3986-PORT = *DIGIT
+rfc3986-IP-LITERAL = "[" (rfc3986-IPV6ADDRESS / rfc3986-IPVFUTURE) "]"
+rfc3986-IPV4ADDRESS = rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET
+rfc3986-REG-NAME = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS)
+rfc3986-PATH-ABEMPTY = *("/" rfc3986-SEGMENT)
+rfc3986-PATH-ABSOLUTE = "/" [rfc3986-SEGMENT-NZ *("/" rfc3986-SEGMENT)]
+rfc3986-PATH-ROOTLESS = rfc3986-SEGMENT-NZ *("/" rfc3986-SEGMENT)
+rfc3986-PATH-EMPTY = 0<pchar>
+rfc3986-PCHAR = rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS / ":" / "@"
+rfc3986-UNRESERVED = ALPHA / DIGIT / "-" / "." / "_" / "~"
+rfc3986-PCT-ENCODED = "%" HEXDIG HEXDIG
+rfc3986-SUB-DELIMS = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+rfc3986-IPV6ADDRESS = 6(rfc3986-H16 ":") rfc3986-LS32 / "::" 5(rfc3986-H16 ":") rfc3986-LS32 / [rfc3986-H16] "::" 4(rfc3986-H16 ":") rfc3986-LS32 / [[(rfc3986-H16 ":")] rfc3986-H16] "::" 3(rfc3986-H16 ":") rfc3986-LS32 / [*2(rfc3986-H16 ":") rfc3986-H16] "::" 2(rfc3986-H16 ":") rfc3986-LS32 / [*3(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-H16 ":" rfc3986-LS32 / [*4(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-LS32 / [*5(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-H16 / [*6(rfc3986-H16 ":") rfc3986-H16] "::"
+rfc3986-IPVFUTURE = "v" 1*HEXDIG "." 1*(rfc3986-UNRESERVED / rfc3986-SUB-DELIMS / ":")
+rfc3986-DEC-OCTET = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+rfc3986-SEGMENT = *rfc3986-PCHAR
+rfc3986-SEGMENT-NZ = 1*rfc3986-PCHAR
+rfc3986-H16 = 1*4HEXDIG
+rfc3986-LS32 = (rfc3986-H16 ":" rfc3986-H16) / rfc3986-IPV4ADDRESS
+; Extracted from IETF RFC 9112
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+
+HTTP-message = start-line CRLF *( field-line CRLF ) CRLF [
+ message-body ]
+HTTP-name = %x48.54.54.50 ; HTTP
+HTTP-version = HTTP-name "/" DIGIT "." DIGIT
+
+
+
+Transfer-Encoding = [ transfer-coding *( OWS "," OWS transfer-coding
+ ) ]
+
+absolute-form = absolute-URI
+asterisk-form = "*"
+authority-form = uri-host ":" port
+
+chunk = chunk-size [ chunk-ext ] CRLF chunk-data CRLF
+chunk-data = 1*OCTET
+chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val
+ ] )
+chunk-ext-name = token
+chunk-ext-val = token / quoted-string
+chunk-size = 1*HEXDIG
+chunked-body = *chunk last-chunk trailer-section CRLF
+
+field-line = field-name ":" OWS field-value OWS
+
+last-chunk = 1*"0" [ chunk-ext ] CRLF
+
+message-body = *OCTET
+method = token
+
+obs-fold = OWS CRLF RWS
+origin-form = absolute-path [ "?" query ]
+
+
+
+reason-phrase = 1*( HTAB / SP / VCHAR / obs-text )
+request-line = method SP request-target SP HTTP-version
+request-target = origin-form / absolute-form / authority-form /
+ asterisk-form
+
+start-line = request-line / status-line
+status-code = 3DIGIT
+status-line = HTTP-version SP status-code SP [ reason-phrase ]
+
+trailer-section = *( field-line CRLF )
