@@ -46,7 +46,7 @@ detach = "DETACH"
 ;
 fsd = "FSD" SP upsname
 ;
-get = "GET" SP getsubcommnd
+get = "GET" SP getsubcommand
 getsubcommand = getcmddesc / getdesc / getnumattach /
                 gettype / getupsdesc / getvar
 ;
