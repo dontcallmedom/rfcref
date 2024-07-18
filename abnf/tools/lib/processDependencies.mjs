@@ -26,7 +26,7 @@ function removeRules(abnf, names) {
   return parsableAbnf.slice(parsableBase.length);
 }
 
-export async function processDependencies(sourceName, abnfLoader, dependencyLoader, stack = { sources: {}, names: []}, callers = []) {
+export async function processDependencies(sourceName, abnfLoader, dependencyLoader, stack = { sources: {}, names: {}}, callers = []) {
   const top = Object.keys(stack.sources).length === 0;
 
   if (!stack.sources[sourceName]) {
@@ -49,7 +49,7 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
   // Don't add extended and imported names in the pool of conflicts
   // TODO: deal with importing alias (e.g. host aliased as uri-host)
   const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports)));
-  stack.names.push(filteredNames);
+  stack.names[sourceName] = filteredNames;
 
   const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends)));
   if (diff.size > 0) {
@@ -93,24 +93,27 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
 
     let importedNames = listNames(unconflictedAbnf);
     do {
-      // TODO: this reparse content a lot of time; a smarter renaming function would avoid it
       let parentNames = new Set();
-      for (let l = 0 ; l < stack.names.length - 1; l++) {
-	parentNames = parentNames.union(stack.names[l]);
+      for (const s of callers) {
+	if (s !== source) {
+	  parentNames = parentNames.union(stack.names[s]);
+	}
       }
+
       // remove names in importing (they'll be dealt at a different level)
       const conflicts = parentNames.difference(new Set(sourceImported)).intersection(importedNames);
       if (conflicts.size === 0) break;
       const conflictingName = conflicts.values().next().value;
       const rename = `${source}-${conflictingName}`;
       // Rename any rule with a name already collected in stack
+      // TODO: this reparse content a lot of time; a smarter renaming function would avoid it
       unconflictedAbnf = renameRule(conflictingName, rename, unconflictedAbnf);
 
       importedNames = listNames(unconflictedAbnf);
     } while (true);
 
-    let last = stack.names[stack.names.length - 1];
-    last = last.union(importedNames);
+    stack.names[sourceName] = stack.names[sourceName].union(importedNames);
+
     base += unconflictedAbnf;
 
     for (const importedName of importedNames) {
