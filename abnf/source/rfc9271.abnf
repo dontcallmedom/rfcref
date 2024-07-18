@@ -1,0 +1,96 @@
+; Extracted from IETF RFC 9271
+; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
+; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
+
+;-------------------------------------------------------------------
+; This grammar is case sensitive. Terminal keywords SHOULD be
+; written in uppercase, as shown.
+; The following basic rules written with uppercase names are
+; taken from RFC 5234, Appendix B.1.
+SP = 1*%x20                  ; At least one SPACE
+LF = %x0A                    ; Linefeed
+DIGIT = %x30-39              ; Digit 0 through 9
+ALPHA =  %x41-5A / %x61-7A   ; A-Z / a-z
+DQUOTE = %x22                ; Double quote "
+VCHAR = %x21-7E              ; Visible (printing) characters
+; Additional basic rules needed by this grammar
+LC = %x61-7A                 ; Letter a through z
+DOT = 1%x2E                  ; Exactly one .
+COLON = 1%x3A                ; Exactly one :
+AT = 1%x40                   ; Exactly one @
+SEP = 1"-" / 1"_" / 1"."     ; A single - or _ or .
+JOIN = COLON / AT            ; A single : or @
+; Frequently used in this grammar
+cmdname = 1*LC *62(DOT 1*LC) ; E.g., load.off.delay
+upschar = DIGIT / ALPHA / SEP
+ups = 1*ALPHA *62upschar     ; E.g., Example-Mfg-999
+group = ups                  ; E.g., HB  (Not in common use)
+hostname = ups               ; E.g., example.com
+port = 1*5DIGIT              ; E.g., 3493
+upsname = [group COLON] ups [AT hostname [COLON port]]
+                             ; Fully Qualified UPS name
+                             ; E.g.,
+                             ; HB:heartbeat1@example.com:3493
+username = ups               ; E.g., Power-Dept.6
+varname = 1*LC *62( DOT 1*(DIGIT / LC) )
+                             ; E.g., outlet.1.status
+;-------------------------------------------------------------------
+commandLine = command LF     ; LF is a single %x0A
+command = attach / detach / fsd / get / help / instcmd /
+          list / password / primary / protver / set /
+          starttls / username / ver
+;
+attach  = "ATTACH" SP upsname
+;
+detach = "DETACH"
+;
+fsd = "FSD" SP upsname
+;
+get = "GET" SP getsubcommnd
+getsubcommand = getcmddesc / getdesc / getnumattach /
+                gettype / getupsdesc / getvar
+;
+getcmddesc =   "CMDDESC" SP upsname SP cmdname
+getdesc =      "DESC" SP upsname SP varname
+getnumattach = "NUMATTACH" SP upsname
+gettype =      "TYPE" SP upsname SP varname
+getupsdesc =   "UPSDESC" SP upsname
+getvar =       "VAR" SP upsname SP varname
+;
+help = "HELP"
+;
+instcmd = "INSTCMD" SP upsname SP cmdname
+;
+list = "LIST" listsubcommand
+listsubcommand = listclient / listcmd / listenum / listrange /
+                 listrw / listups / listvar
+;
+listclient = "CLIENT" SP upsname
+listcmd =    "CMD" SP upsname
+listenum =   "ENUM" SP upsname SP varname
+listrange =  "RANGE" SP upsname SP varname
+listrw =     "RW" SP upsname
+listups =    "UPS"
+listvar =    "VAR" SP upsname
+;
+session-password = "PASSWORD" SP *63VCHAR
+                      ; A sequence of printable characters defined
+                      ; in a server configuration file.  Local
+                      ; security practices may mandate a minimum
+                      ; and maximum number of characters.
+;
+primary = "PRIMARY" SP upsname
+;
+protver = "PROTVER"
+;
+value = *63VCHAR      ; Local practices may limit the choice of
+                      ; characters and require non-US-ASCII.
+set = "SET" SP %s"VAR" SP upsname SP varname SP
+      DQUOTE value DQUOTE
+;
+starttls = "STARTTLS"
+;
+session-username = "USERNAME" SP username
+;
+ver = "VER"
+;-------------------------------------------------------------------
