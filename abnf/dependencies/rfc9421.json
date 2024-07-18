@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "field-content": "rfc9110",
+    "parameters": "rfc8941",
+    "sf-string": "rfc8941",
+    "inner-list": "rfc8941"
+  }
+}
