@@ -1138,7 +1138,7 @@ iana-prop = iana-token *(";" icalparameter) ":" value CRLF
 x-prop = x-name *(";" icalparameter) ":" value CRLF
 
 rstatus    = "REQUEST-STATUS" rstatparam ":"
-                    statcode ";" statdesc [";" extdata]
+                    statcode ";" statdesc [";" extdata] CRLF
 
 rstatparam = *(
                   ;
