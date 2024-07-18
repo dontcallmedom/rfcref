@@ -1,4 +1,4 @@
-ontentline   = name *(";" param ) ":" value CRLF
+contentline   = name *(";" param ) ":" value CRLF
 name          = iana-token / x-name
 
 iana-token    = 1*(ALPHA / DIGIT / "-")
