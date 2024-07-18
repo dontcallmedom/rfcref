@@ -1,55 +1,55 @@
 
-absolute-path = 1*("/" rfc9110-SEGMENT)
+absolute-path = 1*("/" segment)
 BWS = OWS
 field-name = token
-field-value = *rfc9110-FIELD-CONTENT
+field-value = *field-content
 obs-text = %x80-ff
 OWS = *(SP / HTAB)
 port = *DIGIT
-query = *(rfc9110-PCHAR / "/" / "?")
-quoted-string = DQUOTE *(rfc9110-QDTEXT / rfc9110-QUOTED-PAIR) DQUOTE
+query = *(pchar / "/" / "?")
+quoted-string = DQUOTE *(qdtext / quoted-pair) DQUOTE
 RWS = 1*(SP / HTAB)
-token = 1*rfc9110-TCHAR
-transfer-coding = token *(OWS ";" OWS rfc9110-TRANSFER-PARAMETER)
-rfc9110-SEGMENT = *rfc9110-PCHAR
-rfc9110-FIELD-CONTENT = rfc9110-FIELD-VCHAR [1*(SP / HTAB / rfc9110-FIELD-VCHAR) rfc9110-FIELD-VCHAR]
-rfc9110-PCHAR = rfc9110-UNRESERVED / rfc9110-PCT-ENCODED / rfc9110-SUB-DELIMS / ":" / "@"
-rfc9110-QDTEXT = HTAB / SP / "!" / %x23-5b / %x5d-7e / obs-text
-rfc9110-QUOTED-PAIR = "\" (HTAB / SP / VCHAR / obs-text)
-rfc9110-TCHAR = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
-rfc9110-TRANSFER-PARAMETER = token BWS "=" BWS (token / quoted-string)
-rfc9110-FIELD-VCHAR = VCHAR / obs-text
-rfc9110-UNRESERVED = ALPHA / DIGIT / "-" / "." / "_" / "~"
-rfc9110-PCT-ENCODED = "%" HEXDIG HEXDIG
-rfc9110-SUB-DELIMS = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+token = 1*tchar
+transfer-coding = token *(OWS ";" OWS transfer-parameter)
+segment = *pchar
+field-content = field-vchar [1*(SP / HTAB / field-vchar) field-vchar]
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+qdtext = HTAB / SP / "!" / %x23-5b / %x5d-7e / obs-text
+quoted-pair = "\" (HTAB / SP / VCHAR / obs-text)
+tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+transfer-parameter = token BWS "=" BWS (token / quoted-string)
+field-vchar = VCHAR / obs-text
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+pct-encoded = "%" HEXDIG HEXDIG
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 
-absolute-URI = rfc3986-SCHEME ":" rfc3986-HIER-PART ["?" rfc3986-QUERY]
-authority = [rfc3986-USERINFO "@"] URI-HOST [":" rfc3986-PORT]
-URI-HOST = rfc3986-IP-LITERAL / rfc3986-IPV4ADDRESS / rfc3986-REG-NAME
-rfc3986-SCHEME = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
-rfc3986-HIER-PART = "//" authority rfc3986-PATH-ABEMPTY / rfc3986-PATH-ABSOLUTE / rfc3986-PATH-ROOTLESS / rfc3986-PATH-EMPTY
+absolute-URI = scheme ":" hier-part ["?" rfc3986-QUERY]
+authority = [userinfo "@"] URI-HOST [":" rfc3986-PORT]
+URI-HOST = IP-literal / IPv4address / reg-name
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
 rfc3986-QUERY = *(rfc3986-PCHAR / "/" / "?")
-rfc3986-USERINFO = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS / ":")
+userinfo = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS / ":")
 rfc3986-PORT = *DIGIT
-rfc3986-IP-LITERAL = "[" (rfc3986-IPV6ADDRESS / rfc3986-IPVFUTURE) "]"
-rfc3986-IPV4ADDRESS = rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET "." rfc3986-DEC-OCTET
-rfc3986-REG-NAME = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS)
-rfc3986-PATH-ABEMPTY = *("/" rfc3986-SEGMENT)
-rfc3986-PATH-ABSOLUTE = "/" [rfc3986-SEGMENT-NZ *("/" rfc3986-SEGMENT)]
-rfc3986-PATH-ROOTLESS = rfc3986-SEGMENT-NZ *("/" rfc3986-SEGMENT)
-rfc3986-PATH-EMPTY = 0<pchar>
+IP-literal = "[" (IPv6address / IPvFuture) "]"
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+reg-name = *(rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS)
+path-abempty = *("/" rfc3986-SEGMENT)
+path-absolute = "/" [segment-nz *("/" rfc3986-SEGMENT)]
+path-rootless = segment-nz *("/" rfc3986-SEGMENT)
+path-empty = 0<pchar>
 rfc3986-PCHAR = rfc3986-UNRESERVED / rfc3986-PCT-ENCODED / rfc3986-SUB-DELIMS / ":" / "@"
 rfc3986-UNRESERVED = ALPHA / DIGIT / "-" / "." / "_" / "~"
 rfc3986-PCT-ENCODED = "%" HEXDIG HEXDIG
 rfc3986-SUB-DELIMS = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-rfc3986-IPV6ADDRESS = 6(rfc3986-H16 ":") rfc3986-LS32 / "::" 5(rfc3986-H16 ":") rfc3986-LS32 / [rfc3986-H16] "::" 4(rfc3986-H16 ":") rfc3986-LS32 / [[(rfc3986-H16 ":")] rfc3986-H16] "::" 3(rfc3986-H16 ":") rfc3986-LS32 / [*2(rfc3986-H16 ":") rfc3986-H16] "::" 2(rfc3986-H16 ":") rfc3986-LS32 / [*3(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-H16 ":" rfc3986-LS32 / [*4(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-LS32 / [*5(rfc3986-H16 ":") rfc3986-H16] "::" rfc3986-H16 / [*6(rfc3986-H16 ":") rfc3986-H16] "::"
-rfc3986-IPVFUTURE = "v" 1*HEXDIG "." 1*(rfc3986-UNRESERVED / rfc3986-SUB-DELIMS / ":")
-rfc3986-DEC-OCTET = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
+IPvFuture = "v" 1*HEXDIG "." 1*(rfc3986-UNRESERVED / rfc3986-SUB-DELIMS / ":")
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
 rfc3986-SEGMENT = *rfc3986-PCHAR
-rfc3986-SEGMENT-NZ = 1*rfc3986-PCHAR
-rfc3986-H16 = 1*4HEXDIG
-rfc3986-LS32 = (rfc3986-H16 ":" rfc3986-H16) / rfc3986-IPV4ADDRESS
+segment-nz = 1*rfc3986-PCHAR
+h16 = 1*4HEXDIG
+ls32 = (h16 ":" h16) / IPv4address
 ; Extracted from IETF RFC 9112
 ; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
 ; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
