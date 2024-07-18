@@ -1157,18 +1157,3 @@ rstatparam = *(
 statcode   = 1*DIGIT 1*2("." 1*DIGIT)
 statdesc   = text
 extdata    = text
-method  = 1*(ALPHA / DIGIT / "-")
-component = "VEVENT"
-                 / "VTODO"
-                 / "VJOURNAL"
-                 / "VFREEBUSY"
-                 / "VTIMEZONE"
-                 / iana-token
-                 / x-name
-
-optinfo    = infovalue / qinfovalue
-
-infovalue  = iana-token / x-name
-
-qinfovalue = DQUOTE (infovalue) DQUOTE
-
