@@ -26,7 +26,7 @@ function removeRules(abnf, names) {
   return parsableAbnf.slice(parsableBase.length);
 }
 
-export async function processDependencies(sourceName, abnfLoader, dependencyLoader, stack = { sources: {}, names: {}}, callers = []) {
+export async function processDependencies({source: sourceName, profile}, abnfLoader, dependencyLoader, stack = { sources: {}, names: {}}, callers = []) {
   const top = Object.keys(stack.sources).length === 0;
 
   if (!stack.sources[sourceName]) {
@@ -38,19 +38,19 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
   callers.push(sourceName);
   const sourceAbnf = await abnfLoader(sourceName);
 
-  const dependencies = await dependencyLoader(sourceName) || {};
+  let dependencies = await dependencyLoader(sourceName) || {};
+  if (profile) {
+    dependencies = dependencies.find(d => d.name === profile);
+  }
   dependencies.extends = UC(dependencies.extends ?? {});
   dependencies.imports = UC(dependencies.imports ?? {});
-
   const extendedDefs = new Set(listMissingExtendedDefs(sourceAbnf));
 
   // Initialize list of names for conflict detection
   const names = listNames(sourceAbnf);
   // Don't add extended and imported names in the pool of conflicts
-  // TODO: deal with importing alias (e.g. host aliased as uri-host)
   const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports)));
   stack.names[sourceName] = filteredNames;
-
   const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends)));
   if (diff.size > 0) {
     throw new Error(`${sourceName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
@@ -81,7 +81,7 @@ export async function processDependencies(sourceName, abnfLoader, dependencyLoad
       continue;
     }
 
-    const { base: sourceBase, abnf: processedSourceAbnf} = await processDependencies(source, abnfLoader, dependencyLoader, stack, callers.slice());
+    const { base: sourceBase, abnf: processedSourceAbnf} = await processDependencies({source}, abnfLoader, dependencyLoader, stack, callers.slice());
 
     const filteredSourceAbnf = extractRulesFromDependency(sourceImported, sourceBase + "\n" + processedSourceAbnf, new Set(stack.sources[sourceName]));
 

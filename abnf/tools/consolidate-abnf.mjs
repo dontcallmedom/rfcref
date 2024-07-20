@@ -7,6 +7,12 @@ import { parseString } from "abnf";
 const topRfcNum = process.argv[2];
 const topProfile = process.argv[3];
 
+if (!topRfcNum) {
+  console.error(`Missing rfc<num> as first parameter`);
+  process.exit(2);
+}
+
+
 const importedRfcs = new Set();
 
 
@@ -27,11 +33,23 @@ async function dependencyLoader(rfcNum) {
 }
 
 let consolidatedAbnf;
-if (!Object.keys(await dependencyLoader(topRfcNum)).length) {
+let dependencies = await dependencyLoader(topRfcNum);
+if (Array.isArray(dependencies)) {
+  if (!topProfile) {
+    console.error(`Dependencies for ${topRfcNum} are organized in ${dependencies.length} profiles, which must be named as a second parameter. Possible values: ${dependencies.map(d => d.name).join(", ")}`);
+    process.exit(2);
+  }
+  dependencies = dependencies.find(d => d.name === topProfile);
+  if (!dependencies) {
+    console.error(`Unknown profile ${topProfile}. Possible values for profile of dependencies for ${topRfcNum} are: ${dependencies.map(d => d.name).join(", ")}`);
+    process.exit(2);
+  }
+}
+if (!Object.keys(dependencies)) {
   console.error(`No dependencies found for ${topRfcNum}, no consolidation needed`);
   consolidatedAbnf = await rfcLoader(topRfcNum);
 } else {
-  const { base, abnf } = await processDependencies(process.argv[2], rfcLoader, dependencyLoader);
+  const { base, abnf } = await processDependencies({source: topRfcNum, profile: topProfile}, rfcLoader, dependencyLoader);
   consolidatedAbnf = base + "\n" + abnf;
 }
 
