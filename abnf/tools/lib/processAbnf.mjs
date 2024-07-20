@@ -114,13 +114,29 @@ export function extractRulesFromDependency(names, dependencyAbnf, skip = new Set
   return extractedAbnfSegments.join("\n") + "\n";
 }
 
+
 export function removeRule(name, abnf) {
   const rules = parseString(abnf);
   const def = rules.defs[name.toUpperCase()];
+  const rangesToDelete = [];
   if (def) {
     const {name,loc} = def;
     const {offset: start} = loc.start;
     const {offset: end} = loc.end;
+
+    // are there any non local rule (typically =/ extensions)?
+    if (def.def.type === "alternation") {
+      for (const alt of  def.def.alts) {
+	if (alt.loc.start.offset> end || alt.loc.end.offset < start) {
+	  // the parser only gives us the location of the RHS definition
+	  // we assume the left-hand side starts at the start of the given line
+	  rangesToDelete.push({start: alt.loc.start.offset + 1 - alt.loc.start.column, end: alt.loc.end.offset});
+	}
+      }
+    }
+    rangesToDelete.push({start, end});
+  }
+  for (const {start, end} of rangesToDelete.sort((a, b) => b.end - a.end)) {
     const len = abnf.length;
     abnf = abnf.substr(0, start) + abnf.substr(end);
   }

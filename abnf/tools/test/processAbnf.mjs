@@ -3,7 +3,7 @@ import assert from "assert";
 
 import { parseString } from "abnf";
 
-import { listMissingExtendedDefs, listMissingReferencedDefs, makeParsable, extractSegment, extractRulesFromDependency, renameRule } from "../lib/processAbnf.mjs";
+import { listMissingExtendedDefs, listMissingReferencedDefs, makeParsable, extractSegment, extractRulesFromDependency, renameRule, removeRule } from "../lib/processAbnf.mjs";
 
 test("the ABNF preprocessor", async (t) => {
   await t.test("returns an emtpy list when there are no extensions of unknown definitions", () => {
@@ -58,6 +58,11 @@ test("the ABNF preprocessor", async (t) => {
   await t.test("renames a rule and its invokations", () => {
     const abnf = 'first = %x31\nknown = *another\nuntouched = %x30\nanother = "another value"\nequality = another / untouched';
     assert.equal(renameRule("another", "somethingelse", abnf),  'first = %x31\nknown = *somethingelse\nuntouched = %x30\nsomethingelse = "another value"\nequality = somethingelse / untouched');
+  });
+
+  await t.test("removes a rule and its extensions", () => {
+    const abnf = 'first = %x31\nuntouched = %x30\nfirst =/ "second"';
+    assert.equal(removeRule("first", abnf),  'untouched = %x30\n');
   });
 
 

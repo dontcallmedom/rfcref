@@ -15,15 +15,15 @@ function UC(obj) {
   }
 }
 
-
 function removeRules(abnf, names) {
   //  we need to make the abnf parsable first
   const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(abnf));
-  let parsableAbnf = parsableBase + abnf;
+  const cutMarker ='; ----------------- X CUT THERE X -------\n';
+  let parsableAbnf = parsableBase + '\n' + cutMarker + abnf;
   for (const name of names) {
     parsableAbnf = removeRule(name, parsableAbnf).trim();
   }
-  return parsableAbnf.slice(parsableBase.length);
+  return parsableAbnf.split(cutMarker)[1];
 }
 
 export async function processDependencies({source: sourceName, profile}, abnfLoader, dependencyLoader, stack = { sources: {}, names: {}}, callers = []) {
@@ -36,7 +36,7 @@ export async function processDependencies({source: sourceName, profile}, abnfLoa
     throw new Error(`Loop detected in dependencies: ${callers.join(" → ")} → ${sourceName}`);
   }
   callers.push(sourceName);
-  const sourceAbnf = await abnfLoader(sourceName);
+  let sourceAbnf = await abnfLoader(sourceName);
 
   let dependencies = await dependencyLoader(sourceName) || {};
   if (profile) {
@@ -44,18 +44,21 @@ export async function processDependencies({source: sourceName, profile}, abnfLoa
   }
   dependencies.extends = UC(dependencies.extends ?? {});
   dependencies.imports = UC(dependencies.imports ?? {});
+  dependencies.ignore = UC(dependencies.ignore ?? []);
   const extendedDefs = new Set(listMissingExtendedDefs(sourceAbnf));
 
   // Initialize list of names for conflict detection
   const names = listNames(sourceAbnf);
-  // Don't add extended and imported names in the pool of conflicts
-  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports)));
+  // Don't add extended, imported and ignored names in the pool of conflicts
+  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports))).difference(new Set(dependencies.ignore));
   stack.names[sourceName] = filteredNames;
-  const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends)));
+  const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends))).difference(new Set(dependencies.ignore));
   if (diff.size > 0) {
     throw new Error(`${sourceName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
   }
 
+  // Remove ignored rules
+  sourceAbnf = removeRules(sourceAbnf, dependencies.ignore);
   let base = "";
 
   // TODO: this probably ought to be done once for the full stack rather than
