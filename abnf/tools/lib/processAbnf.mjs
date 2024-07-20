@@ -21,6 +21,7 @@ export const coreNames = listNames(rfc5234Abnf);
 
 export function listMissingExtendedDefs(abnf) {
   const missingDefs = [];
+  const origAbnf = abnf;
   while(true) {
     try {
       parseString(abnf);
@@ -36,7 +37,7 @@ export function listMissingExtendedDefs(abnf) {
 	throw e;
       }
     }
-    abnf = hideMissingExtendedDefs(missingDefs) + "\n" + abnf;
+    abnf = hideMissingExtendedDefs(missingDefs) + "\n" + origAbnf;
   }
 }
 
