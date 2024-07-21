@@ -67,7 +67,8 @@ try {
 }
 const missing = new Set(listMissingReferencedDefs(consolidatedAbnf)).difference(coreNames);
 if (missing.size) {
-  console.error("The following rules are missing - likely needs to be imported:", [...missing].join(", "));
+  console.error("The following rules are missing - likely needs to be imported:", [...missing].join(", "), ` (draft dependencies file saved in dependencies/${topRfcNum}.json.dist)`);
+  await writeFile(new URL(`../dependencies/${topRfcNum}.json.dist`, import.meta.url), JSON.stringify({ imports: Object.fromEntries([...missing].map(m => [m, ""]))}, null, 2));
   process.exit(2);
 }
 
