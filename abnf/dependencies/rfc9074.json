@@ -14,7 +14,7 @@
     "IANA-COMP": "rfc5545",
     "UID": "rfc5545",
     "RELATED": "rfc5545",
-    "DATETIME": "rfc5545",
+    "DATE-TIME": "rfc5545",
     "OTHER-PARAM": "rfc5545",
     "LOCATIONC": "rfc9073",
     "IANA-TOKEN": "rfc5545",
