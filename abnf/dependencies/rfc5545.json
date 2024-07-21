@@ -1,5 +1,11 @@
 {
   "imports": {
-    "uri": "rfc3986"
+    "uri": "rfc3986",
+    "utf8-2": "rfc3629",
+    "utf8-3": "rfc3629",
+    "utf8-4": "rfc3629",
+    "type-name": "rfc4288",
+    "subtype-name": "rfc4288",
+    "language-tag": "rfc5646"
   }
 }
