@@ -166,7 +166,7 @@ locprop      = *(
                ; The following are OPTIONAL
                ; but MUST NOT occur more than once.
                ;
-               description / geo / loctype / name
+               description / geo / loctype / name / url /
                ;
                ; The following are OPTIONAL
                ; and MAY occur more than once.
