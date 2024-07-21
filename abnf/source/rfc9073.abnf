@@ -146,7 +146,7 @@ partprop     = *(
                ;
                attach / categories / comment
                contact / location / rstatus / related /
-               resources / strucloc / strucres /
+               resources /
                styleddescription / sdataprop / iana-prop
                ;
                )
