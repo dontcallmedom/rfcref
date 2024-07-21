@@ -123,7 +123,7 @@ alarmprop       =/ (
                    )
 
 
-acknowledged = "ACKNOWLEDGED" *acknowledgedparam ":" datetime CRLF
+acknowledged = "ACKNOWLEDGED" *acknowledgedparam ":" date-time CRLF
 
 acknowledgedparam  = (
                      ;
