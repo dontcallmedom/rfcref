@@ -1,0 +1,12 @@
+{
+  "extends": {
+    "eventprop": "rfc5545",
+    "todoprop": "rfc5545",
+    "jourprop": "rfc5545",
+    "fbprop": "rfc5545"
+  },
+  "imports": {
+    "ALARMC": "rfc5545",
+    "NAME": "rfc7986"
+  }
+}
