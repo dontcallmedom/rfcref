@@ -6,8 +6,12 @@ import { processDependencies } from "../lib/processDependencies.mjs";
 const testSources = {
   "basic": 'TEST = KNOWN',
   "basicAndVal": 'TEST = KNOWN\nVAL = "value"',
+  "cycle": 'VAL =/ TEST\nKNOWN = "known"',
   "extends" : 'KNOWN =/ "another"',
   "conflicting": 'TEST = KNOWN\nANOTHER = "conflict"',
+  "multiimport": 'KNOWN = KNOWN2\nANOTHER=KNOWN3',
+  "multiimport2": 'KNOWN2 = KNOWN3',
+  "multiimport3": 'KNOWN3 = "known"',
   "deeperConflicting": 'TEST = KNOWN\nANOTHER = "conflict"\nTEST2 = KNOWN2',
   "singleRule": 'KNOWN = "known"',
   "singleRuleWithCruft": 'KNOWN = "known"\nUNNEEDED = "unneeded"',
@@ -71,6 +75,26 @@ const dependencyTests = [
     out: testSources.codependentRules
   },
   {
+    desc: "imports names several times in a dependency tree",
+    abnf: "multiimport",
+    dependencies: {
+      multiple: {
+	"multiimport": {
+	  imports: {
+	    "known2": "multiimport2",
+	    "known3": "multiimport3"
+	  }
+	},
+	"multiimport2": {
+	  imports: {
+	    "known3": "multiimport3"
+	  }
+	}
+      }
+    },
+    out: 'KNOWN2 = KNOWN3\nKNOWN3 = "known"'
+  },
+  {
     desc: "imports a name for an extension",
     abnf: "extends",
     dependencies: {
@@ -92,10 +116,11 @@ const dependencyTests = [
     dependencies: {
       multiple: {
 	"basicAndVal": {
-	  extends: { known: "singleRule" }
+	  imports: { known: "cycle" },
 	},
-	"singleRule": {
-	  imports: { val: "basicAndVal" }
+	"cycle": {
+	  extends: { val: "basicAndVal" },
+	  imports: { test: "basicAndVal" }
 	}
       }
     },

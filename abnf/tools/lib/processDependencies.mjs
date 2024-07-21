@@ -26,12 +26,9 @@ function removeRules(abnf, names, abnfName) {
   return parsableAbnf.split(cutMarker)[1];
 }
 
-export async function processDependencies({abnfName, profile}, abnfLoader, dependencyLoader, stack = { sources: {}, names: {}}, callers = []) {
-  const top = Object.keys(stack.sources).length === 0;
+export async function processDependencies({abnfName, profile}, abnfLoader, dependencyLoader, stack = { names: {}}, callers = []) {
+  const top = callers.length === 0;
 
-  if (!stack.sources[abnfName]) {
-    stack.sources[abnfName] = [];
-  }
   if (callers.includes(abnfName)) {
     throw new Error(`Loop detected in dependencies: ${callers.join(" → ")} → ${abnfName}`);
   }
@@ -52,7 +49,7 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
 
   // Don't add extended, imported and ignored names in the pool of conflicts
   const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports))).difference(new Set(dependencies.ignore));
-  stack.names[abnfName] = filteredNames;
+  stack.names[abnfName] = [...filteredNames].reduce((acc, n) => {acc[n] = abnfName; return acc;}, {});
   const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends))).difference(new Set(dependencies.ignore));
   if (diff.size > 0) {
     throw new Error(`${abnfName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
@@ -79,10 +76,12 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
     //  imports can have aliases
     let aliases = {};
     for (const i of Object.keys(dependencies.imports)) {
-      if (dependencies.imports[i].source === dependencyName) {
+      const name = dependencies.imports[i].name ?? i;
+      const alreadyImported = stack.names[dependencyName] && stack.names[dependencyName][name] === (dependencies.imports[i].source ?? dependencies.imports[i]);
+      if (dependencies.imports[i].source === dependencyName && !alreadyImported) {
 	aliases[dependencies.imports[i].name] = i;
 	toBeImportedNames.push(dependencies.imports[i].name);
-      } else if (dependencies.imports[i] === dependencyName) {
+      } else if (dependencies.imports[i] === dependencyName && !alreadyImported) {
 	toBeImportedNames.push(i);
       }
     }
@@ -93,8 +92,10 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
 
     const { base: dependencyBase, abnf: processedDependencyAbnf} = await processDependencies({abnfName: dependencyName}, abnfLoader, dependencyLoader, stack, callers.slice());
 
-    const filteredSourceAbnf = extractRulesFromDependency(toBeImportedNames, dependencyBase + "\n" + processedDependencyAbnf, dependencyName, new Set(stack.sources[abnfName]));
-
+    const alreadyImportedNames =
+	  new Set(Object.keys(stack.names[abnfName])
+		  .filter(n => stack.names[abnfName][n] !== abnfName));
+    const filteredSourceAbnf = extractRulesFromDependency(toBeImportedNames, dependencyBase + "\n" + processedDependencyAbnf, dependencyName, alreadyImportedNames);
     let unconflictedAbnf = filteredSourceAbnf;
     // handle previous collected aliases
     for (const alias of Object.keys(aliases)) {
@@ -102,11 +103,12 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
     }
 
     let importedNames = listNames(unconflictedAbnf, dependencyName);
+
     do {
       let parentNames = new Set();
       for (const s of callers) {
 	if (s !== dependencyName) {
-	  parentNames = parentNames.union(stack.names[s]);
+	  parentNames = parentNames.union(new Set(Object.keys(stack.names[s]).filter(n => stack.names[s][n] !== dependencyName)));
 	}
       }
 
@@ -122,16 +124,13 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
       importedNames = listNames(unconflictedAbnf, dependencyName);
     } while (true);
 
-    stack.names[abnfName] = stack.names[abnfName].union(importedNames);
-
-    base += unconflictedAbnf;
-
-    for (const importedName of importedNames) {
-      if (!stack.sources[dependencyName].includes(importedName)) {
-	// marking it as imported to avoid dup
-	stack.sources[dependencyName].push(importedName.toUpperCase());
+    for (const n of importedNames) {
+      if (!stack.names[abnfName][n]) {
+	stack.names[abnfName][n] = stack.names[dependencyName][n] ?? dependencyName;
       }
     }
+
+    base += unconflictedAbnf;
   }
   // remove rules from core ABNF, they'll get added in the end
   if (base.trim()) {
