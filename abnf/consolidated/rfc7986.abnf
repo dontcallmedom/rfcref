@@ -1,0 +1,438 @@
+
+calprops = *(prodid / version / calscale / method / x-prop / iana-prop)
+eventprop = *(dtstamp / uid / dtstart / class / created / description / geo / last-mod / location / organizer / priority / seq / status / summary / transp / url / recurid / rrule / dtend / duration / attach / attendee / categories / comment / contact / exdate / rstatus / related / resources / rdate / x-prop / iana-prop)
+todoprop = *(dtstamp / uid / class / completed / created / description / dtstart / geo / last-mod / location / organizer / percent / priority / recurid / seq / status / summary / url / rrule / due / duration / attach / attendee / categories / comment / contact / exdate / rstatus / related / resources / rdate / x-prop / iana-prop)
+jourprop = *(dtstamp / uid / class / created / dtstart / last-mod / organizer / recurid / seq / status / summary / url / rrule / attach / attendee / categories / comment / contact / description / exdate / related / rdate / rstatus / x-prop / iana-prop)
+prodid = "PRODID" pidparam ":" pidvalue CRLF
+version = "VERSION" verparam ":" vervalue CRLF
+calscale = "CALSCALE" calparam ":" calvalue CRLF
+method = "METHOD" metparam ":" metvalue CRLF
+x-prop = x-name *(";" icalparameter) ":" value CRLF
+iana-prop = iana-token *(";" icalparameter) ":" value CRLF
+dtstamp = "DTSTAMP" stmparam ":" date-time CRLF
+uid = "UID" uidparam ":" text CRLF
+dtstart = "DTSTART" dtstparam ":" dtstval CRLF
+class = "CLASS" classparam ":" classvalue CRLF
+created = "CREATED" creaparam ":" date-time CRLF
+description = "DESCRIPTION" descparam ":" text CRLF
+geo = "GEO" geoparam ":" geovalue CRLF
+last-mod = "LAST-MODIFIED" lstparam ":" date-time CRLF
+location = "LOCATION" locparam ":" text CRLF
+organizer = "ORGANIZER" orgparam ":" cal-address CRLF
+priority = "PRIORITY" prioparam ":" priovalue CRLF
+seq = "SEQUENCE" seqparam ":" integer CRLF
+status = "STATUS" statparam ":" statvalue CRLF
+summary = "SUMMARY" summparam ":" text CRLF
+transp = "TRANSP" transparam ":" transvalue CRLF
+url = "URL" urlparam ":" uri CRLF
+recurid = "RECURRENCE-ID" ridparam ":" ridval CRLF
+rrule = "RRULE" rrulparam ":" recur CRLF
+dtend = "DTEND" dtendparam ":" dtendval CRLF
+duration = "DURATION" durparam ":" dur-value CRLF
+attach = "ATTACH" attachparam (":" uri) / (";" "ENCODING" "=" "BASE64" ";" "VALUE" "=" "BINARY" ":" binary) CRLF
+attendee = "ATTENDEE" attparam ":" cal-address CRLF
+categories = "CATEGORIES" catparam ":" text *("," text) CRLF
+comment = "COMMENT" commparam ":" text CRLF
+contact = "CONTACT" contparam ":" text CRLF
+exdate = "EXDATE" exdtparam ":" exdtval *("," exdtval) CRLF
+rstatus = "REQUEST-STATUS" rstatparam ":" statcode ";" statdesc [";" extdata] CRLF
+related = "RELATED-TO" relparam ":" text CRLF
+resources = "RESOURCES" resrcparam ":" text *("," text) CRLF
+rdate = "RDATE" rdtparam ":" rdtval *("," rdtval) CRLF
+completed = "COMPLETED" compparam ":" date-time CRLF
+percent = "PERCENT-COMPLETE" pctparam ":" integer CRLF
+due = "DUE" dueparam ":" dueval CRLF
+pidparam = *(";" other-param)
+pidvalue = text
+verparam = *(";" other-param)
+vervalue = "2.0" / maxver / (minver ";" maxver)
+calparam = *(";" other-param)
+calvalue = "GREGORIAN"
+metparam = *(";" other-param)
+metvalue = iana-token
+x-name = "X-" [vendorid "-"] 1*(ALPHA / DIGIT / "-")
+icalparameter = altrepparam / cnparam / cutypeparam / delfromparam / deltoparam / dirparam / encodingparam / fmttypeparam / fbtypeparam / languageparam / memberparam / partstatparam / rangeparam / trigrelparam / reltypeparam / roleparam / rsvpparam / sentbyparam / tzidparam / valuetypeparam / other-param
+value = *VALUE-CHAR
+iana-token = 1*(ALPHA / DIGIT / "-")
+stmparam = *(";" other-param)
+date-time = date "T" time
+uidparam = *(";" other-param)
+text = *(TSAFE-CHAR / ":" / DQUOTE / ESCAPED-CHAR)
+dtstparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dtstval = date-time / date
+classparam = *(";" other-param)
+classvalue = "PUBLIC" / "PRIVATE" / "CONFIDENTIAL" / iana-token / x-name
+creaparam = *(";" other-param)
+descparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+geoparam = *(";" other-param)
+geovalue = float ";" float
+lstparam = *(";" other-param)
+locparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+orgparam = *((";" cnparam) / (";" dirparam) / (";" sentbyparam) / (";" languageparam) / (";" other-param))
+cal-address = uri
+prioparam = *(";" other-param)
+priovalue = integer
+seqparam = *(";" other-param)
+integer = (["+"] / "-") 1*DIGIT
+statparam = *(";" other-param)
+statvalue = (statvalue-event / statvalue-todo / statvalue-jour)
+summparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+transparam = *(";" other-param)
+transvalue = "OPAQUE" / "TRANSPARENT"
+urlparam = *(";" other-param)
+URI = scheme ":" hier-part ["?" query] ["#" fragment]
+ridparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" rangeparam) / (";" other-param))
+ridval = date-time / date
+rrulparam = *(";" other-param)
+recur = recur-rule-part *(";" recur-rule-part)
+dtendparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dtendval = date-time / date
+durparam = *(";" other-param)
+dur-value = (["+"] / "-") "P" (dur-date / dur-time / dur-week)
+attachparam = *((";" fmttypeparam) / (";" other-param))
+binary = *(4b-char) [b-end]
+attparam = *((";" cutypeparam) / (";" memberparam) / (";" roleparam) / (";" partstatparam) / (";" rsvpparam) / (";" deltoparam) / (";" delfromparam) / (";" sentbyparam) / (";" cnparam) / (";" dirparam) / (";" languageparam) / (";" other-param))
+catparam = *((";" languageparam) / (";" other-param))
+commparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+contparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+exdtparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+exdtval = date-time / date
+rstatparam = *((";" languageparam) / (";" other-param))
+statcode = 1*DIGIT 1*2("." 1*DIGIT)
+statdesc = text
+extdata = text
+relparam = *((";" reltypeparam) / (";" other-param))
+resrcparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+rdtparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE" / "PERIOD")) / (";" tzidparam) / (";" other-param))
+rdtval = date-time / date / period
+compparam = *(";" other-param)
+pctparam = *(";" other-param)
+dueparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dueval = date-time / date
+other-param = (iana-param / x-param)
+maxver = <A IANA-registered iCalendar version identifier>
+minver = <A IANA-registered iCalendar version identifier>
+vendorid = 3*(ALPHA / DIGIT)
+altrepparam = "ALTREP" "=" DQUOTE uri DQUOTE
+cnparam = "CN" "=" param-value
+cutypeparam = "CUTYPE" "=" ("INDIVIDUAL" / "GROUP" / "RESOURCE" / "ROOM" / "UNKNOWN" / x-name / iana-token)
+delfromparam = "DELEGATED-FROM" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+deltoparam = "DELEGATED-TO" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+dirparam = "DIR" "=" DQUOTE uri DQUOTE
+encodingparam = "ENCODING" "=" ("8BIT" / "BASE64")
+fmttypeparam = "FMTTYPE" "=" type-name "/" subtype-name
+fbtypeparam = "FBTYPE" "=" ("FREE" / "BUSY" / "BUSY-UNAVAILABLE" / "BUSY-TENTATIVE" / x-name / iana-token)
+languageparam = "LANGUAGE" "=" language
+memberparam = "MEMBER" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+partstatparam = "PARTSTAT" "=" (partstat-event / partstat-todo / partstat-jour)
+rangeparam = "RANGE" "=" "THISANDFUTURE"
+trigrelparam = "RELATED" "=" ("START" / "END")
+reltypeparam = "RELTYPE" "=" ("PARENT" / "CHILD" / "SIBLING" / iana-token / x-name)
+roleparam = "ROLE" "=" ("CHAIR" / "REQ-PARTICIPANT" / "OPT-PARTICIPANT" / "NON-PARTICIPANT" / x-name / iana-token)
+rsvpparam = "RSVP" "=" ("TRUE" / "FALSE")
+sentbyparam = "SENT-BY" "=" DQUOTE cal-address DQUOTE
+tzidparam = "TZID" "=" [tzidprefix] paramtext
+valuetypeparam = "VALUE" "=" valuetype
+VALUE-CHAR = WSP / %x21-7e / NON-US-ASCII
+date = date-value
+time = time-hour time-minute time-second [time-utc]
+TSAFE-CHAR = WSP / %d33 / %x23-2b / %x2d-39 / %x3c-5b / %x5d-7e / NON-US-ASCII
+ESCAPED-CHAR = ("\\" / "\;" / "\," / "\N" / "\n")
+float = (["+"] / "-") 1*DIGIT ["." 1*DIGIT]
+statvalue-event = "TENTATIVE" / "CONFIRMED" / "CANCELLED"
+statvalue-todo = "NEEDS-ACTION" / "COMPLETED" / "IN-PROCESS" / "CANCELLED"
+statvalue-jour = "DRAFT" / "FINAL" / "CANCELLED"
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+query = *(pchar / "/" / "?")
+fragment = *(pchar / "/" / "?")
+recur-rule-part = ("FREQ" "=" freq) / ("UNTIL" "=" enddate) / ("COUNT" "=" 1*DIGIT) / ("INTERVAL" "=" 1*DIGIT) / ("BYSECOND" "=" byseclist) / ("BYMINUTE" "=" byminlist) / ("BYHOUR" "=" byhrlist) / ("BYDAY" "=" bywdaylist) / ("BYMONTHDAY" "=" bymodaylist) / ("BYYEARDAY" "=" byyrdaylist) / ("BYWEEKNO" "=" bywknolist) / ("BYMONTH" "=" bymolist) / ("BYSETPOS" "=" bysplist) / ("WKST" "=" weekday)
+dur-date = dur-day [dur-time]
+dur-time = "T" (dur-hour / dur-minute / dur-second)
+dur-week = 1*DIGIT "W"
+b-char = ALPHA / DIGIT / "+" / "/"
+b-end = (2b-char "==") / (3b-char "=")
+period = period-explicit / period-start
+iana-param = iana-token "=" param-value *("," param-value)
+x-param = x-name "=" param-value *("," param-value)
+param-value = paramtext / quoted-string
+type-name = rfc4288-REG-NAME
+subtype-name = rfc4288-REG-NAME
+language = Language-Tag
+partstat-event = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / "TENTATIVE" / "DELEGATED" / x-name / iana-token)
+partstat-todo = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / "TENTATIVE" / "DELEGATED" / "COMPLETED" / "IN-PROCESS" / x-name / iana-token)
+partstat-jour = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / x-name / iana-token)
+tzidprefix = "/"
+paramtext = *SAFE-CHAR
+valuetype = ("BINARY" / "BOOLEAN" / "CAL-ADDRESS" / "DATE" / "DATE-TIME" / "DURATION" / "FLOAT" / "INTEGER" / "PERIOD" / "RECUR" / "TEXT" / "TIME" / "URI" / "UTC-OFFSET" / x-name / iana-token)
+NON-US-ASCII = UTF8-2 / UTF8-3 / UTF8-4
+date-value = date-fullyear date-month date-mday
+time-hour = 2DIGIT
+time-minute = 2DIGIT
+time-second = 2DIGIT
+time-utc = "Z"
+authority = [userinfo "@"] host [":" port]
+path-abempty = *("/" segment)
+path-absolute = "/" [segment-nz *("/" segment)]
+path-rootless = segment-nz *("/" segment)
+path-empty = 0<pchar>
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+freq = "SECONDLY" / "MINUTELY" / "HOURLY" / "DAILY" / "WEEKLY" / "MONTHLY" / "YEARLY"
+enddate = date / date-time
+byseclist = (seconds *("," seconds))
+byminlist = (minutes *("," minutes))
+byhrlist = (hour *("," hour))
+bywdaylist = (weekdaynum *("," weekdaynum))
+bymodaylist = (monthdaynum *("," monthdaynum))
+byyrdaylist = (yeardaynum *("," yeardaynum))
+bywknolist = (weeknum *("," weeknum))
+bymolist = (monthnum *("," monthnum))
+bysplist = (setposday *("," setposday))
+weekday = "SU" / "MO" / "TU" / "WE" / "TH" / "FR" / "SA"
+dur-day = 1*DIGIT "D"
+dur-hour = 1*DIGIT "H" [dur-minute]
+dur-minute = 1*DIGIT "M" [dur-second]
+dur-second = 1*DIGIT "S"
+period-explicit = date-time "/" date-time
+period-start = date-time "/" dur-value
+quoted-string = DQUOTE *QSAFE-CHAR DQUOTE
+rfc4288-REG-NAME = 1*127reg-name-chars
+Language-Tag = langtag / privateuse / grandfathered
+SAFE-CHAR = WSP / %d33 / %x23-2b / %x2d-39 / %x3c-7e / NON-US-ASCII
+UTF8-2 = %xc2-df UTF8-tail
+UTF8-3 = %d195 %xa0-bf UTF8-tail / %xe1-ec 2(UTF8-tail) / %d195 %x80-9f UTF8-tail / %xee-ef 2(UTF8-tail)
+UTF8-4 = %d195 %x90-bf 2(UTF8-tail) / %xf1-f3 3(UTF8-tail) / %d195 %x80-8f 2(UTF8-tail)
+date-fullyear = 4DIGIT
+date-month = 2DIGIT
+date-mday = 2DIGIT
+userinfo = *(unreserved / pct-encoded / sub-delims / ":")
+host = IP-literal / IPv4address / reg-name
+port = *DIGIT
+segment = *pchar
+segment-nz = 1*pchar
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+pct-encoded = "%" HEXDIG HEXDIG
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+seconds = 1*2DIGIT
+minutes = 1*2DIGIT
+hour = 1*2DIGIT
+weekdaynum = [[plus / minus] ordwk] weekday
+monthdaynum = [plus / minus] ordmoday
+yeardaynum = [plus / minus] ordyrday
+weeknum = [plus / minus] ordwk
+monthnum = 1*2DIGIT
+setposday = yeardaynum
+QSAFE-CHAR = WSP / %d33 / %x23-7e / NON-US-ASCII
+reg-name-chars = ALPHA / DIGIT / "!" / "#" / "$" / "&" / "." / "+" / "-" / "^" / "_"
+langtag = rfc5646-LANGUAGE ["-" script] ["-" region] *("-" variant) *("-" extension) ["-" privateuse]
+privateuse = "x" 1*("-" (1*8alphanum))
+grandfathered = irregular / regular
+UTF8-tail = %x80-bf
+IP-literal = "[" (IPv6address / IPvFuture) "]"
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+reg-name = *(unreserved / pct-encoded / sub-delims)
+plus = "+"
+minus = "-"
+ordwk = 1*2DIGIT
+ordmoday = 1*2DIGIT
+ordyrday = 1*3DIGIT
+rfc5646-LANGUAGE = 2*3ALPHA ["-" extlang] / 4ALPHA / 5*8ALPHA
+script = 4ALPHA
+region = 2ALPHA / 3DIGIT
+variant = 5*8alphanum / (DIGIT 3alphanum)
+extension = singleton 1*("-" (2*8alphanum))
+alphanum = (ALPHA / DIGIT)
+irregular = "en-GB-oed" / "i-ami" / "i-bnn" / "i-default" / "i-enochian" / "i-hak" / "i-klingon" / "i-lux" / "i-mingo" / "i-navajo" / "i-pwn" / "i-tao" / "i-tay" / "i-tsu" / "sgn-BE-FR" / "sgn-BE-NL" / "sgn-CH-DE"
+regular = "art-lojban" / "cel-gaulish" / "no-bok" / "no-nyn" / "zh-guoyu" / "zh-hakka" / "zh-min" / "zh-min-nan" / "zh-xiang"
+IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
+IPvFuture = "v" 1*HEXDIG "." 1*(unreserved / sub-delims / ":")
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+extlang = 3ALPHA *2("-" 3ALPHA)
+singleton = DIGIT / %x41-57 / %x59-5a / %x61-77 / %x79-7a
+h16 = 1*4HEXDIG
+ls32 = (h16 ":" h16) / IPv4address
+calprops =/ *(
+                ;
+                ; The following are OPTIONAL,
+                ; but MUST NOT occur more than once.
+                ;
+                uid / last-mod / url /
+                refresh / source / color
+                ;
+                ; The following are OPTIONAL,
+                ; and MAY occur more than once.
+                ;
+                name / description / categories /
+                image
+                ;
+                )
+
+eventprop =/ *(
+                 ;
+                 ; The following are OPTIONAL,
+                 ; but MUST NOT occur more than once.
+                 ;
+                 color /
+                 ;
+                 ; The following are OPTIONAL,
+                 ; and MAY occur more than once.
+                 ;
+                 conference / image
+                 ;
+                 )
+
+todoprop =/ *(
+                ;
+                ; The following are OPTIONAL,
+                ; but MUST NOT occur more than once.
+                ;
+                color /
+                ;
+                ; The following are OPTIONAL,
+                ; and MAY occur more than once.
+                ;
+                conference / image
+                ;
+                )
+
+jourprop =/ *(
+                ;
+                ; The following are OPTIONAL,
+                ; but MUST NOT occur more than once.
+                ;
+                color /
+                ;
+                ; The following are OPTIONAL,
+                ; and MAY occur more than once.
+                ;
+                image
+                ;
+                )
+
+name       = "NAME" nameparam ":" text CRLF
+
+nameparam  = *(
+                 ;
+                 ; The following are OPTIONAL,
+                 ; but MUST NOT occur more than once.
+                 ;
+                 (";" altrepparam) / (";" languageparam) /
+                 ;
+                 ; The following is OPTIONAL,
+                 ; and MAY occur more than once.
+                 ;
+                 (";" other-param)
+                 ;
+                 )
+
+refresh      = "REFRESH-INTERVAL" refreshparam
+                    ":" dur-value CRLF
+                    ;consisting of a positive duration of time.
+
+refreshparam = *(
+                   ;
+                   ; The following is REQUIRED,
+                   ; but MUST NOT occur more than once.
+                   ;
+                   (";" "VALUE" "=" "DURATION") /
+                   ;
+                   ; The following is OPTIONAL,
+                   ; and MAY occur more than once.
+                   ;
+                   (";" other-param)
+                   ;
+                   )
+
+source       = "SOURCE" sourceparam ":" uri CRLF
+
+sourceparam = *(";" other-param)
+
+color          = "COLOR" colorparam ":" text CRLF
+                     ; Value is CSS3 color name
+
+colorparam     = *(";" other-param)
+
+image      = "IMAGE" imageparam
+                (
+                  (
+                    ";" "VALUE" "=" "URI"
+                    ":" uri
+                  ) /
+                  (
+                    ";" "ENCODING" "=" "BASE64"
+                    ";" "VALUE" "=" "BINARY"
+                    ":" binary
+                  )
+                )
+                CRLF
+
+imageparam = *(
+                 ;
+                 ; The following is OPTIONAL for a URI value,
+                 ; RECOMMENDED for a BINARY value,
+                 ; and MUST NOT occur more than once.
+                 ;
+                 (";" fmttypeparam) /
+                 ;
+                 ; The following are OPTIONAL,
+                 ; and MUST NOT occur more than once.
+                 ;
+                 (";" altrepparam) / (";" displayparam) /
+                 ;
+                 ; The following is OPTIONAL,
+                 ; and MAY occur more than once.
+                 ;
+                 (";" other-param)
+                 ;
+                 )
+
+conference = "CONFERENCE" confparam  ":" uri CRLF
+
+confparam  = *(
+                 ;
+                 ; The following is REQUIRED,
+                 ; but MUST NOT occur more than once.
+                 ;
+                 (";" "VALUE" "=" "URI") /
+                 ;
+                 ; The following are OPTIONAL,
+                 ; and MUST NOT occur more than once.
+                 ;
+                 (";" featureparam) / (";" labelparam) /
+                 (";" languageparam ) /
+                 ;
+                 ; The following is OPTIONAL,
+                 ; and MAY occur more than once.
+                 ;
+                 (";" other-param)
+                 ;
+                 )
+
+displayparam = "DISPLAY" "=" displayval *("," displayval)
+
+displayval =  ("BADGE" /     ; image inline with the title of the
+                                ; event
+                  "GRAPHIC" /   ; a full image replacement for the event
+                                ; itself
+                  "FULLSIZE" /  ; an image that is used to enhance the
+                                ; event
+                  "THUMBNAIL" / ; a smaller variant of "FULLSIZE" to be
+                                ; used when space for the image is
+                                ; constrained
+                  x-name /      ; Experimental type
+                  iana-token)   ; Other IANA-registered type
+                                ;
+                                ; Default is BADGE
+
+emailparam = "EMAIL" "=" param-value
+featureparam = "FEATURE" "=" featuretext *("," featuretext)
+featuretext  =  ("AUDIO" /     ; Audio capability
+                    "CHAT" /      ; Chat or instant messaging
+                    "FEED" /      ; Blog or Atom feed
+                    "MODERATOR" / ; Moderator dial-in code
+                    "PHONE" /     ; Phone conference
+                    "SCREEN" /    ; Screen sharing
+                    "VIDEO" /     ; Video capability
+                    x-name /      ; Experimental type
+                    iana-token)   ; Other IANA-registered type
+labelparam = "LABEL" "=" param-value
