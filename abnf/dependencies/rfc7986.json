@@ -1,0 +1,8 @@
+{
+  "extends": {
+    "calprops": "rfc5545",
+    "eventprop": "rfc5545",
+    "todoprop": "rfc5545",
+    "jourprop": "rfc5545"
+  }
+}
