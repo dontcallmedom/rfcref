@@ -2,7 +2,7 @@ import promises from "node:fs";
 import assert from "node:assert";
 import { parseString } from "abnf";
 
-import { listMissingExtendedDefs, extractRulesFromDependency, renameRule, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs } from "./processAbnf.mjs";
+import { listMissingExtendedDefs, listMissingReferencedDefs, extractRulesFromDependency, makeParsable, renameRule, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs } from "./processAbnf.mjs";
 
 const readFile = { promises };
 
@@ -49,6 +49,7 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
 
   // Initialize list of names for conflict detection
   const names = listNames(abnf, abnfName);
+
   // Don't add extended, imported and ignored names in the pool of conflicts
   const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports))).difference(new Set(dependencies.ignore));
   stack.names[abnfName] = filteredNames;
@@ -56,6 +57,14 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
   if (diff.size > 0) {
     throw new Error(`${abnfName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
   }
+
+  const unknownRefs = new Set(listMissingReferencedDefs(makeParsable(abnf, abnfName), abnfName))
+	.difference(new Set(Object.keys(dependencies.imports)))
+	.difference(coreNames);
+  if (unknownRefs.size) {
+    throw new Error(`${abnfName} needs to import referenced definitions ${[...unknownRefs].join(', ')} `);
+  }
+
 
   // Remove ignored rules
   abnf = removeRules(abnf, dependencies.ignore, abnfName);
