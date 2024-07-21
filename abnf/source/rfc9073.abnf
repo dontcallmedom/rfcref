@@ -189,7 +189,7 @@ resprop      = *(
                ; The following are OPTIONAL
                ; but MUST NOT occur more than once.
                ;
-               description / geo / name / restype /
+               description / geo / name / restypeprop /
                ;
                ; The following are OPTIONAL
                ; and MAY occur more than once.
