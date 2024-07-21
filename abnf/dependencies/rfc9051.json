@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "utf8-2": "rfc3629",
+    "utf8-3": "rfc3629",
+    "utf8-4": "rfc3629",
+    "utf8-char": "rfc3629"
+  }
+}
