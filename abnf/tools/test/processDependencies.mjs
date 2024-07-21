@@ -150,7 +150,7 @@ test("the ABNF dependency processor", async (t) => {
     await t.test(a.desc, async () => {
       let out;
       try {
-	out = (await processDependencies({source: a.abnf}, abnfLoader, dependencyMapper(a.dependencies) )).abnf;
+	out = (await processDependencies({abnfName: a.abnf}, abnfLoader, dependencyMapper(a.dependencies) )).abnf;
       } catch (e) {
 	assert(!!a.error && e.message.match(a.error), `Unexpected error: ${e.message} ${e.stack}`);
 	return;

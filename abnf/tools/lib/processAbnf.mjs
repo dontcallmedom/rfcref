@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { readFile } from "fs/promises";
 
 // TODO: add memoized version of parseString on a hash of ABNF to avoid reparsing
-import { parseString, parseFile } from "abnf";
+import { parseString } from "abnf";
 
 import serialize from "./serialize.mjs";
 
@@ -10,8 +10,8 @@ export function hideMissingExtendedDefs(names) {
   return names.map(n => `${n} = <missing>`).join("\n");
 }
 
-export function listNames(abnf) {
-  const rules = parseString(makeParsable(abnf));
+export function listNames(abnf, sourceName) {
+  const rules = parseString(makeParsable(abnf), sourceName);
   return new Set(Object.keys(rules.defs).map(n => n.toUpperCase()));
 }
 
@@ -19,18 +19,18 @@ export function listNames(abnf) {
 export const rfc5234Abnf = await readFile(new URL('../../source/rfc5234.abnf', import.meta.url), 'utf-8');
 export const coreNames = listNames(rfc5234Abnf);
 
-export function listMissingExtendedDefs(abnf) {
+export function listMissingExtendedDefs(abnf, sourceName) {
   const missingDefs = [];
   const origAbnf = abnf;
   while(true) {
     try {
-      parseString(abnf);
+      parseString(abnf, sourceName + ` with pseudo defs for ${missingDefs.join(', ')}`);
       return missingDefs;
     } catch (e) {
       // Dedicated error types in node-abnf would be more robust
       if (e.message.match(/non-existant/)) {
 	const m = e.message.match(/: ([A-Za-z0-9-]+)$/);
-	assert(m, `Could not parse error from node-abnf to find non-existant definition: ${e.message}`);
+	assert(m, `Could not parse error from node-abnf to find non-existant definition in ${sourceName}: ${e.message}`);
 	assert(!missingDefs.includes(m[1]), `hideMissingDefs failed to hide ${m[1]}`);
 	missingDefs.push(m[1].toUpperCase());
       } else {
@@ -41,9 +41,9 @@ export function listMissingExtendedDefs(abnf) {
   }
 }
 
-export function listMissingReferencedDefs(abnf) {
+export function listMissingReferencedDefs(abnf, sourceName) {
   const referencedDefs = [];
-  const rules = parseString(abnf);
+  const rules = parseString(abnf, sourceName);
   rules.refs.forEach(ref => {
     if (!rules.defs[ref.name.toUpperCase()]) {
       referencedDefs.push(ref.name.toUpperCase());
@@ -53,9 +53,9 @@ export function listMissingReferencedDefs(abnf) {
 }
 
 
-export function listUnreferencedDefs(abnf) {
+export function listUnreferencedDefs(abnf, sourceName) {
   const unreferencedDefs = [];
-  const rules = parseString(abnf);
+  const rules = parseString(abnf, sourceName);
 
   for (const name in rules.defs) {
     if ((rules.findRefs(name).length === 0)) {
@@ -67,8 +67,8 @@ export function listUnreferencedDefs(abnf) {
 }
 
 
-export function makeParsable(abnf) {
-  const missingDefs = listMissingExtendedDefs(abnf);
+export function makeParsable(abnf, sourceName) {
+  const missingDefs = listMissingExtendedDefs(abnf, sourceName);
   return hideMissingExtendedDefs(missingDefs) + "\n" + abnf;
 }
 
@@ -76,11 +76,11 @@ function extractLoc(abnf, loc) {
   return abnf.substr(loc.start.offset, loc.end.offset - loc.start.offset - 1);
 }
 
-export function extractSegment(abnf, name) {
-  const parsedRules = parseString(abnf);
+export function extractSegment(abnf, name, sourceName) {
+  const parsedRules = parseString(abnf, sourceName);
   const def = parsedRules.defs[name.toUpperCase()];
   if (!def) {
-    throw new Error(`Cannot extract rule named ${name} from parsed rules`);
+    throw new Error(`Cannot extract rule named ${name} from parsed rules for ${sourceName}`);
   }
   return serialize(def);
 }
@@ -90,13 +90,13 @@ export function extractSegment(abnf, name) {
   returns that rule and all other rules it depends on in that ABNF
   throws if that ABNF doesn't have all the rules needed for that
 */
-export function extractRulesFromDependency(names, dependencyAbnf, skip = new Set()) {
+export function extractRulesFromDependency(names, dependencyAbnf, dependencyName, skip = new Set()) {
   if (!Array.isArray(names)) {
     names = [names];
   }
   let extractedAbnfSegments = [];
   for (const name of names) {
-    extractedAbnfSegments.push(extractSegment(dependencyAbnf, name));
+    extractedAbnfSegments.push(extractSegment(dependencyAbnf, name, dependencyName));
   }
   skip = skip.union(new Set(names.map(n => n.toUpperCase())));
   let missingDefs;
@@ -106,7 +106,7 @@ export function extractRulesFromDependency(names, dependencyAbnf, skip = new Set
     missingDefs = missingDefs.difference(coreNames);
     missingDefs = missingDefs.difference(skip);
     if (missingDefs.size) {
-      extractedAbnfSegments.push(extractRulesFromDependency([...missingDefs], dependencyAbnf, skip));
+      extractedAbnfSegments.push(extractRulesFromDependency([...missingDefs], dependencyAbnf, dependencyName, skip));
     } else {
       break;
     }
@@ -115,8 +115,8 @@ export function extractRulesFromDependency(names, dependencyAbnf, skip = new Set
 }
 
 
-export function removeRule(name, abnf) {
-  const rules = parseString(abnf);
+export function removeRule(name, abnf, sourceName) {
+  const rules = parseString(abnf, sourceName);
   const def = rules.defs[name.toUpperCase()];
   const rangesToDelete = [];
   if (def) {
@@ -143,8 +143,8 @@ export function removeRule(name, abnf) {
   return abnf;
 }
 
-export function renameRule(name, newname, abnf) {
-  const rules = parseString(abnf);
+export function renameRule(name, newname, abnf, sourceName) {
+  const rules = parseString(abnf, sourceName);
   const instances = rules.refs.filter(r => r.name.toUpperCase() === name.toUpperCase());
   const def = rules.defs[name.toUpperCase()];
   if (def) {
