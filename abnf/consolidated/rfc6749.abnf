@@ -1,72 +1,60 @@
-URI-reference = URI / relative-ref
-URI = scheme ":" hier-part ["?" query] ["#" fragment]
-relative-ref = relative-part ["?" query] ["#" fragment]
-scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
-hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
-query = *(pchar / "/" / "?")
-fragment = *(pchar / "/" / "?")
-relative-part = "//" authority path-abempty / path-absolute / path-noscheme / path-empty
 authority = [userinfo "@"] host [":" port]
-path-abempty = *("/" segment)
-path-absolute = "/" [segment-nz *("/" segment)]
-path-rootless = segment-nz *("/" segment)
-path-empty = 0<pchar>
-pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
-path-noscheme = segment-nz-nc *("/" segment)
-userinfo = *(unreserved / pct-encoded / sub-delims / ":")
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+fragment = *(pchar / "/" / "?")
+h16 = 1*4HEXDIG
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
 host = IP-literal / IPv4address / reg-name
-port = *DIGIT
-segment = *pchar
-segment-nz = 1*pchar
-unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
-pct-encoded = "%" HEXDIG HEXDIG
-sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-segment-nz-nc = 1*(unreserved / pct-encoded / sub-delims / "@")
 IP-literal = "[" (IPv6address / IPvFuture) "]"
 IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
-reg-name = *(unreserved / pct-encoded / sub-delims)
 IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
 IPvFuture = "v" 1*HEXDIG "." 1*(unreserved / sub-delims / ":")
-dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
-h16 = 1*4HEXDIG
 ls32 = (h16 ":" h16) / IPv4address
-VSCHAR     = %x20-7E
-NQCHAR     = %x21 / %x23-5B / %x5D-7E
-NQSCHAR    = %x20-21 / %x23-5B / %x5D-7E
-UNICODECHARNOCRLF = %x09 /%x20-7E / %x80-D7FF /
-                    %xE000-FFFD / %x10000-10FFFF
-client-id     = *VSCHAR
-
-client-secret = *VSCHAR
-response-type = response-name *( SP response-name )
-response-name = 1*response-char
-response-char = "_" / DIGIT / ALPHA
-scope       = scope-token *( SP scope-token )
-scope-token = 1*NQCHAR
-state      = 1*VSCHAR
-
-redirect-uri      = URI-reference
-error             = 1*NQSCHAR
-
-error-description = 1*NQSCHAR
-error-uri         = URI-reference
-
-
-grant-type = grant-name / URI-reference
-grant-name = 1*name-char
-
-code       = 1*VSCHAR
-
+path-abempty = *("/" segment)
+path-absolute = "/" [segment-nz *("/" segment)]
+path-empty = 0<pchar>
+path-noscheme = segment-nz-nc *("/" segment)
+path-rootless = segment-nz *("/" segment)
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+pct-encoded = "%" HEXDIG HEXDIG
+port = *DIGIT
+query = *(pchar / "/" / "?")
+reg-name = *(unreserved / pct-encoded / sub-delims)
+relative-part = "//" authority path-abempty / path-absolute / path-noscheme / path-empty
+relative-ref = relative-part ["?" query] ["#" fragment]
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+segment = *pchar
+segment-nz = 1*pchar
+segment-nz-nc = 1*(unreserved / pct-encoded / sub-delims / "@")
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+URI = scheme ":" hier-part ["?" query] ["#" fragment]
+URI-reference = URI / relative-ref
+userinfo = *(unreserved / pct-encoded / sub-delims / ":")
 access-token = 1*VSCHAR
-token-type = type-name / URI-reference
-type-name  = 1*name-char
-
+client-id = *VSCHAR
+client-secret = *VSCHAR
+code = 1*VSCHAR
+error = 1*NQSCHAR
+error-description = 1*NQSCHAR
+error-uri = URI-reference
 expires-in = 1*DIGIT
-
-username = *UNICODECHARNOCRLF
-password = *UNICODECHARNOCRLF
-
-
-refresh-token = 1*VSCHAR
+grant-name = 1*name-char
+grant-type = grant-name / URI-reference
+name-char = "-" / "." / "_" / DIGIT / ALPHA
+NQCHAR = %d33 / %x23-5b / %x5d-7e
+NQSCHAR = %x20-21 / %x23-5b / %x5d-7e
 param-name = 1*name-char
-name-char  = "-" / "." / "_" / DIGIT / ALPHA
+password = *UNICODECHARNOCRLF
+redirect-uri = URI-reference
+refresh-token = 1*VSCHAR
+response-char = "_" / DIGIT / ALPHA
+response-name = 1*response-char
+response-type = response-name *(SP response-name)
+scope = scope-token *(SP scope-token)
+scope-token = 1*NQCHAR
+state = 1*VSCHAR
+token-type = type-name / URI-reference
+type-name = 1*name-char
+UNICODECHARNOCRLF = %d9 / %x20-7e / %x80-d7ff / %xe000-fffd / %x10000-10ffff
+username = *UNICODECHARNOCRLF
+VSCHAR = %x20-7e
