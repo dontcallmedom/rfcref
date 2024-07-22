@@ -110,10 +110,13 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
 	continue;
       }
       if (dependencies.imports[i].source === dependencyName) {
-	if (!neededExtracts.rename) {
-	  neededExtracts.rename = [];
+	if (!neededExtracts[dependencyName]) {
+	  neededExtracts[dependencyName] = {names: [], ignore: [], dependsOn: new Set()};
 	}
-	neededExtracts.rename.push(dependencies.imports[i].name, i);
+	if (!neededExtracts[dependencyName].rename) {
+	  neededExtracts[dependencyName].rename = [];
+	}
+	neededExtracts[dependencyName].rename.push([dependencies.imports[i].name.toUpperCase(), i]);
 	toBeImportedNames.push(dependencies.imports[i].name);
       } else if (dependencies.imports[i] === dependencyName) {
 	toBeImportedNames.push(i);
@@ -162,15 +165,18 @@ function mergeNeededExtract(ne1, ne2) {
     if (ne1[abnfName] && ne2[abnfName]) {
       ne[abnfName].names = [...new Set(ne1[abnfName].names).union(new Set(ne2[abnfName].names))];
       ne[abnfName].ignore = [...new Set(ne1[abnfName].ignore).union(new Set(ne2[abnfName].ignore))];
-      ne[abnfName].dependsOn = ne1[abnfName].dependsOn.union(ne2[abnfName].dependsOn);
+      ne[abnfName].dependsOn = (ne1[abnfName]?.dependsOn ?? new Set()).union(ne2[abnfName].dependsOn);
+      ne[abnfName].rename = (ne1[abnfName].rename ?? []).concat(ne2[abnfName].rename ?? []);
     } else if (ne1[abnfName]) {
       ne[abnfName].names = ne1[abnfName].names.slice();
       ne[abnfName].ignore = ne1[abnfName].ignore.slice();
       ne[abnfName].dependsOn = new Set(ne1[abnfName].dependsOn);
+      ne[abnfName].rename = ne1[abnfName].rename?.slice() ?? [];
     } else if (ne2[abnfName]) {
-      ne[abnfName].names = ne2[abnfName].names.slice();
-      ne[abnfName].ignore = ne2[abnfName].ignore.slice();
+      ne[abnfName].names = ne2[abnfName].names?.slice() ?? [];
+      ne[abnfName].ignore = ne2[abnfName].ignore?.slice() ?? [];
       ne[abnfName].dependsOn = new Set(ne2[abnfName].dependsOn);
+      ne[abnfName].rename = ne2[abnfName].rename?.slice() ?? [];
     }
   }
 
@@ -193,7 +199,12 @@ function annotateWithRenames(importMap) {
 	  if (!importMap[depName].rename) {
 	    importMap[depName].rename = [];
 	  }
+	  // there is already an alias, move on
+	  if (importMap[depName].rename.find(([n]) => n === name )) {
+	    break;
+	  }
 	  importMap[depName].rename.push([name, rename]);
+	  break;
 	}
       }
     }

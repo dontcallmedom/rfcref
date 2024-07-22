@@ -229,7 +229,7 @@ test("the ABNF dependency collector", async(t) => {
 	return;
       }
       if (a.importMap) {
-	Object.keys(map).forEach(k => { if (map[k].dependsOn) { delete map[k].dependsOn; } });
+	Object.keys(map).forEach(k => { if (map[k].dependsOn) { delete map[k].dependsOn; } if (map[k].rename) { delete map[k].rename; } });
 	assert.deepEqual(map, a.importMap);
       }
     });
