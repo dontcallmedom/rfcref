@@ -13,11 +13,14 @@ const testSources = {
   "multiimport2": 'KNOWN2 = KNOWN3',
   "multiimport3": 'KNOWN3 = "known"',
   "deeperConflicting": 'TEST = KNOWN\nANOTHER = "conflict"\nTEST2 = KNOWN2',
+  "deeperConflicting2": 'TEST = KNOWN',
   "singleRule": 'KNOWN = "known"',
   "singleRuleWithCruft": 'KNOWN = "known"\nUNNEEDED = "unneeded"',
   "codependentRules": 'KNOWN = *ANOTHER\nANOTHER = "known"',
   "deepConflict": 'KNOWN = DEEPER\nKNOWN2 = ANOTHER',
+  "deepConflict2": 'KNOWN = URI\nURI = URI-REFERENCE',
   "deeper": 'DEEPER = ANOTHER\nANOTHER = "known"',
+  "deeper2": 'URI-REFERENCE = URI\nURI = "uri"',
   "basicWithProseImport": "TEST = KNOWN\nKNOWN = <imported>",
 };
 
@@ -164,6 +167,26 @@ const dependencyTests = [
     },
     fullOut: 'DEEPER = deeper-ANOTHER\nKNOWN = DEEPER\nKNOWN2 = deeper-ANOTHER\ndeeper-ANOTHER = "known"\nANOTHER = "conflict"\nTEST = KNOWN\nTEST2 = KNOWN2',
     importMap: {deeperConflicting: {names: [ 'ANOTHER', 'TEST', 'TEST2' ], ignore: []}, deepConflict: {names: [ 'KNOWN', 'KNOWN2' ], ignore: []}, deeper: {names: [ 'DEEPER', 'ANOTHER'], ignore: []}, __order: ["deeper", "deepConflict", "deeperConflicting"]}
+  },
+  {
+    desc: "resolves another conflicting name two levels down",
+    abnf: "deeperConflicting2",
+    dependencies: {
+      multiple: {
+	"deeperConflicting2": {
+	  imports: {
+	    "known": "deepConflict2"
+	  },
+	},
+	"deepConflict2": {
+	  imports: {
+	    "uri-reference": "deeper2"
+	  }
+	}
+      }
+    },
+    fullOut: 'URI-REFERENCE = deeper2-URI\ndeeper2-URI = "uri"\nKNOWN = URI\nURI = URI-REFERENCE\nTEST = KNOWN',
+    importMap: {deeperConflicting2: {names: [ 'TEST' ], ignore: []}, deepConflict2: {names: [ 'KNOWN', 'URI' ], ignore: []}, deeper2: {names: [ 'URI', 'URI-REFERENCE'], ignore: []}, __order: ["deeper2", "deepConflict2", "deeperConflicting2"]}
   },
   {
     desc: "imports a single name and removes it from the original",
