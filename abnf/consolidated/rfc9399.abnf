@@ -1,28 +1,107 @@
-
+absolute-URI = scheme ":" hier-part ["?" query]
+authority = [userinfo "@"] URI-HOST [":" port]
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+fragment = *(pchar / "/" / "?")
+h16 = 1*4HEXDIG
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+IP-literal = "[" (IPv6address / IPvFuture) "]"
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
+IPvFuture = "v" 1*HEXDIG "." 1*(rfc3986-UNRESERVED / sub-delims / ":")
+ls32 = (h16 ":" h16) / IPv4address
+path-abempty = *("/" segment)
+path-absolute = "/" [segment-nz *("/" segment)]
+path-empty = 0<pchar>
+path-noscheme = segment-nz-nc *("/" segment)
+path-rootless = segment-nz *("/" segment)
+pchar = rfc3986-UNRESERVED / pct-encoded / sub-delims / ":" / "@"
+pct-encoded = "%" HEXDIG HEXDIG
+port = *DIGIT
+query = *(pchar / "/" / "?")
+reg-name = *(rfc3986-UNRESERVED / pct-encoded / sub-delims)
+relative-part = "//" authority path-abempty / path-absolute / path-noscheme / path-empty
+relative-ref = relative-part ["?" query] ["#" fragment]
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+segment = *pchar
+segment-nz = 1*pchar
+segment-nz-nc = 1*(rfc3986-UNRESERVED / pct-encoded / sub-delims / "@")
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+URI = scheme ":" hier-part ["?" query] ["#" fragment]
+URI-reference = URI / relative-ref
+userinfo = *(rfc3986-UNRESERVED / pct-encoded / sub-delims / ":")
+URI-HOST = IP-literal / IPv4address / reg-name
+language-range = (1*8ALPHA *("-" 1*8rfc4647-ALPHANUM)) / "*"
+rfc4647-ALPHANUM = ALPHA / DIGIT
+extension = singleton 1*("-" (2*8rfc5646-ALPHANUM))
+extlang = 3ALPHA *2("-" 3ALPHA)
+grandfathered = irregular / regular
+irregular = "en-GB-oed" / "i-ami" / "i-bnn" / "i-default" / "i-enochian" / "i-hak" / "i-klingon" / "i-lux" / "i-mingo" / "i-navajo" / "i-pwn" / "i-tao" / "i-tay" / "i-tsu" / "sgn-BE-FR" / "sgn-BE-NL" / "sgn-CH-DE"
+langtag = language ["-" script] ["-" region] *("-" variant) *("-" extension) ["-" privateuse]
+language = 2*3ALPHA ["-" extlang] / 4ALPHA / 5*8ALPHA
+Language-Tag = langtag / privateuse / grandfathered
+privateuse = "x" 1*("-" (1*8rfc5646-ALPHANUM))
+region = 2ALPHA / 3DIGIT
+regular = "art-lojban" / "cel-gaulish" / "no-bok" / "no-nyn" / "zh-guoyu" / "zh-hakka" / "zh-min" / "zh-min-nan" / "zh-xiang"
+script = 4ALPHA
+singleton = DIGIT / %x41-57 / %x59-5a / %x61-77 / %x79-7a
+variant = 5*8rfc5646-ALPHANUM / (DIGIT 3rfc5646-ALPHANUM)
+addr-spec = local-part "@" domain
+angle-addr = [CFWS] "<" addr-spec ">" [CFWS] / obs-angle-addr
+atext = ALPHA / DIGIT / "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "/" / "=" / "?" / "^" / "_" / "`" / "{" / "|" / "}" / "~"
+atom = [CFWS] 1*atext [CFWS]
+ccontent = ctext / rfc5322-QUOTED-PAIR / comment
+CFWS = (1*([FWS] comment) [FWS]) / FWS
+comment = "(" *([FWS] ccontent) [FWS] ")"
+ctext = %d33-39 / %d42-91 / %d93-126 / obs-ctext
+display-name = phrase
+domain = dot-atom / domain-literal / obs-domain
+domain-literal = [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+dot-atom = [CFWS] dot-atom-text [CFWS]
+dot-atom-text = 1*atext *("." 1*atext)
+dtext = %d33-90 / %d94-126 / obs-dtext
+FWS = ([*WSP CRLF] 1*WSP) / obs-FWS
+local-part = dot-atom / rfc5322-QUOTED-STRING / obs-local-part
+mailbox = name-addr / addr-spec
+name-addr = [display-name] angle-addr
+obs-angle-addr = [CFWS] "<" obs-route addr-spec ">" [CFWS]
+obs-ctext = obs-NO-WS-CTL
+obs-domain = atom *("." atom)
+obs-domain-list = *(CFWS / ",") "@" domain *("," [CFWS] ["@" domain])
+obs-dtext = obs-NO-WS-CTL / rfc5322-QUOTED-PAIR
+obs-FWS = 1*WSP *(CRLF 1*WSP)
+obs-local-part = word *("." word)
+obs-NO-WS-CTL = %d1-8 / %d11 / %d12 / %d14-31 / %d127
+obs-phrase = word *(word / "." / CFWS)
+obs-qp = "\" (%d0 / obs-NO-WS-CTL / LF / CR)
+obs-qtext = obs-NO-WS-CTL
+obs-route = obs-domain-list ":"
+phrase = 1*word / obs-phrase
+qcontent = qtext / rfc5322-QUOTED-PAIR
+qtext = %d33 / %d35-91 / %d93-126 / obs-qtext
+word = atom / rfc5322-QUOTED-STRING
+rfc5322-QUOTED-PAIR = ("\" (VCHAR / WSP)) / obs-qp
+rfc5322-QUOTED-STRING = [CFWS] DQUOTE *([FWS] qcontent) [FWS] DQUOTE [CFWS]
 media-type = type "/" subtype parameters
-type = token
-subtype = token
-parameters = *(OWS ";" OWS [parameter])
-token = 1*tchar
+obs-text = %x80-ff
 OWS = *(SP / HTAB)
 parameter = parameter-name "=" parameter-value
-tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
 parameter-name = token
 parameter-value = (token / quoted-string)
-quoted-string = DQUOTE *(qdtext / quoted-pair) DQUOTE
+parameters = *(OWS ";" OWS [parameter])
 qdtext = HTAB / SP / "!" / %x23-5b / %x5d-7e / obs-text
 quoted-pair = "\" (HTAB / SP / VCHAR / obs-text)
-obs-text = %x80-ff
-; Extracted from IETF RFC 9399
-; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
-; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
-
-dataurl    = "data:" [ media-type ] [ ";base64" ] "," data
-data       = *(reserved / unreserved / escaped)
-reserved   = ";" / "/" / "?" / ":" / "@" / "&" / "=" / "+" /
-             "$" / ","
+quoted-string = DQUOTE *(qdtext / quoted-pair) DQUOTE
+subtype = token
+tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+token = 1*tchar
+type = token
+rfc3986-UNRESERVED = ALPHA / DIGIT / "-" / "." / "_" / "~"
+rfc5646-ALPHANUM = (ALPHA / DIGIT)
+alphanum = ALPHA / DIGIT
+data = *(reserved / unreserved / escaped)
+dataurl = "data:" [media-type] [";base64"] "," data
+escaped = "%" hex hex
+hex = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
+mark = "-" / "_" / "." / "!" / "~" / "*" / "'" / "(" / ")"
+reserved = ";" / "/" / "?" / ":" / "@" / "&" / "=" / "+" / "$" / ","
 unreserved = alphanum / mark
-alphanum   = ALPHA / DIGIT
-mark       = "-" / "_" / "." / "!" / "~" / "*" / "'" / "(" / ")"
-escaped    = "%" hex hex
-hex        = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
