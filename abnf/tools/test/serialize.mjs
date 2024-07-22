@@ -72,7 +72,7 @@ const abnfSerializationTests = [
     desc: "serializes with a wrapper",
     abnf: 'known = ["known"] / ( 1*4<prose> %x32-33 )',
     wrapper: classSpanWrap,
-    reserializedAbnf: `<span class='rule'><span class='rulename'>known</span> <span class='operator'>=</span> <span class='ruledef'><span class='operator'>[</span><span class='operator'>"</span><span class='str'>known</span><span class='operator'>"</span><span class='operator'>]</span> <span class='operator'>/</span> <span class='operator'>(</span><span class='repetitor'>1</span><span class='operator'>*</span><span class='repetitor'>4</span><span class='operator'><</span><span class='prose'>prose</span><span class='operator'>></span> <span class='codechar'><span class='operator'>%</span>x32<span class='operator'>-</span>33</span><span class='operator'>)</span></span></span>`
+    reserializedAbnf: `<span class='rule'><span class='rulenamedecl'>known</span> <span class='operator'>=</span> <span class='ruledef'><span class='operator'>[</span><span class='operator'>"</span><span class='str'>known</span><span class='operator'>"</span><span class='operator'>]</span> <span class='operator'>/</span> <span class='operator'>(</span><span class='repetitor'>1</span><span class='operator'>*</span><span class='repetitor'>4</span><span class='operator'><</span><span class='prose'>prose</span><span class='operator'>></span> <span class='codechar'><span class='operator'>%</span>x32<span class='operator'>-</span>33</span><span class='operator'>)</span></span></span>`
   }
 
 ];

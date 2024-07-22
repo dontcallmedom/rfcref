@@ -1,22 +1,24 @@
+const id = x => x;
+
 export function wrapper(customized = {}) {
   return {
-    rule: r => r,
-    rulename: name => name,
-    ruledef: def => def,
-    str: str => str,
-    codechar: str => str,
-    operator: str => str,
-    prose: str => str,
-    repetitor: num => num
+    rule: id,
+    rulenamedecl: id,
+    rulename: id,
+    ruledef: id,
+    str: id,
+    codechar: id,
+    operator: id,
+    prose: id,
+    repetitor: id
   };
 }
-
 
 export default function serialize(rule, wrap = wrapper()) {
   const base = {2: "b", 10: "d", 16: "x"}[rule.base];
   switch(rule.type) {
   case "rule":
-    return `${wrap.rule(`${wrap.rulename(rule.name)} ${wrap.operator("=")} ${wrap.ruledef(serialize(rule.def, wrap))}`)}`;
+    return `${wrap.rule(`${wrap.rulenamedecl(rule.name)} ${wrap.operator("=")} ${wrap.ruledef(serialize(rule.def, wrap))}`)}`;
   case "caseSensitveString":
     if (rule.base) {
       return `${wrap.codechar(`${wrap.operator("%")}${base}${Buffer.from(rule.str)[0].toString(rule.base)}`)}`;
