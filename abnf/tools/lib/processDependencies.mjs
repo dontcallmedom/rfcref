@@ -126,10 +126,6 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
 	toBeImportedNames.push(i);
       }
     }
-    const reimported = stack.find(([aName, depNames], i) => aName === dependencyName && (new Set(depNames).intersection(new Set(toBeImportedNames)).size > 0));
-    if (reimported) {
-      throw new Error(`Loop detected in importing ${toBeImportedNames} already imported in ${reimported[0]} dependency ${reimported[1]}: ${stack.map(([s, n]) => `${s} (${n})`).join(" → ")} → ${abnfName}`);
-    }
     stack.push([dependencyName, toBeImportedNames]);
     neededExtracts = mergeNeededExtract(neededExtracts, await collectNeededExtracts({abnfName: dependencyName}, abnfLoader, dependencyLoader, toBeImportedNames, neededExtracts, stack));
   }
