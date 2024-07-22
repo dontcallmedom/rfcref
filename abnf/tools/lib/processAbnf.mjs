@@ -11,6 +11,7 @@ export function hideMissingExtendedDefs(names) {
 }
 
 export function listNames(abnf, sourceName) {
+  if (!abnf) return new Set();
   const rules = parseString(makeParsable(abnf), sourceName);
   return new Set(Object.keys(rules.defs).map(n => n.toUpperCase()));
 }

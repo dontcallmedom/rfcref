@@ -56,7 +56,7 @@ const dependencyTests = [
       }
     },
     out: testSources.singleRule,
-    importMap: { basic: {names: ['TEST'], ignore: []}, singleRule: {names: ['KNOWN'], ignore: []}, __order: ["singleRule", "basic"] }
+    importMap: { basic: {names: ['TEST'], ignore: ['KNOWN']}, singleRule: {names: ['KNOWN'], ignore: []}, __order: ["singleRule", "basic"] }
   },
   {
     desc: "imports a single name but ignore unneeded one",
@@ -67,7 +67,7 @@ const dependencyTests = [
       }
     },
     out: testSources.singleRule,
-    importMap: { basic: {names: ['TEST'], ignore: []}, singleRuleWithCruft: {names: ['KNOWN'], ignore: []}, __order: ["singleRuleWithCruft", "basic"] }
+    importMap: { basic: {names: ['TEST'], ignore: ['KNOWN']}, singleRuleWithCruft: {names: ['KNOWN'], ignore: []}, __order: ["singleRuleWithCruft", "basic"] }
   },
   {
     desc: "imports a single name and its dependent",
@@ -78,7 +78,7 @@ const dependencyTests = [
       }
     },
     fullOut: 'ANOTHER = "known"\nKNOWN = *ANOTHER\nTEST = KNOWN',
-    importMap: { basic: {names: ['TEST'], ignore: []}, codependentRules: {names: ['ANOTHER', 'KNOWN'], ignore: []}, __order: ["codependentRules", "basic"] }
+    importMap: { basic: {names: ['TEST'], ignore: ['KNOWN']}, codependentRules: {names: ['ANOTHER', 'KNOWN'], ignore: []}, __order: ["codependentRules", "basic"] }
   },
   {
     desc: "imports names several times in a dependency tree",
@@ -99,7 +99,7 @@ const dependencyTests = [
       }
     },
     out: 'KNOWN3 = "known"\nKNOWN2 = KNOWN3',
-    importMap: { multiimport: {names: ['ANOTHER', 'KNOWN'], ignore: []}, multiimport2: {names: ['KNOWN2'], ignore:[]}, multiimport3: {names: ['KNOWN3'], ignore: []}, __order: ["multiimport3", "multiimport2", "multiimport"] }
+    importMap: { multiimport: {names: ['ANOTHER', 'KNOWN'], ignore: ['KNOWN2', 'KNOWN3']}, multiimport2: {names: ['KNOWN2'], ignore:[]}, multiimport3: {names: ['KNOWN3'], ignore: []}, __order: ["multiimport3", "multiimport2", "multiimport"] }
   },
   {
     desc: "imports a name for an extension",
@@ -144,7 +144,7 @@ const dependencyTests = [
       }
     },
     out: testSources.codependentRules.replaceAll("ANOTHER", "codependentRules-ANOTHER"),
-    importMap: { conflicting: {names: ['ANOTHER', 'TEST'], ignore: []}, codependentRules: {names: ['ANOTHER', 'KNOWN'], ignore: []}, __order: ["codependentRules", "conflicting"] }
+    importMap: { conflicting: {names: ['ANOTHER', 'TEST'], ignore: ['KNOWN']}, codependentRules: {names: ['ANOTHER', 'KNOWN'], ignore: []}, __order: ["codependentRules", "conflicting"] }
   },
   {
     desc: "resolves conflicting name two levels down",
@@ -166,7 +166,7 @@ const dependencyTests = [
       }
     },
     fullOut: 'DEEPER = deeper-ANOTHER\nKNOWN = DEEPER\nKNOWN2 = deeper-ANOTHER\ndeeper-ANOTHER = "known"\nANOTHER = "conflict"\nTEST = KNOWN\nTEST2 = KNOWN2',
-    importMap: {deeperConflicting: {names: [ 'ANOTHER', 'TEST', 'TEST2' ], ignore: []}, deepConflict: {names: [ 'KNOWN', 'KNOWN2' ], ignore: []}, deeper: {names: [ 'DEEPER', 'ANOTHER'], ignore: []}, __order: ["deeper", "deepConflict", "deeperConflicting"]}
+    importMap: {deeperConflicting: {names: [ 'ANOTHER', 'TEST', 'TEST2' ], ignore: ['KNOWN', 'KNOWN2']}, deepConflict: {names: [ 'KNOWN', 'KNOWN2' ], ignore: []}, deeper: {names: [ 'DEEPER', 'ANOTHER'], ignore: []}, __order: ["deeper", "deepConflict", "deeperConflicting"]}
   },
   {
     desc: "resolves another conflicting name two levels down",
@@ -186,7 +186,7 @@ const dependencyTests = [
       }
     },
     fullOut: 'URI-REFERENCE = deeper2-URI\ndeeper2-URI = "uri"\nKNOWN = URI\nURI = URI-REFERENCE\nTEST = KNOWN',
-    importMap: {deeperConflicting2: {names: [ 'TEST' ], ignore: []}, deepConflict2: {names: [ 'KNOWN', 'URI' ], ignore: []}, deeper2: {names: [ 'URI', 'URI-REFERENCE'], ignore: []}, __order: ["deeper2", "deepConflict2", "deeperConflicting2"]}
+    importMap: {deeperConflicting2: {names: [ 'TEST' ], ignore: ['KNOWN']}, deepConflict2: {names: [ 'KNOWN', 'URI' ], ignore: []}, deeper2: {names: [ 'URI', 'URI-REFERENCE'], ignore: []}, __order: ["deeper2", "deepConflict2", "deeperConflicting2"]}
   },
   {
     desc: "imports a single name and removes it from the original",

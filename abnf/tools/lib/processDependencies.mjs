@@ -78,8 +78,13 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
 
   const newNeededExtracts = {__order: [abnfName]};
   let {local, remote} = listNamesNeededForExtractingRules([...filteredNames], abnf, abnfName);
+  // for the top level ABNF, we don't limit ourselves to names that are needed
+  if (stack.length === 0) {
+    local = [...new Set(local.concat(Object.keys(dependencies.imports)).concat(Object.keys(dependencies.extends)))];
+  }
   // remove names that are imported or extended
-  newNeededExtracts[abnfName] = { names: local.filter(n => !dependencies.imports[n] && !dependencies.extends[n]), ignore: local.filter(n => dependencies.imports[n] || dependencies.extends[n])};
+  newNeededExtracts[abnfName] = { names: local.filter(n => !dependencies.imports[n] && !dependencies.extends[n]), ignore: local.filter(n => dependencies.imports[n]).concat(dependencies.ignore)};
+
   newNeededExtracts[abnfName].dependsOn = new Set(Object.values(dependencies.extends)).union(new Set(Object.values(dependencies.imports).map(s => s.source ?? s)));
 
   if (!neededExtracts) {
@@ -87,7 +92,6 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
   } else {
     neededExtracts = mergeNeededExtract(newNeededExtracts, neededExtracts);
   }
-
   remote = remote.filter(n => !dependencies.ignore.includes(n));
   const unknownNames = remote.filter(n => !dependencies.imports[n] && !dependencies.extends[n]);
   if (unknownNames.length) {
@@ -223,15 +227,22 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
     const dependencyAbnf = await abnfLoader(dependencyName);
     // remove imported/extended names
     let filteredAbnf = removeRules(dependencyAbnf, importMap[dependencyName].ignore, dependencyName);
-    const localNames = listNames(filteredAbnf);
+    if (!filteredAbnf) {
+      filteredAbnf = extractedRules;
+      continue;
+    }
 
     // conflict resolution
-    // Conversely, if there are conflicts emerging from merging in
-    // the gist of dependencyAbnf, at this point, these are names
-    // we don't expect to extract, so renaming them locally
-    const localConflicts = [...localNames.intersection(new Set(importedNames))].map(conflictingName => [conflictingName, `${dependencyName}-${conflictingName}`]);
-    filteredAbnf = renameRules(filteredAbnf, localConflicts, dependencyName);
-
+    if (i < dependencyOrder.length - 1) {
+      // unless we're dealing with the last item (the top abnf),
+      // if there are conflicts emerging from merging in
+      // the gist of dependencyAbnf, at this point, these are names
+      // we don't expect to extract, so renaming them locally
+      const localNames = listNames(filteredAbnf);
+      const extensions = new Set(listMissingExtendedDefs(filteredAbnf));
+      const localConflicts = [...(localNames.difference(extensions)).intersection(new Set(importedNames))].map(conflictingName => [conflictingName, `${dependencyName}-${conflictingName}`]);
+      filteredAbnf = renameRules(filteredAbnf, localConflicts, dependencyName);
+    }
     importedNames = importedNames.concat(importMap[dependencyName].names);
 
     filteredAbnf = extractedRules + "\n" + filteredAbnf;
