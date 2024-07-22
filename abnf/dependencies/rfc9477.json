@@ -1,5 +1,10 @@
 {
   "extends": {
     "fields": "rfc5322"
+  },
+  "imports": {
+    "CFWS": "rfc5322",
+    "ADDR-SPEC": "rfc5322",
+    "ATEXT": "rfc5322"
   }
 }

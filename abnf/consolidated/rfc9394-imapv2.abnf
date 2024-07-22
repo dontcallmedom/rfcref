@@ -1,83 +1,53 @@
-
-capability = ("AUTH=" auth-type) / atom
-search-return-opt = "MIN" / "MAX" / "ALL" / "COUNT" / "SAVE" / search-ret-opt-ext
-search-return-data = "MIN" SP nz-number / "MAX" SP nz-number / "ALL" SP sequence-set / "COUNT" SP number / search-ret-data-ext
-sequence-set = (seq-number / seq-range) ["," sequence-set] / seq-last-command
-nz-number = digit-nz *DIGIT
-auth-type = atom
-atom = 1*ATOM-CHAR
-search-ret-opt-ext = search-modifier-name [SP search-mod-params]
-number = 1*DIGIT
-search-ret-data-ext = search-modifier-name SP search-return-value
-seq-number = nz-number / "*"
-seq-range = seq-number ":" seq-number
-seq-last-command = "$"
-digit-nz = %x31-39
-ATOM-CHAR = <any CHAR except atom-specials>
-search-modifier-name = tagged-ext-label
-search-mod-params = tagged-ext-val
-search-return-value = tagged-ext-val
-tagged-ext-label = tagged-label-fchar *tagged-label-char
-tagged-ext-val = tagged-ext-simple / "(" [tagged-ext-comp] ")"
-tagged-label-fchar = ALPHA / "-" / "_" / "."
-tagged-label-char = tagged-label-fchar / DIGIT / ":"
-tagged-ext-simple = sequence-set / number / number64
-tagged-ext-comp = astring / tagged-ext-comp *(SP tagged-ext-comp) / "(" tagged-ext-comp ")"
-number64 = 1*DIGIT
-astring = 1*ASTRING-CHAR / string
-ASTRING-CHAR = ATOM-CHAR / resp-specials
-string = quoted / literal
-resp-specials = "]"
-quoted = DQUOTE *QUOTED-CHAR DQUOTE
-literal = "{" number64 ["+"] "}" CRLF *CHAR8
-QUOTED-CHAR = <any TEXT-CHAR except quoted-specials> / "\" quoted-specials / UTF8-2 / UTF8-3 / UTF8-4
-CHAR8 = %x1-ff
-quoted-specials = DQUOTE / "\"
+UTF8-1 = %x0-7f
 UTF8-2 = %xc2-df UTF8-tail
 UTF8-3 = %d195 %xa0-bf UTF8-tail / %xe1-ec 2(UTF8-tail) / %d195 %x80-9f UTF8-tail / %xee-ef 2(UTF8-tail)
 UTF8-4 = %d195 %x90-bf 2(UTF8-tail) / %xf1-f3 3(UTF8-tail) / %d195 %x80-8f 2(UTF8-tail)
+UTF8-char = UTF8-1 / UTF8-2 / UTF8-3 / UTF8-4
 UTF8-tail = %x80-bf
-; Extracted from IETF RFC 9394
-; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
-; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
-
-MINUS               = "-"
-
-capability          =/ "PARTIAL"
-                       ;; <capability> from [RFC3501].
-
-modifier-partial    = "PARTIAL" SP partial-range
-
+ALPHA = <Defined in RFC 5234>
+astring = 1*ASTRING-CHAR / string
+ASTRING-CHAR = ATOM-CHAR / resp-specials
+atom = 1*ATOM-CHAR
+ATOM-CHAR = <any CHAR except atom-specials>
+auth-type = atom
+capability = ("AUTH=" auth-type) / atom / "PARTIAL"
+CHAR8 = %x1-ff
+CRLF = <Defined in RFC 5234>
+DIGIT = <Defined in RFC 5234>
+digit-nz = %x31-39
+DQUOTE = <Defined in RFC 5234>
+literal = "{" number64 ["+"] "}" CRLF *CHAR8
+number = 1*DIGIT
+number64 = 1*DIGIT
+nz-number = digit-nz *DIGIT
+quoted = DQUOTE *QUOTED-CHAR DQUOTE
+QUOTED-CHAR = <any TEXT-CHAR except quoted-specials> / "\" quoted-specials / UTF8-2 / UTF8-3 / UTF8-4
+quoted-specials = DQUOTE / "\"
+resp-specials = "]"
+search-mod-params = tagged-ext-val
+search-modifier-name = tagged-ext-label
+search-ret-data-ext = search-modifier-name rfc9051-SP search-return-value
+search-ret-opt-ext = search-modifier-name [rfc9051-SP search-mod-params]
+search-return-data = "MIN" rfc9051-SP nz-number / "MAX" rfc9051-SP nz-number / "ALL" rfc9051-SP sequence-set / "COUNT" rfc9051-SP number / search-ret-data-ext / ret-data-partial
+search-return-opt = "MIN" / "MAX" / "ALL" / "COUNT" / "SAVE" / search-ret-opt-ext / modifier-partial
+search-return-value = tagged-ext-val
+seq-last-command = "$"
+seq-number = nz-number / "*"
+seq-range = seq-number ":" seq-number
+sequence-set = (seq-number / seq-range) ["," sequence-set] / seq-last-command
+string = quoted / literal
+tagged-ext-comp = astring / tagged-ext-comp *(rfc9051-SP tagged-ext-comp) / "(" tagged-ext-comp ")"
+tagged-ext-label = tagged-label-fchar *tagged-label-char
+tagged-ext-simple = sequence-set / number / number64
+tagged-ext-val = tagged-ext-simple / "(" [tagged-ext-comp] ")"
+tagged-label-char = tagged-label-fchar / DIGIT / ":"
+tagged-label-fchar = ALPHA / "-" / "_" / "."
+rfc9051-SP = <Defined in RFC 5234>
+MINUS = "-"
+modifier-partial = "PARTIAL" SP partial-range
+partial-range = partial-range-first / partial-range-last
 partial-range-first = nz-number ":" nz-number
-    ;; Request to search from oldest (lowest UIDs) to
-    ;; more recent messages.
-    ;; A range 500:400 is the same as 400:500.
-    ;; This is similar to <seq-range> from [RFC3501]
-    ;; but cannot contain "*".
-
-partial-range-last  = MINUS nz-number ":" MINUS nz-number
-    ;; Request to search from newest (highest UIDs) to
-    ;; oldest messages.
-    ;; A range -500:-400 is the same as -400:-500.
-
-partial-range       = partial-range-first / partial-range-last
-
-search-return-opt   =/ modifier-partial
-    ;; All conform to <search-return-opt> from
-    ;; [RFC4466] and [RFC9051].
-
-search-return-data  =/ ret-data-partial
-
-ret-data-partial    = "PARTIAL"
-                      SP "(" partial-range SP partial-results ")"
-    ;; <partial-range> is the requested range.
-
-partial-results     = sequence-set / "NIL"
-    ;; <sequence-set> from [RFC3501].
-    ;; NIL indicates that no results correspond to
-    ;; the requested range.
-
-
-
-
-                       ;; <fetch-modifier> from [RFC4466].
+partial-range-last = MINUS nz-number ":" MINUS nz-number
+partial-results = sequence-set / "NIL"
+ret-data-partial = "PARTIAL" SP "(" partial-range SP partial-results ")"
+SP = <Defined in RFC 5234>
