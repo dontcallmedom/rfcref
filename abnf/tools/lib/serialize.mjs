@@ -1,46 +1,60 @@
-export default function serialize(rule) {
+export function wrapper(customized = {}) {
+  return {
+    rule: r => r,
+    rulename: name => name,
+    ruledef: def => def,
+    str: str => str,
+    codechar: str => str,
+    operator: str => str,
+    prose: str => str,
+    repetitor: num => num
+  };
+}
+
+
+export default function serialize(rule, wrap = wrapper()) {
   const base = {2: "b", 10: "d", 16: "x"}[rule.base];
   switch(rule.type) {
   case "rule":
-    return `${rule.name} = ${serialize(rule.def)}`;
+    return `${wrap.rule(`${wrap.rulename(rule.name)} ${wrap.operator("=")} ${wrap.ruledef(serialize(rule.def, wrap))}`)}`;
   case "caseSensitveString":
     if (rule.base) {
-      return `%${base}${Buffer.from(rule.str)[0].toString(rule.base)}`;
+      return `${wrap.codechar(`${wrap.operator("%")}${base}${Buffer.from(rule.str)[0].toString(rule.base)}`)}`;
     } else {
-      return `"${rule.str}"`;
+      return `${wrap.operator('"')}${wrap.str(rule.str)}${wrap.operator('"')}`;
     }
   case "caseInsensitveString":
     if (rule.base) {
-      return `%${base}${parseInt(rule.str, rule.base)}`;
+      return `${wrap.codechar(`${wrap.operator("%")}${base}${parseInt(rule.str, rule.base)}`)}`;
     } else {
-      return `"${rule.str}"`;
+      return `${wrap.operator('"')}${wrap.str(rule.str)}${wrap.operator('"')}`;
     }
   case "alternation":
-    return rule.alts.map(d => serialize(d)).join(" / ");
+    return rule.alts.map(d => serialize(d, wrap)).join(` ${wrap.operator("/")} `);
   case "ruleref":
-    return rule.name;
+    return wrap.rulename(rule.name);
   case "concatenation":
-    return rule.elements.map(d => serialize(d)).join(" ");
+    return rule.elements.map(d => serialize(d, wrap)).join(" ");
   case "group":
-    return `(${serialize(rule.alt)})`;
+    return `${wrap.operator("(")}${serialize(rule.alt, wrap)}${wrap.operator(")")}`;
   case "range":
-    return `%${base}${rule.first.toString(rule.base)}-${rule.last.toString(rule.base)}`;
+    return `${wrap.codechar(`${wrap.operator("%")}${base}${rule.first.toString(rule.base)}${wrap.operator("-")}${rule.last.toString(rule.base)}`)}`;
   case "prose":
-    return `<${rule.str}>`;
+    return `${wrap.operator("<")}${wrap.prose(rule.str)}${wrap.operator(">")}`;
   case "repetition":
-    let ret = `${serialize(rule.rep)}${serialize(rule.el)}`;
+    let ret = `${serialize(rule.rep, wrap)}${serialize(rule.el, wrap)}`;
     if (rule.rep.min === 0 && rule.rep.max === 1) {
-      ret += "]";
+      ret += wrap.operator("]");
     }
     return ret;
   case "repeat":
     if (rule.min === rule.max) {
-      return rule.min;
+      return wrap.repetitor(rule.min);
     }
     if (rule.min === 0 && rule.max === 1) {
-      return "[";
+      return wrap.operator("[");
     }
-    return `${rule.min === 0 ? "" : rule.min}*${rule.max === null ? "" : rule.max}`;
+    return `${rule.min === 0 ? "" : wrap.repetitor(rule.min)}${wrap.operator("*")}${rule.max === null ? "" : wrap.repetitor(rule.max)}`;
   default:
     throw new Error(`Unexpected type ${rule.type} from ABNF rule: ${rule}`);
   }

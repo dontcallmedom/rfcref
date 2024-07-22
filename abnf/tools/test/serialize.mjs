@@ -4,6 +4,13 @@ import assert from "assert";
 import { parseString } from "abnf";
 
 import serialize from "../lib/serialize.mjs";
+import { wrapper } from "../lib/serialize.mjs";
+
+const classSpanWrap = new Proxy(wrapper(), {
+  get(target, name) {
+    return i => `<span class='${name}'>${target[name](i)}</span>`;
+  }
+});
 
 const abnfSerializationTests = [
   {
@@ -60,7 +67,14 @@ const abnfSerializationTests = [
   {
     desc: "serializes optional sequence",
     abnf: 'known = ["known"]'
+  },
+  {
+    desc: "serializes with a wrapper",
+    abnf: 'known = ["known"] / ( 1*4<prose> %x32-33 )',
+    wrapper: classSpanWrap,
+    reserializedAbnf: `<span class='rule'><span class='rulename'>known</span> <span class='operator'>=</span> <span class='ruledef'><span class='operator'>[</span><span class='operator'>"</span><span class='str'>known</span><span class='operator'>"</span><span class='operator'>]</span> <span class='operator'>/</span> <span class='operator'>(</span><span class='repetitor'>1</span><span class='operator'>*</span><span class='repetitor'>4</span><span class='operator'><</span><span class='prose'>prose</span><span class='operator'>></span> <span class='codechar'><span class='operator'>%</span>x32<span class='operator'>-</span>33</span><span class='operator'>)</span></span></span>`
   }
+
 ];
 
 test("the ABNF rules serializer", async (t) => {
@@ -68,7 +82,7 @@ test("the ABNF rules serializer", async (t) => {
     await t.test(a.desc, () => {
       const parsedRules = parseString(a.abnf);
       const [ , rule ] = Object.entries(parsedRules.defs)[0];
-      assert.equal(serialize(rule), a.reserializedAbnf ?? a.abnf.split("\n")[0]);
+      assert.equal(serialize(rule, a.wrapper), a.reserializedAbnf ?? a.abnf.split("\n")[0]);
     });
   }
 });
