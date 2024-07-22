@@ -137,7 +137,7 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
 
 function sortExtractList(neededExtracts) {
   return function (a,b) {
-    if (neededExtracts[a].dependsOn.has(b) && neededExtracts[b].dependsOn.has(a)) {
+    if (neededExtracts[a]?.dependsOn.has(b) && neededExtracts[b]?.dependsOn.has(a)) {
       throw new Error(`Loop detected: ${a} and ${b} depends on each other`);
     }
     if (dependsOn(neededExtracts, a, b)) {
@@ -150,10 +150,10 @@ function sortExtractList(neededExtracts) {
 }
 
 function dependsOn(neededExtracts, a, b) {
-  if (neededExtracts[a].dependsOn.has(b)) {
+  if (neededExtracts[a]?.dependsOn.has(b)) {
     return true;
   }
-  return [...neededExtracts[a].dependsOn].some(subdep => dependsOn(neededExtracts, subdep, b));
+  return [...neededExtracts[a]?.dependsOn ?? []].some(subdep => dependsOn(neededExtracts, subdep, b));
 }
 
 function mergeNeededExtract(ne1, ne2) {
@@ -166,7 +166,7 @@ function mergeNeededExtract(ne1, ne2) {
       ne[abnfName].names = [...new Set(ne1[abnfName].names).union(new Set(ne2[abnfName].names))];
       ne[abnfName].ignore = [...new Set(ne1[abnfName].ignore).union(new Set(ne2[abnfName].ignore))];
       ne[abnfName].dependsOn = (ne1[abnfName]?.dependsOn ?? new Set()).union(ne2[abnfName].dependsOn);
-      ne[abnfName].rename = (ne1[abnfName].rename ?? []).concat(ne2[abnfName].rename ?? []);
+      ne[abnfName].rename = (ne1[abnfName].rename ?? []).concat(ne2[abnfName].rename ?? []).filter(([n], i, arr) => arr.findIndex(([nn]) => nn === n) === i);
     } else if (ne1[abnfName]) {
       ne[abnfName].names = ne1[abnfName].names.slice();
       ne[abnfName].ignore = ne1[abnfName].ignore.slice();
