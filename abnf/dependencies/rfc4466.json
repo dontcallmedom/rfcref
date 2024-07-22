@@ -11,7 +11,18 @@
     "CAPABILITY-DATA": "rfc3501",
     "SEARCH-KEY": "rfc3501",
     "SEQUENCE-SET": "rfc3501",
-    "STORE-ATT-FLAGS": "rfc3501"
+    "STORE-ATT-FLAGS": "rfc3501",
+    "MAILBOX": "rfc3501",
+    "LITERAL": "rfc3501",
+    "FLAG-LIST": "rfc3501",
+    "ATOM": "rfc3501",
+    "QUOTED": "rfc3501",
+    "NUMBER": "rfc3501",
+    "NIL": "rfc3501",
+    "STRING": "rfc3501",
+    "QUOTED-CHAR": "rfc3501",
+    "NZ-NUMBER": "rfc3501",
+    "ASTRING": "rfc3501"
   },
   "updates": "rfc3501"
 }
