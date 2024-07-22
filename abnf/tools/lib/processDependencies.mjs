@@ -15,6 +15,17 @@ function UC(obj) {
   }
 }
 
+function renameRules(abnf, renames, abnfName) {
+  //  we need to make the abnf parsable first
+  const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(abnf, abnfName));
+  const cutMarker ='; ----------------- X CUT THERE X -------\n';
+  let parsableAbnf = parsableBase + '\n' + cutMarker + abnf;
+  for (const [oldName, newName] of renames) {
+    parsableAbnf = renameRule(oldName, newName, parsableAbnf, abnfName).trim();
+  }
+  return parsableAbnf.split(cutMarker)[1];
+}
+
 function removeRules(abnf, names, abnfName) {
   //  we need to make the abnf parsable first
   const parsableBase = hideMissingExtendedDefs(listMissingExtendedDefs(abnf, abnfName));
@@ -170,13 +181,12 @@ function mergeNeededExtract(ne1, ne2) {
 
 function annotateWithRenames(importMap) {
   const dependencyOrder = importMap.__order;
-
   for (let i = 0; i < dependencyOrder.length; i++) {
     const dependencyName = dependencyOrder[i];
     for (const name of importMap[dependencyName].names) {
       for (let j = 0; j < dependencyOrder.slice(i + 1).length; j++) {
 	const furtherDepName = dependencyOrder[j + i + 1];
-	// TODO aliases
+
 	if (importMap[furtherDepName]?.names?.includes(name)) {
 	  const rename = `${dependencyName}-${name}`;
 	  const depName = dependencyOrder[j + i];
@@ -202,10 +212,19 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
     const dependencyAbnf = await abnfLoader(dependencyName);
     // remove imported/extended names
     let filteredAbnf = removeRules(dependencyAbnf, importMap[dependencyName].ignore, dependencyName);
+    const localNames = listNames(filteredAbnf);
+
     // conflict resolution
-    filteredAbnf = extractedRules + "\n" + filteredAbnf;
+    // Conversely, if there are conflicts emerging from merging in
+    // the gist of dependencyAbnf, at this point, these are names
+    // we don't expect to extract, so renaming them locally
+    const localConflicts = [...localNames.intersection(new Set(importedNames))].map(conflictingName => [conflictingName, `${dependencyName}-${conflictingName}`]);
+    filteredAbnf = renameRules(filteredAbnf, localConflicts, dependencyName);
+
     importedNames = importedNames.concat(importMap[dependencyName].names);
 
+    filteredAbnf = extractedRules + "\n" + filteredAbnf;
+    // renames identified earlier
     for (const [oldName, newName] of importMap[dependencyName].rename || []) {
       filteredAbnf = renameRule(oldName, newName, filteredAbnf, dependencyName);
       const updatedNames = new Set(importedNames);
@@ -215,6 +234,7 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
       }
       importedNames = [...updatedNames];
     }
+
     extractedRules = extractRulesFromDependency(importedNames, filteredAbnf , dependencyName);
   }
   return extractedRules.trim();
