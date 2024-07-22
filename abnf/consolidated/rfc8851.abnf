@@ -1,59 +1,84 @@
-fmt = rfc4566-TOKEN
+authority = [userinfo "@"] host [":" port]
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+fragment = *(pchar / "/" / "?")
+h16 = 1*4HEXDIG
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+host = IP-literal / IPv4address / reg-name
+IP-literal = "[" (IPv6address / IPvFuture) "]"
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
+IPvFuture = "v" 1*HEXDIG "." 1*(unreserved / sub-delims / ":")
+ls32 = (h16 ":" h16) / IPv4address
+path-abempty = *("/" segment)
+path-absolute = "/" [segment-nz *("/" segment)]
+path-empty = 0<pchar>
+path-noscheme = segment-nz-nc *("/" segment)
+path-rootless = segment-nz *("/" segment)
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+pct-encoded = "%" HEXDIG HEXDIG
+port = *DIGIT
+query = *(pchar / "/" / "?")
+reg-name = *(unreserved / pct-encoded / sub-delims)
+relative-part = "//" authority path-abempty / path-absolute / path-noscheme / path-empty
+relative-ref = relative-part ["?" query] ["#" fragment]
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+segment = *pchar
+segment-nz = 1*pchar
+segment-nz-nc = 1*(unreserved / pct-encoded / sub-delims / "@")
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+URI = scheme ":" hier-part ["?" query] ["#" fragment]
+URI-reference = URI / relative-ref
+userinfo = *(unreserved / pct-encoded / sub-delims / ":")
+addr-spec = local-part "@" domain
+atext = ALPHA / DIGIT / "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "/" / "=" / "?" / "^" / "_" / "`" / "{" / "|" / "}" / "~"
+atom = [CFWS] 1*atext [CFWS]
+ccontent = ctext / quoted-pair / comment
+CFWS = *([FWS] comment) (([FWS] comment) / FWS)
+comment = "(" *([FWS] ccontent) [FWS] ")"
+ctext = NO-WS-CTL / %d33-39 / %d42-91 / %d93-126
+dcontent = dtext / quoted-pair
+domain = dot-atom / domain-literal / obs-domain
+domain-literal = [CFWS] "[" *([FWS] dcontent) [FWS] "]" [CFWS]
+dot-atom = [CFWS] dot-atom-text [CFWS]
+dot-atom-text = 1*atext *("." 1*atext)
+dtext = NO-WS-CTL / %d33-90 / %d94-126
+FWS = ([*WSP CRLF] 1*WSP) / obs-FWS
+local-part = dot-atom / quoted-string / obs-local-part
+NO-WS-CTL = %d1-8 / %d11 / %d12 / %d14-31 / %d127
+obs-char = %d0-9 / %d11 / %d12 / %d14-127
+obs-domain = atom *("." atom)
+obs-FWS = 1*WSP *(CRLF 1*WSP)
+obs-local-part = word *("." word)
+obs-qp = "\" (%d0-127)
+obs-text = *LF *CR *(obs-char *LF *CR)
+qcontent = qtext / quoted-pair
+qtext = NO-WS-CTL / %d33 / %d35-91 / %d93-126
+quoted-pair = ("\" text) / obs-qp
+quoted-string = [CFWS] DQUOTE *([FWS] qcontent) [FWS] DQUOTE [CFWS]
+text = %d1-9 / %d11 / %d12 / %d14-127 / obs-text
+word = atom / quoted-string
 alpha-numeric = ALPHA / DIGIT
-rfc4566-TOKEN = 1*(rfc4566-TOKEN-CHAR)
-rfc4566-TOKEN-CHAR = %d33 / %x23-27 / %x2a-2b / %x2d-2e / %x30-39 / %x41-5a / %x5e-7e
-; Extracted from IETF RFC 8851
-; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
-; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
-
-rid-syntax        = %s"a=rid:" rid-id SP rid-dir
-                    [ rid-pt-param-list / rid-param-list ]
-
-rid-id            = 1*(alpha-numeric / "-" / "_")
-
-
-rid-dir           = %s"send" / %s"recv"
-
+fmt = token
+token = 1*(token-char)
+token-char = %d33 / %x23-27 / %x2a-2b / %x2d-2e / %x30-39 / %x41-5a / %x5e-7e
+float-param-val = 1*DIGIT "." 1*DIGIT
+int-param-val = 1*DIGIT
+param-val = *(%x20-3a / %x3c-7e)
+rid-bpp-param = "max-bpp" ["=" float-param-val]
+rid-br-param = "max-br" ["=" int-param-val]
+rid-depend-param = "depend=" rid-list
+rid-dir = "send" / "recv"
+rid-fmt-list = "pt=" fmt *("," fmt)
+rid-fps-param = "max-fps" ["=" int-param-val]
+rid-fs-param = "max-fs" ["=" int-param-val]
+rid-height-param = "max-height" ["=" int-param-val]
+rid-id = 1*(alpha-numeric / "-" / "_")
+rid-list = rid-id *("," rid-id)
+rid-param = rid-width-param / rid-height-param / rid-fps-param / rid-fs-param / rid-br-param / rid-pps-param / rid-bpp-param / rid-depend-param / rid-param-other
+rid-param-list = SP rid-param *(";" rid-param)
+rid-param-other = 1*(alpha-numeric / "-") ["=" param-val]
+rid-pps-param = "max-pps" ["=" int-param-val]
 rid-pt-param-list = SP rid-fmt-list *(";" rid-param)
-
-rid-param-list    = SP rid-param *(";" rid-param)
-
-rid-fmt-list      = %s"pt=" fmt *( "," fmt )
-
-
-rid-param         = rid-width-param
-                    / rid-height-param
-                    / rid-fps-param
-                    / rid-fs-param
-                    / rid-br-param
-                    / rid-pps-param
-                    / rid-bpp-param
-                    / rid-depend-param
-                    / rid-param-other
-
-rid-width-param   = %s"max-width" [ "=" int-param-val ]
-
-rid-height-param  = %s"max-height" [ "=" int-param-val ]
-
-rid-fps-param     = %s"max-fps" [ "=" int-param-val ]
-
-rid-fs-param      = %s"max-fs" [ "=" int-param-val ]
-
-rid-br-param      = %s"max-br" [ "=" int-param-val ]
-
-rid-pps-param     = %s"max-pps" [ "=" int-param-val ]
-
-rid-bpp-param     = %s"max-bpp" [ "=" float-param-val ]
-
-rid-depend-param  = %s"depend=" rid-list
-
-rid-param-other   = 1*(alpha-numeric / "-") [ "=" param-val ]
-
-rid-list          = rid-id *( "," rid-id )
-
-int-param-val     = 1*DIGIT
-
-float-param-val   = 1*DIGIT "." 1*DIGIT
-
-param-val         = *(%x20-3A / %x3C-7E)
-                    ; Any printable character except semicolon
+rid-syntax = "a=rid:" rid-id SP rid-dir [rid-pt-param-list / rid-param-list]
+rid-width-param = "max-width" ["=" int-param-val]
