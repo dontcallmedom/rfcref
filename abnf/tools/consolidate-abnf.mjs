@@ -49,8 +49,7 @@ if (!Object.keys(dependencies)) {
   console.error(`No dependencies found for ${topRfcNum}, no consolidation needed`);
   consolidatedAbnf = await rfcLoader(topRfcNum);
 } else {
-  const { base, abnf } = await processDependencies({abnfName: topRfcNum, profile: topProfile}, rfcLoader, dependencyLoader);
-  consolidatedAbnf = base + "\n" + abnf;
+  consolidatedAbnf = await processDependencies({abnfName: topRfcNum, profile: topProfile}, rfcLoader, dependencyLoader);
 }
 
 const consolidatedAbnfPreamble = `; Extracted from IETF ${[...importedRfcs].map(rfc => `RFC ${rfc.slice(3)}`).join(", ")}

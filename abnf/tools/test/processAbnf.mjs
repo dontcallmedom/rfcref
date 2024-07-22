@@ -3,7 +3,7 @@ import assert from "assert";
 
 import { parseString } from "abnf";
 
-import { listMissingExtendedDefs, listMissingReferencedDefs, makeParsable, extractSegment, extractRulesFromDependency, renameRule, removeRule } from "../lib/processAbnf.mjs";
+import { listMissingExtendedDefs, listMissingReferencedDefs, makeParsable, extractSegment, extractRulesFromDependency, listNamesNeededForExtractingRules, renameRule, removeRule } from "../lib/processAbnf.mjs";
 
 test("the ABNF preprocessor", async (t) => {
   await t.test("returns an emtpy list when there are no extensions of unknown definitions", () => {
@@ -35,9 +35,14 @@ test("the ABNF preprocessor", async (t) => {
     assert.equal(extractSegment(abnf, "known"), 'known = "first value" / another');
   });
 
+  await t.test("Recursively find names needed to extract a given name from ABNF", () => {
+    const abnf = 'known = *another\nanother = yetanother\nyetanother = "foo" / final\nfinal = "done" / REMOTE\nunneeded = "unneeded"\n';
+    assert.deepEqual(listNamesNeededForExtractingRules(['known'], abnf),
+		     {local: ["ANOTHER","FINAL", "KNOWN", "YETANOTHER"], remote: ["REMOTE"]});
+  });
   await t.test("extract rules from imported ABNF", () => {
     const abnf = 'known = *another\nanother = "another value"\nknown =/ "end"';
-    assert.equal(extractRulesFromDependency("known", abnf), 'known = *another / "end"\nanother = "another value"\n\n');
+    assert.equal(extractRulesFromDependency(["known"], abnf), 'known = *another / "end"\nanother = "another value"\n\n');
   });
 
   await t.test("extract several rules at once from imported ABNF", () => {
@@ -48,7 +53,7 @@ test("the ABNF preprocessor", async (t) => {
   await t.test("throws when importing with an unresolved dependency", () => {
     const abnf = 'known = *another\nanother = unknown';
     try {
-      extractRulesFromDependency("known", abnf);
+      extractRulesFromDependency(["known"], abnf);
       assert(false, "Unreachable code");
     } catch (e) {
       assert(e.message.match(/Cannot extract rule/), "Throws for unknown rule");

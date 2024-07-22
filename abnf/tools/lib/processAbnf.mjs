@@ -85,15 +85,46 @@ export function extractSegment(abnf, name, sourceName) {
   return serialize(def);
 }
 
+export function listNamesNeededForExtractingRules(names, abnf, abnfName) {
+  const extendedDefs = listMissingExtendedDefs(abnf, abnfName);
+  const parsableAbnf = hideMissingExtendedDefs(extendedDefs) + "\n" + abnf;
+
+  let extractedAbnfSegments = [];
+  names = names.map(n => n.toUpperCase());
+  const ret = { local: [], remote: [...extendedDefs]};
+  for (const name of names) {
+    try {
+      extractedAbnfSegments.push(extractSegment(parsableAbnf, name, abnfName));
+      ret.local.push(name);
+    } catch(e) {
+      if (e.message.match(/Cannot extract/)) {
+	ret.remote.push(name);
+      } else {
+	throw e;
+      }
+    }
+  }
+  const extractedAbnf = extractedAbnfSegments.join("\n");
+  if (!extractedAbnf) return ret;
+  const missingDefs = new Set(
+    listMissingExtendedDefs(extractedAbnf)
+      .concat(listMissingReferencedDefs(extractedAbnf))
+  ).difference(new Set(ret.remote));
+  if (missingDefs.size) {
+    const { local, remote } = listNamesNeededForExtractingRules([...missingDefs.union(new Set(names))], abnf, abnfName);
+    return { local: [...new Set(ret.local.concat(local))].sort(), remote: [...new Set(ret.remote.concat(remote))].sort()};
+
+  } else {
+    return ret;
+  }
+}
 
 /* Given the name of a rule defined in a given ANBF
   returns that rule and all other rules it depends on in that ABNF
   throws if that ABNF doesn't have all the rules needed for that
 */
 export function extractRulesFromDependency(names, dependencyAbnf, dependencyName, skip = new Set()) {
-  if (!Array.isArray(names)) {
-    names = [names];
-  }
+  if (!names.length || !dependencyAbnf) return "";
   let extractedAbnfSegments = [];
   for (const name of names) {
     extractedAbnfSegments.push(extractSegment(dependencyAbnf, name, dependencyName));
@@ -144,6 +175,7 @@ export function removeRule(name, abnf, sourceName) {
 }
 
 export function renameRule(name, newname, abnf, sourceName) {
+  const orig = abnf;
   const rules = parseString(abnf, sourceName);
   const instances = rules.refs.filter(r => r.name.toUpperCase() === name.toUpperCase());
   const def = rules.defs[name.toUpperCase()];
@@ -159,6 +191,7 @@ export function renameRule(name, newname, abnf, sourceName) {
     const end = start + name.length;
     abnf = abnf.substr(0, start) + newname + abnf.substr(end);
   }
+
   return abnf;
 }
 

@@ -2,7 +2,7 @@ import promises from "node:fs";
 import assert from "node:assert";
 import { parseString } from "abnf";
 
-import { listMissingExtendedDefs, listMissingReferencedDefs, extractRulesFromDependency, makeParsable, renameRule, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs } from "./processAbnf.mjs";
+import { listMissingExtendedDefs, listMissingReferencedDefs, extractRulesFromDependency, makeParsable, renameRule, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs, listNamesNeededForExtractingRules } from "./processAbnf.mjs";
 
 const readFile = { promises };
 
@@ -26,15 +26,8 @@ function removeRules(abnf, names, abnfName) {
   return parsableAbnf.split(cutMarker)[1];
 }
 
-export async function processDependencies({abnfName, profile}, abnfLoader, dependencyLoader, stack = { names: {}}, callers = []) {
-  const top = callers.length === 0;
-
-  if (callers.includes(abnfName)) {
-    throw new Error(`Loop detected in dependencies: ${callers.join(" → ")} → ${abnfName}`);
-  }
-  callers.push(abnfName);
-  let abnf = await abnfLoader(abnfName);
-
+export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dependencyLoader, names, neededExtracts, stack = []) {
+  const abnf = await abnfLoader(abnfName);
   let dependencies = await dependencyLoader(abnfName) || {};
   if (profile) {
     dependencies = dependencies.find(d => d.name === profile);
@@ -44,116 +37,185 @@ export async function processDependencies({abnfName, profile}, abnfLoader, depen
   dependencies.ignore = UC(dependencies.ignore ?? []);
   const extendedDefs = new Set(listMissingExtendedDefs(abnf, abnfName));
 
-  // Initialize list of names for conflict detection
-  const names = listNames(abnf, abnfName);
+  if (!names) {
+    names = listNames(abnf, abnfName);
+  } else {
+    names = new Set(names);
+  }
 
-  // Don't add extended, imported and ignored names in the pool of conflicts
-  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports))).difference(new Set(dependencies.ignore));
-  stack.names[abnfName] = [...filteredNames].reduce((acc, n) => {acc[n] = abnfName; return acc;}, {});
   const diff = extendedDefs.difference(new Set(Object.keys(dependencies.extends))).difference(new Set(dependencies.ignore));
   if (diff.size > 0) {
     throw new Error(`${abnfName} extends definitions that are not listed in its dependencies: ${[...diff].join(", ")}`);
   }
 
-  const unknownRefs = new Set(listMissingReferencedDefs(makeParsable(abnf, abnfName), abnfName))
-	.difference(new Set(Object.keys(dependencies.imports)))
-	.difference(coreNames);
+  let unknownRefs = new Set(listMissingReferencedDefs(makeParsable(abnf, abnfName), abnfName))
+      .difference(new Set(Object.keys(dependencies.imports)));
+
+  // Automatically import name from RFC5234
+  const fromCore = unknownRefs.intersection(coreNames);
+  if (fromCore.size) {
+    unknownRefs = unknownRefs.difference(coreNames);
+    for (const n of fromCore) {
+      dependencies.imports[n] = "rfc5234";
+    }
+  }
   if (unknownRefs.size) {
     throw new Error(`${abnfName} needs to import referenced definitions ${[...unknownRefs].join(', ')} `);
   }
 
+  const filteredNames = (names.difference(extendedDefs)).difference(new Set(Object.keys(dependencies.imports))).difference(new Set(dependencies.ignore));
 
-  // Remove ignored rules
-  abnf = removeRules(abnf, dependencies.ignore, abnfName);
-  let base = "";
+  const newNeededExtracts = {__order: [abnfName]};
+  let {local, remote} = listNamesNeededForExtractingRules([...filteredNames], abnf, abnfName);
+  // remove names that are imported or extended
+  newNeededExtracts[abnfName] = { names: local.filter(n => !dependencies.imports[n] && !dependencies.extends[n]), ignore: local.filter(n => dependencies.imports[n] || dependencies.extends[n])};
+  newNeededExtracts[abnfName].dependsOn = new Set(Object.values(dependencies.extends)).union(new Set(Object.values(dependencies.imports).map(s => s.source ?? s)));
 
-  // TODO: this probably ought to be done once for the full stack rather than
-  // per level of recursion
+  if (!neededExtracts) {
+    neededExtracts = newNeededExtracts;
+  } else {
+    neededExtracts = mergeNeededExtract(newNeededExtracts, neededExtracts);
+  }
+
+  remote = remote.filter(n => !dependencies.ignore.includes(n));
+  const unknownNames = remote.filter(n => !dependencies.imports[n] && !dependencies.extends[n]);
+  if (unknownNames.length) {
+    throw new Error(`Cannot locate where the followng names should be imported from: ${unknownNames.join(", ")}`);
+  }
+
   const dependencyNames = [...new Set(Object.values(dependencies.imports).map(s => s.source ?? s).concat(Object.values(dependencies.extends)))];
   for (const dependencyName of dependencyNames) {
-
-    const toBeImportedNames = Object.keys(dependencies.extends).filter(n => dependencies.extends[n] === dependencyName);
-    //  imports can have aliases
-    let aliases = {};
+    if (!neededExtracts.__order.includes(dependencyName)) {
+      neededExtracts.__order.push(dependencyName);
+    }
+    const toBeImportedNames = Object.keys(dependencies.extends).filter(n => dependencies.extends[n] === dependencyName).filter(n => !neededExtracts[dependencyName]?.names?.includes(n));
     for (const i of Object.keys(dependencies.imports)) {
+      if ((dependencies.imports[i].source ?? dependencies.imports[i]) !== dependencyName) {
+	continue;
+      }
       const name = dependencies.imports[i].name ?? i;
-      const alreadyImported = stack.names[dependencyName] && stack.names[dependencyName][name] === (dependencies.imports[i].source ?? dependencies.imports[i]);
-      if (dependencies.imports[i].source === dependencyName && !alreadyImported) {
-	aliases[dependencies.imports[i].name] = i;
+      const alreadyImported = neededExtracts[dependencyName]?.names?.includes(name);
+      if (alreadyImported || coreNames.has(name)) {
+	continue;
+      }
+      if (dependencies.imports[i].source === dependencyName) {
+	if (!neededExtracts.rename) {
+	  neededExtracts.rename = [];
+	}
+	neededExtracts.rename.push(dependencies.imports[i].name, i);
 	toBeImportedNames.push(dependencies.imports[i].name);
-      } else if (dependencies.imports[i] === dependencyName && !alreadyImported) {
+      } else if (dependencies.imports[i] === dependencyName) {
 	toBeImportedNames.push(i);
       }
     }
-
-    if (!toBeImportedNames.length) {
-      continue;
+    const reimported = stack.find(([aName, depNames], i) => aName === dependencyName && (new Set(depNames).intersection(new Set(toBeImportedNames)).size > 0));
+    if (reimported) {
+      throw new Error(`Loop detected in importing ${toBeImportedNames} already imported in ${reimported[0]} dependency ${reimported[1]}: ${stack.map(([s, n]) => `${s} (${n})`).join(" → ")} → ${abnfName}`);
     }
+    stack.push([dependencyName, toBeImportedNames]);
+    neededExtracts = mergeNeededExtract(neededExtracts, await collectNeededExtracts({abnfName: dependencyName}, abnfLoader, dependencyLoader, toBeImportedNames, neededExtracts, stack));
+  }
 
-    const { base: dependencyBase, abnf: processedDependencyAbnf} = await processDependencies({abnfName: dependencyName}, abnfLoader, dependencyLoader, stack, callers.slice());
+  neededExtracts.__order.sort(sortExtractList(neededExtracts));
 
-    const alreadyImportedNames =
-	  new Set(Object.keys(stack.names[abnfName])
-		  .filter(n => stack.names[abnfName][n] !== abnfName));
-    const filteredSourceAbnf = extractRulesFromDependency(toBeImportedNames, dependencyBase + "\n" + processedDependencyAbnf, dependencyName, alreadyImportedNames);
-    let unconflictedAbnf = filteredSourceAbnf;
-    // handle previous collected aliases
-    for (const alias of Object.keys(aliases)) {
-      unconflictedAbnf = renameRule(alias, aliases[alias], unconflictedAbnf, dependencyName);
+  return neededExtracts;
+}
+
+function sortExtractList(neededExtracts) {
+  return function (a,b) {
+    if (neededExtracts[a].dependsOn.has(b) && neededExtracts[b].dependsOn.has(a)) {
+      throw new Error(`Loop detected: ${a} and ${b} depends on each other`);
     }
+    if (dependsOn(neededExtracts, a, b)) {
+      return 1;
+    } else if (dependsOn(neededExtracts, b, a)) {
+      return -1;
+    }
+    return 0;
+  };
+}
 
-    let importedNames = listNames(unconflictedAbnf, dependencyName);
+function dependsOn(neededExtracts, a, b) {
+  if (neededExtracts[a].dependsOn.has(b)) {
+    return true;
+  }
+  return [...neededExtracts[a].dependsOn].some(subdep => dependsOn(neededExtracts, subdep, b));
+}
 
-    do {
-      let parentNames = new Set();
-      for (const s of callers) {
-	if (s !== dependencyName) {
-	  parentNames = parentNames.union(new Set(Object.keys(stack.names[s]).filter(n => stack.names[s][n] !== dependencyName)));
+function mergeNeededExtract(ne1, ne2) {
+  const ne = {};
+  for (const abnfName of new Set(Object.keys(ne1).concat(Object.keys(ne2)).filter(n => n !== "__order"))) {
+    if (!ne[abnfName]) {
+      ne[abnfName] = {names: [], ignore: [], dependsOn: new Set()};
+    }
+    if (ne1[abnfName] && ne2[abnfName]) {
+      ne[abnfName].names = [...new Set(ne1[abnfName].names).union(new Set(ne2[abnfName].names))];
+      ne[abnfName].ignore = [...new Set(ne1[abnfName].ignore).union(new Set(ne2[abnfName].ignore))];
+      ne[abnfName].dependsOn = ne1[abnfName].dependsOn.union(ne2[abnfName].dependsOn);
+    } else if (ne1[abnfName]) {
+      ne[abnfName].names = ne1[abnfName].names.slice();
+      ne[abnfName].ignore = ne1[abnfName].ignore.slice();
+      ne[abnfName].dependsOn = new Set(ne1[abnfName].dependsOn);
+    } else if (ne2[abnfName]) {
+      ne[abnfName].names = ne2[abnfName].names.slice();
+      ne[abnfName].ignore = ne2[abnfName].ignore.slice();
+      ne[abnfName].dependsOn = new Set(ne2[abnfName].dependsOn);
+    }
+  }
+
+  ne.__order = [...new Set(ne1.__order.concat(ne2.__order))].sort(sortExtractList(ne));
+
+  return ne;
+}
+
+function annotateWithRenames(importMap) {
+  const dependencyOrder = importMap.__order;
+
+  for (let i = 0; i < dependencyOrder.length; i++) {
+    const dependencyName = dependencyOrder[i];
+    for (const name of importMap[dependencyName].names) {
+      for (let j = 0; j < dependencyOrder.slice(i + 1).length; j++) {
+	const furtherDepName = dependencyOrder[j + i + 1];
+	// TODO aliases
+	if (importMap[furtherDepName]?.names?.includes(name)) {
+	  const rename = `${dependencyName}-${name}`;
+	  const depName = dependencyOrder[j + i];
+	  if (!importMap[depName].rename) {
+	    importMap[depName].rename = [];
+	  }
+	  importMap[depName].rename.push([name, rename]);
 	}
       }
+    }
+  }
+}
 
-      // remove names in importing (they'll be dealt at a different level)
-      const conflicts = parentNames.difference(new Set(toBeImportedNames)).intersection(importedNames);
-      if (conflicts.size === 0) break;
-      const conflictingName = conflicts.values().next().value;
-      const rename = `${dependencyName}-${conflictingName}`;
-      // Rename any rule with a name already collected in stack
-      // TODO: this reparse content a lot of time; a smarter renaming function would avoid it
-      unconflictedAbnf = renameRule(conflictingName, rename, unconflictedAbnf, dependencyName);
+export async function processDependencies({abnfName, profile}, abnfLoader, dependencyLoader, stack = { names: {}}, callers = []) {
+  const importMap = await collectNeededExtracts({abnfName, profile}, abnfLoader, dependencyLoader);
+  annotateWithRenames(importMap);
+  let extractedRules = "";
+  let importedNames = [];
+  const dependencyOrder = importMap.__order;
 
-      importedNames = listNames(unconflictedAbnf, dependencyName);
-    } while (true);
+  for (const i in dependencyOrder) {
+    const dependencyName = dependencyOrder[i];
+    const dependencyAbnf = await abnfLoader(dependencyName);
+    // remove imported/extended names
+    let filteredAbnf = removeRules(dependencyAbnf, importMap[dependencyName].ignore, dependencyName);
+    // conflict resolution
+    filteredAbnf = extractedRules + "\n" + filteredAbnf;
+    importedNames = importedNames.concat(importMap[dependencyName].names);
 
-    for (const n of importedNames) {
-      if (!stack.names[abnfName][n]) {
-	stack.names[abnfName][n] = stack.names[dependencyName][n] ?? dependencyName;
+    for (const [oldName, newName] of importMap[dependencyName].rename || []) {
+      filteredAbnf = renameRule(oldName, newName, filteredAbnf, dependencyName);
+      const updatedNames = new Set(importedNames);
+      if (updatedNames.has(oldName)) {
+	updatedNames.delete(oldName);
+	updatedNames.add(newName);
       }
+      importedNames = [...updatedNames];
     }
-
-    base += unconflictedAbnf;
+    extractedRules = extractRulesFromDependency(importedNames, filteredAbnf , dependencyName);
   }
-  // remove rules from core ABNF, they'll get added in the end
-  if (base.trim()) {
-    for (const coreName of coreNames) {
-      base = removeRule(coreName, base, `imports for ${abnfName}`).trim();
-    }
-  }
-
-  // remove rules marked as imported from original ABNF
-  let filteredAbnf = removeRules(abnf, Object.keys(dependencies.imports), abnfName);
-  if (top) {
-    let consolidated = base + "\n" + filteredAbnf;
-    // only import what's actually needed (if anything) from core ABNF
-    const fromCore = listNames(consolidated, abnfName).intersection(coreNames);
-    if (fromCore.size > 0) {
-      const filteredCoreAbnf = extractRulesFromDependency([...fromCore], rfc5234Abnf, "rfc5234");
-      for (const coreName of fromCore) {
-	consolidated = removeRule(coreName, consolidated, abnfName).trim();
-      }
-
-    }
-    return {base: "", abnf: consolidated};
-
-  }
-  return { base, abnf: filteredAbnf };
+  return extractedRules.trim();
 }
