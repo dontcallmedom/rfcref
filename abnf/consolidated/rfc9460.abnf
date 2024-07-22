@@ -1,36 +1,19 @@
-; Extracted from IETF RFC 9460
-; Copyright (c) IETF Trust and the persons identified as authors of the code. All rights reserved.
-; Redistribution and use in source and binary forms, with or without modification, is permitted pursuant to, and subject to the license terms contained in, the Revised BSD License set forth in Section 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info).
-
-alpha-lc      = %x61-7A   ; a-z
-SvcParamKey   = 1*63(alpha-lc / DIGIT / "-")
-SvcParam      = SvcParamKey ["=" SvcParamValue]
-SvcParamValue = char-string ; See Appendix A.
-value         = *OCTET ; Value before key-specific parsing
-
-
+alpha-lc = %x61-7a
 alpn-id = 1*255OCTET
-
-
-; non-special is VCHAR minus DQUOTE, ";", "(", ")", and "\".
-non-special = %x21 / %x23-27 / %x2A-3A / %x3C-5B / %x5D-7E
-; non-digit is VCHAR minus DIGIT.
-non-digit   = %x21-2F / %x3A-7E
-; dec-octet is a number 0-255 as a three-digit decimal number.
-dec-octet   = ( "0" / "1" ) 2DIGIT /
-              "2" ( ( %x30-34 DIGIT ) / ( "5" %x30-35 ) )
-escaped     = "\" ( non-digit / dec-octet )
-contiguous  = 1*( non-special / escaped )
-quoted      = DQUOTE *( contiguous / ( ["\"] WSP ) ) DQUOTE
 char-string = contiguous / quoted
-
-
-; item-allowed is OCTET minus "," and "\".
-item-allowed           = %x00-2B / %x2D-5B / %x5D-FF
-simple-item            = 1*item-allowed
-simple-comma-separated = [simple-item *("," simple-item)]
-
-
-item            = 1*OCTET
-escaped-item    = 1*(item-allowed / "\," / "\\")
 comma-separated = [escaped-item *("," escaped-item)]
+contiguous = 1*(non-special / escaped)
+dec-octet = ("0" / "1") 2DIGIT / "2" ((%x30-34 DIGIT) / ("5" %x30-35))
+escaped = "\" (non-digit / dec-octet)
+escaped-item = 1*(item-allowed / "\," / "\\")
+item = 1*OCTET
+item-allowed = %x0-2b / %x2d-5b / %x5d-ff
+non-digit = %x21-2f / %x3a-7e
+non-special = %d33 / %x23-27 / %x2a-3a / %x3c-5b / %x5d-7e
+quoted = DQUOTE *(contiguous / (["\"] WSP)) DQUOTE
+simple-comma-separated = [simple-item *("," simple-item)]
+simple-item = 1*item-allowed
+SvcParam = SvcParamKey ["=" SvcParamValue]
+SvcParamKey = 1*63(alpha-lc / DIGIT / "-")
+SvcParamValue = char-string
+value = *OCTET
