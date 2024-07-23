@@ -1,0 +1,14 @@
+{
+  "extends": {
+    "CAPABILITY": "rfc3501",
+    "FETCH-ATT": "rfc3501",
+    "MSG-ATT-STATIC": "rfc3501",
+    "RESP-TEXT-CODE": "rfc3501",
+    "SEARCH-KEY": "rfc3501",
+    "STATUS-ATT": "rfc3501",
+    "STATUS-ATT-VAL": "rfc4466"
+  },
+  "imports": {
+    "NIL": "rfc3501"
+  }
+}

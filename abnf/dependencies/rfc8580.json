@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "string": "rfc5288",
+    "string-list": "rfc5288"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "extends": {
+    "fcc-opts": "rfc8580"
+  },
+  "imports": {
+    "objectid": "rfc8474"
+  }
+}
