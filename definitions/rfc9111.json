@@ -1,0 +1,200 @@
+[
+  {
+    "name": "DIGIT",
+    "id": "iref-grammar-digit-4",
+    "type": "Grammar"
+  },
+  {
+    "name": "delta-seconds",
+    "id": "iref-grammar-delta-seconds-5",
+    "type": "Grammar"
+  },
+  {
+    "name": "Age",
+    "id": "iref-fields-age-17",
+    "type": "Fields"
+  },
+  {
+    "name": "Age",
+    "id": "iref-header-fields-age-18",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Age",
+    "id": "iref-fields-age-19",
+    "type": "Fields"
+  },
+  {
+    "name": "Age",
+    "id": "iref-header-fields-age-20",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Age header field",
+    "id": "iref-age-header-field-21"
+  },
+  {
+    "name": "Age",
+    "id": "iref-grammar-age-22",
+    "type": "Grammar"
+  },
+  {
+    "name": "Cache-Control",
+    "id": "iref-fields-cache-control-23",
+    "type": "Fields"
+  },
+  {
+    "name": "Cache-Control",
+    "id": "iref-header-fields-cache-control",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Cache-Control header field",
+    "id": "iref-cache-control-header-field-"
+  },
+  {
+    "name": "Cache-Control",
+    "id": "iref-grammar-cache-control-26",
+    "type": "Grammar"
+  },
+  {
+    "name": "cache-directive",
+    "id": "iref-grammar-cache-directive-27",
+    "type": "Grammar"
+  },
+  {
+    "name": "max-age (cache directive)",
+    "id": "iref-max-age-cache-directive-28"
+  },
+  {
+    "name": "max-stale (cache directive)",
+    "id": "iref-max-stale-cache-directive-2"
+  },
+  {
+    "name": "min-fresh (cache directive)",
+    "id": "iref-min-fresh-cache-directive-3"
+  },
+  {
+    "name": "no-cache (cache directive)",
+    "id": "iref-no-cache-cache-directive-31"
+  },
+  {
+    "name": "no-store (cache directive)",
+    "id": "iref-no-store-cache-directive-32"
+  },
+  {
+    "name": "no-transform (cache directive)",
+    "id": "iref-no-transform-cache-directiv"
+  },
+  {
+    "name": "only-if-cached (cache directive)",
+    "id": "iref-only-if-cached-cache-direct"
+  },
+  {
+    "name": "max-age (cache directive)",
+    "id": "iref-max-age-cache-directive-35"
+  },
+  {
+    "name": "must-revalidate (cache directive)",
+    "id": "iref-must-revalidate-cache-direc"
+  },
+  {
+    "name": "must-understand (cache directive)",
+    "id": "iref-must-understand-cache-direc"
+  },
+  {
+    "name": "no-cache (cache directive)",
+    "id": "iref-no-cache-cache-directive-38"
+  },
+  {
+    "name": "no-store (cache directive)",
+    "id": "iref-no-store-cache-directive-39"
+  },
+  {
+    "name": "no-transform (cache directive)",
+    "id": "iref-no-transform-cache-directive"
+  },
+  {
+    "name": "private (cache directive)",
+    "id": "iref-private-cache-directive-41"
+  },
+  {
+    "name": "proxy-revalidate (cache directive)",
+    "id": "iref-proxy-revalidate-cache-dire"
+  },
+  {
+    "name": "public (cache directive)",
+    "id": "iref-public-cache-directive-43"
+  },
+  {
+    "name": "s-maxage (cache directive)",
+    "id": "iref-s-maxage-cache-directive-44"
+  },
+  {
+    "name": "Expires",
+    "id": "iref-fields-expires-45",
+    "type": "Fields"
+  },
+  {
+    "name": "Expires",
+    "id": "iref-header-fields-expires-46",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Expires",
+    "id": "iref-fields-expires-47",
+    "type": "Fields"
+  },
+  {
+    "name": "Expires",
+    "id": "iref-header-fields-expires-48",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Expires header field",
+    "id": "iref-expires-header-field-49"
+  },
+  {
+    "name": "Expires",
+    "id": "iref-grammar-expires-50",
+    "type": "Grammar"
+  },
+  {
+    "name": "Pragma",
+    "id": "iref-fields-pragma-51",
+    "type": "Fields"
+  },
+  {
+    "name": "Pragma",
+    "id": "iref-header-fields-pragma-52",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Pragma",
+    "id": "iref-fields-pragma-53",
+    "type": "Fields"
+  },
+  {
+    "name": "Pragma",
+    "id": "iref-header-fields-pragma-54",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Pragma header field",
+    "id": "iref-pragma-header-field-55"
+  },
+  {
+    "name": "Warning",
+    "id": "iref-fields-warning-56",
+    "type": "Fields"
+  },
+  {
+    "name": "Warning",
+    "id": "iref-header-fields-warning-57",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Warning header field",
+    "id": "iref-warning-header-field-58"
+  }
+]
