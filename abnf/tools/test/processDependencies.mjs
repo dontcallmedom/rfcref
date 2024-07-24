@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "assert";
 
-import { processDependencies, collectNeededExtracts } from "../lib/processDependencies.mjs";
+import { processDependencies, buildImportMap } from "../lib/processDependencies.mjs";
 
 const testSources = {
   "basic": 'TEST = KNOWN',
@@ -218,12 +218,12 @@ test("the ABNF dependency processor", async (t) => {
   }
 });
 
-test("the ABNF dependency collector", async(t) => {
+test("the ABNF import map builder", async(t) => {
   for (const a of dependencyTests) {
     await t.test(a.desc, async () => {
       let map;
       try {
-	map = await collectNeededExtracts({abnfName: a.abnf}, abnfLoader, dependencyMapper(a.dependencies));
+	map = await buildImportMap({abnfName: a.abnf}, abnfLoader, dependencyMapper(a.dependencies));
       } catch (e) {
 	assert(!!a.error && e.message.match(a.error), `Unexpected error: ${e.message} ${e.stack}`);
 	return;
