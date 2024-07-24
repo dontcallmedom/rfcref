@@ -37,7 +37,7 @@ function removeRules(abnf, names, abnfName) {
   return parsableAbnf.split(cutMarker)[1];
 }
 
-export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dependencyLoader, names, neededExtracts, stack = []) {
+export async function buildImportMap({abnfName, profile}, abnfLoader, dependencyLoader, names, neededExtracts, stack = []) {
   const abnf = await abnfLoader(abnfName);
   let dependencies = await dependencyLoader(abnfName) || {};
   if (profile) {
@@ -127,7 +127,7 @@ export async function collectNeededExtracts({abnfName, profile}, abnfLoader, dep
       }
     }
     stack.push([dependencyName, toBeImportedNames]);
-    neededExtracts = mergeNeededExtract(neededExtracts, await collectNeededExtracts({abnfName: dependencyName}, abnfLoader, dependencyLoader, toBeImportedNames, neededExtracts, stack));
+    neededExtracts = mergeNeededExtract(neededExtracts, await buildImportMap({abnfName: dependencyName}, abnfLoader, dependencyLoader, toBeImportedNames, neededExtracts, stack));
   }
 
   neededExtracts.__order.sort(sortExtractList(neededExtracts));
@@ -212,7 +212,7 @@ function annotateWithRenames(importMap) {
 }
 
 export async function processDependencies({abnfName, profile}, abnfLoader, dependencyLoader, stack = { names: {}}, callers = []) {
-  const importMap = await collectNeededExtracts({abnfName, profile}, abnfLoader, dependencyLoader);
+  const importMap = await buildImportMap({abnfName, profile}, abnfLoader, dependencyLoader);
   annotateWithRenames(importMap);
   let extractedRules = "";
   let importedNames = [];

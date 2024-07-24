@@ -1,29 +1,17 @@
-import { readFile, writeFile, readdir } from "fs/promises";
+import { writeFile, readdir } from "fs/promises";
 import { processDependencies } from "./lib/processDependencies.mjs";
 import { listMissingReferencedDefs, coreNames } from "./lib/processAbnf.mjs";
-
+import { dependencyLoader, rfcLoader } from "./lib/loaders.mjs";
 import { parseString } from "abnf";
-
 
 
 const importedRfcs = new Set();
 
-
-
-async function rfcLoader(rfcNum) {
+const trackingRfcLoader = function(rfcNum) {
   importedRfcs.add(rfcNum);
-  return readFile(new URL(`../source/${rfcNum}.abnf`, import.meta.url), 'utf-8');
-}
+  return rfcLoader(rfcNum);
+};
 
-async function dependencyLoader(rfcNum) {
-  let data;
-  try {
-    data = await readFile(new URL(`../dependencies/${rfcNum}.json`, import.meta.url));
-  } catch (e) {
-    return {};
-  }
-  return JSON.parse(data);
-}
 
 export default async function consolidateAbnf(rfcNum, profile) {
   let consolidatedAbnf;
