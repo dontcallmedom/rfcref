@@ -1,0 +1,26 @@
+{
+  "extends": {
+    "calprops": "rfc5545",
+    "eventprop": "rfc5545",
+    "todoprop": "rfc5545",
+    "jourprop": "rfc5545"
+  },
+  "imports": {
+    "URI": "rfc3986",
+    "UID": "rfc5545",
+    "LAST-MOD": "rfc5545",
+    "URL": "rfc5545",
+    "DESCRIPTION": "rfc5545",
+    "CATEGORIES": "rfc5545",
+    "TEXT": "rfc5545",
+    "ALTREPPARAM": "rfc5545",
+    "LANGUAGEPARAM": "rfc5545",
+    "OTHER-PARAM": "rfc5545",
+    "DUR-VALUE": "rfc5545",
+    "BINARY": "rfc5545",
+    "FMTTYPEPARAM": "rfc5545",
+    "X-NAME": "rfc5545",
+    "IANA-TOKEN": "rfc5545",
+    "PARAM-VALUE": "rfc5545"
+  }
+}
