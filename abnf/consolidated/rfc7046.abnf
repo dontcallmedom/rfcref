@@ -1,0 +1,10 @@
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+alg = 1*unreserved
+group = "*" / 1*unreserved
+ham-scheme = "ham"
+ham-URI = ham-scheme ":" namespace ":" group ["@" instantiation] [":" port] ["/" sec-credentials]
+instantiation = 1*unreserved
+namespace = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+port = 1*DIGIT
+sec-credentials = alg ";" val
+val = 1*unreserved
