@@ -8,7 +8,9 @@
     "obsoletes": [],
     "obsoleted_by": [],
     "updates": [],
-    "updated_by": []
+    "updated_by": [
+      "RFC9557"
+    ]
   },
   {
     "name": "RFC3629",
@@ -728,6 +730,54 @@
       "RFC8252",
       "RFC8996"
     ]
+  },
+  {
+    "name": "RFC7046",
+    "path": "consolidated/rfc7046.abnf",
+    "dependencies": {
+      "RFC3986": {
+        "names": [
+          "UNRESERVED"
+        ],
+        "rename": []
+      }
+    },
+    "title": "A Common API for Transparent Hybrid Multicast",
+    "status": "EXPERIMENTAL",
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "updates": [],
+    "updated_by": []
+  },
+  {
+    "name": "RFC7064",
+    "path": "consolidated/rfc7064.abnf",
+    "dependencies": {
+      "RFC3986": {
+        "names": [
+          "DEC-OCTET",
+          "H16",
+          "HOST",
+          "IP-LITERAL",
+          "IPV4ADDRESS",
+          "IPV6ADDRESS",
+          "IPVFUTURE",
+          "LS32",
+          "PCT-ENCODED",
+          "PORT",
+          "REG-NAME",
+          "SUB-DELIMS",
+          "UNRESERVED"
+        ],
+        "rename": []
+      }
+    },
+    "title": "URI Scheme for the Session Traversal Utilities for NAT (STUN) Protocol",
+    "status": "PROPOSED STANDARD",
+    "obsoletes": [],
+    "obsoleted_by": [],
+    "updates": [],
+    "updated_by": []
   },
   {
     "name": "RFC7230",
