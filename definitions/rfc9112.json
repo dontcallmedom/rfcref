@@ -1,0 +1,284 @@
+[
+  {
+    "name": "ALPHA",
+    "id": "iref-grammar-alpha-1",
+    "type": "Grammar"
+  },
+  {
+    "name": "CR",
+    "id": "iref-grammar-cr-2",
+    "type": "Grammar"
+  },
+  {
+    "name": "CRLF",
+    "id": "iref-grammar-crlf-3",
+    "type": "Grammar"
+  },
+  {
+    "name": "CTL",
+    "id": "iref-grammar-ctl-4",
+    "type": "Grammar"
+  },
+  {
+    "name": "DIGIT",
+    "id": "iref-grammar-digit-5",
+    "type": "Grammar"
+  },
+  {
+    "name": "DQUOTE",
+    "id": "iref-grammar-dquote-6",
+    "type": "Grammar"
+  },
+  {
+    "name": "HEXDIG",
+    "id": "iref-grammar-hexdig-7",
+    "type": "Grammar"
+  },
+  {
+    "name": "HTAB",
+    "id": "iref-grammar-htab-8",
+    "type": "Grammar"
+  },
+  {
+    "name": "LF",
+    "id": "iref-grammar-lf-9",
+    "type": "Grammar"
+  },
+  {
+    "name": "OCTET",
+    "id": "iref-grammar-octet-10",
+    "type": "Grammar"
+  },
+  {
+    "name": "SP",
+    "id": "iref-grammar-sp-11",
+    "type": "Grammar"
+  },
+  {
+    "name": "VCHAR",
+    "id": "iref-grammar-vchar-12",
+    "type": "Grammar"
+  },
+  {
+    "name": "HTTP-message",
+    "id": "iref-grammar-http-message-16",
+    "type": "Grammar"
+  },
+  {
+    "name": "start-line",
+    "id": "iref-grammar-start-line-17",
+    "type": "Grammar"
+  },
+  {
+    "name": "HTTP-version",
+    "id": "iref-grammar-http-version-18",
+    "type": "Grammar"
+  },
+  {
+    "name": "HTTP-name",
+    "id": "iref-grammar-http-name-19",
+    "type": "Grammar"
+  },
+  {
+    "name": "request-line",
+    "id": "iref-grammar-request-line-20",
+    "type": "Grammar"
+  },
+  {
+    "name": "method",
+    "id": "iref-method-21"
+  },
+  {
+    "name": "method",
+    "id": "iref-grammar-method-22",
+    "type": "Grammar"
+  },
+  {
+    "name": "request-target",
+    "id": "iref-request-target-23"
+  },
+  {
+    "name": "request-target",
+    "id": "iref-grammar-request-target-24",
+    "type": "Grammar"
+  },
+  {
+    "name": "origin-form",
+    "id": "iref-grammar-origin-form-30",
+    "type": "Grammar"
+  },
+  {
+    "name": "absolute-form",
+    "id": "iref-grammar-absolute-form-32",
+    "type": "Grammar"
+  },
+  {
+    "name": "authority-form",
+    "id": "iref-grammar-authority-form-34",
+    "type": "Grammar"
+  },
+  {
+    "name": "asterisk-form",
+    "id": "iref-grammar-asterisk-form-36",
+    "type": "Grammar"
+  },
+  {
+    "name": "status-line",
+    "id": "iref-grammar-status-line-37",
+    "type": "Grammar"
+  },
+  {
+    "name": "status-code",
+    "id": "iref-grammar-status-code-38",
+    "type": "Grammar"
+  },
+  {
+    "name": "reason-phrase",
+    "id": "iref-grammar-reason-phrase-39",
+    "type": "Grammar"
+  },
+  {
+    "name": "field-line",
+    "id": "iref-grammar-field-line-40",
+    "type": "Grammar"
+  },
+  {
+    "name": "obs-fold",
+    "id": "iref-grammar-obs-fold-43",
+    "type": "Grammar"
+  },
+  {
+    "name": "message-body",
+    "id": "iref-grammar-message-body-44",
+    "type": "Grammar"
+  },
+  {
+    "name": "Transfer-Encoding",
+    "id": "iref-fields-transfer-encoding-45",
+    "type": "Fields"
+  },
+  {
+    "name": "Transfer-Encoding",
+    "id": "iref-header-fields-transfer-enco",
+    "type": "Header Fields"
+  },
+  {
+    "name": "Transfer-Encoding header field",
+    "id": "iref-transfer-encoding-header-fi"
+  },
+  {
+    "name": "Transfer-Encoding",
+    "id": "iref-grammar-transfer-encoding-4",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunked (transfer coding)",
+    "id": "iref-chunked-transfer-coding-52"
+  },
+  {
+    "name": "chunked-body",
+    "id": "iref-grammar-chunked-body-53",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk",
+    "id": "iref-grammar-chunk-54",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk-size",
+    "id": "iref-grammar-chunk-size-55",
+    "type": "Grammar"
+  },
+  {
+    "name": "last-chunk",
+    "id": "iref-grammar-last-chunk-56",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk-data",
+    "id": "iref-grammar-chunk-data-59",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk-ext",
+    "id": "iref-grammar-chunk-ext-60",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk-ext-name",
+    "id": "iref-grammar-chunk-ext-name-61",
+    "type": "Grammar"
+  },
+  {
+    "name": "chunk-ext-val",
+    "id": "iref-grammar-chunk-ext-val-62",
+    "type": "Grammar"
+  },
+  {
+    "name": "trailer-section",
+    "id": "iref-grammar-trailer-section-63",
+    "type": "Grammar"
+  },
+  {
+    "name": "compress (transfer coding)",
+    "id": "iref-compress-transfer-coding-65"
+  },
+  {
+    "name": "x-compress (transfer coding)",
+    "id": "iref-x-compress-transfer-coding-"
+  },
+  {
+    "name": "deflate (transfer coding)",
+    "id": "iref-deflate-transfer-coding-67"
+  },
+  {
+    "name": "gzip (transfer coding)",
+    "id": "iref-gzip-transfer-coding-68"
+  },
+  {
+    "name": "x-gzip (transfer coding)",
+    "id": "iref-x-gzip-transfer-coding-69"
+  },
+  {
+    "name": "close",
+    "id": "iref-close-72"
+  },
+  {
+    "name": "Close",
+    "id": "iref-fields-close-73",
+    "type": "Fields"
+  },
+  {
+    "name": "message/http",
+    "id": "iref-media-type-message-http-74",
+    "type": "Media Type"
+  },
+  {
+    "name": "message/http Media Type",
+    "id": "iref-message-http-media-type-75"
+  },
+  {
+    "name": "application/http",
+    "id": "iref-media-type-application-http",
+    "type": "Media Type"
+  },
+  {
+    "name": "application/http Media Type",
+    "id": "iref-application-http-media-type"
+  },
+  {
+    "name": "MIME-Version",
+    "id": "iref-fields-mime-version-78",
+    "type": "Fields"
+  },
+  {
+    "name": "MIME-Version",
+    "id": "iref-header-fields-mime-version-",
+    "type": "Header Fields"
+  },
+  {
+    "name": "MIME-Version header field",
+    "id": "iref-mime-version-header-field-8"
+  }
+]
