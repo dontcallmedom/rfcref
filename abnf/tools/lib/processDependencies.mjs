@@ -1,10 +1,6 @@
-import promises from "node:fs";
-import assert from "node:assert";
 import { parseString } from "abnf";
 
 import { listMissingExtendedDefs, listMissingReferencedDefs, extractRulesFromDependency, makeParsable, renameRule, listNames, removeRule, rfc5234Abnf, coreNames, hideMissingExtendedDefs, listNamesNeededForExtractingRules } from "./processAbnf.mjs";
-
-const readFile = { promises };
 
 
 function UC(obj) {

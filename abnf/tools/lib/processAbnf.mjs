@@ -1,6 +1,3 @@
-import assert from "node:assert";
-import { readFile } from "fs/promises";
-
 // TODO: add memoized version of parseString on a hash of ABNF to avoid reparsing
 import { parseString } from "abnf";
 
@@ -16,8 +13,26 @@ export function listNames(abnf, sourceName) {
   return new Set(Object.keys(rules.defs).map(n => n.toUpperCase()));
 }
 
-// FIXME: make a copy of that file in code space?
-export const rfc5234Abnf = await readFile(new URL('../../source/rfc5234.abnf', import.meta.url), 'utf-8');
+// copied from source/rfc5234.abnf
+export const rfc5234Abnf = `
+ALPHA          =  %x41-5A / %x61-7A   ; A-Z / a-z
+BIT            =  "0" / "1"
+CHAR           =  %x01-7F
+CR             =  %x0D
+CRLF           =  CR LF
+CTL            =  %x00-1F / %x7F
+DIGIT          =  %x30-39
+DQUOTE         =  %x22
+HEXDIG         =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+HTAB           =  %x09
+LF             =  %x0A
+LWSP           =  *(WSP / CRLF WSP)
+OCTET          =  %x00-FF
+SP             =  %x20
+VCHAR          =  %x21-7E
+WSP            =  SP / HTAB
+`;
+
 export const coreNames = listNames(rfc5234Abnf);
 
 export function listMissingExtendedDefs(abnf, sourceName) {
@@ -31,8 +46,16 @@ export function listMissingExtendedDefs(abnf, sourceName) {
       // Dedicated error types in node-abnf would be more robust
       if (e.message.match(/non-existant/)) {
 	const m = e.message.match(/: ([A-Za-z0-9-]+)$/);
-	assert(m, `Could not parse error from node-abnf to find non-existant definition in ${sourceName}: ${e.message}`);
-	assert(!missingDefs.includes(m[1]), `hideMissingDefs failed to hide ${m[1]}`);
+	let msg;
+	if (!m) {
+	  msg = `Could not parse error from node-abnf to find non-existant definition in ${sourceName}: ${e.message}`;
+	} else if (missingDefs.includes(m[1])) {
+	  msg = `hideMissingDefs failed to hide ${m[1]}`;
+	}
+	if (msg) {
+	  console.error(msg);
+	  throw new Error(msg, e);
+	}
 	missingDefs.push(m[1].toUpperCase());
       } else {
 	throw e;
