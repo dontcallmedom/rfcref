@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset=utf-8>
+    <style>.error { color: #900;}</style>
+    <script type="importmap">
+      {
+	"imports": {
+	  "abnfp": "https://unpkg.com/abnf@3.0.1/lib/abnfp.js",
+	  "abnf": "https://unpkg.com/abnf@3.0.1/lib/abnf.js",
+	  "fs": "./null.js"
+	}
+      }
+    </script>
+    <script src="check.js" type="module"></script>
+    <title>ABNF checker</title>
+  </head>
+  <body>
+    <h1>ABNF checker</h1>
+
+    <p>This experimental tool allows to paste ABNF to identify syntax errors and undefined rules. For these undefined rules, it provides a list of known RFCs that define a rule with that name and allows to import them to generate a complete self-standing ABNF ruleset.</p>
+    <form>
+      <textarea id="abnf"></textarea>
+      <div id=imports></div>
+      <pre id=log class="error"></pre>
+      <p><button type=submit id="validate">Validate</button></p>
+      <pre id=output></pre>
+    </form>
+  </body>
+</html>
