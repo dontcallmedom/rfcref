@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from "fs/promises";
 
 import { rfcLoader, dependencyLoader } from "./lib/loaders.mjs";
 import { buildImportMap } from "./lib/processDependencies.mjs";
+import { listNames } from "./lib/processAbnf.mjs";
 
 async function buildIndex(localRfcPath) {
   const paths = await readdir(new URL("../consolidated/", import.meta.url));
@@ -34,6 +35,7 @@ async function buildIndex(localRfcPath) {
     rfcEntry.obsoleted_by = metadata.obsoleted_by;
     rfcEntry.updates = metadata.updates;
     rfcEntry.updated_by = metadata.updated_by;
+    rfcEntry.rules = [...listNames(await rfcLoader(rfcName))];
     index.push(rfcEntry);
   }
   return index;
