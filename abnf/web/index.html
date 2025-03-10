@@ -20,7 +20,7 @@
 
     <p>This experimental tool allows to paste ABNF to identify syntax errors and undefined rules. For these undefined rules, it provides a list of known RFCs that define a rule with that name and allows to import them to generate a complete self-standing ABNF ruleset.</p>
     <form>
-      <textarea id="abnf"></textarea>
+      <textarea id="abnf" cols=80 rows=10></textarea>
       <div id=imports></div>
       <pre id=log class="error"></pre>
       <p><button type=submit id="validate">Validate</button></p>

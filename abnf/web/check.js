@@ -97,6 +97,7 @@ async function dependencyLoader(name) {
 
 async function validateAbnf(e) {
   e.preventDefault();
+  validateBtn.disabled = true;
   abnf = abnfInp.value;
   const map = generateAbnfImportMap();
   let undefinedRefs, missingRefs, importedRefs = new Set();
@@ -105,6 +106,7 @@ async function validateAbnf(e) {
     undefinedRefs = new Set(missingRefs);
   } catch (e) {
     logOutput.textContent = e;
+    validateBtn.disabled = false;
     return;
   }
   const parsableAbnf = makeParsable(abnf);
@@ -138,15 +140,20 @@ async function validateAbnf(e) {
   }
   console.log(importsMap);
   if (complete) {
+    validateBtn.disabled = true;
+
     try {
       const consolidatedAbnf = await processDependencies({abnfName: "__input"}, abnfLoader, dependencyLoader);
       abnfOutput.textContent =  consolidatedAbnf;
+      validateBtn.disabled = false;
     } catch (e) {
       console.error(e);
       logOutput.textContent = e;
+      validateBtn.disabled = false;
       return;
     }
   }
+  validateBtn.disabled = false;
 }
 
 
