@@ -1,0 +1,23 @@
+{
+  "imports": {
+    "ACTION": "rfc5545",
+    "TRIGGER": "rfc5545",
+    "X-PROP": "rfc5545",
+    "IANA-PROP": "rfc5545",
+    "DURATION": "rfc5545",
+    "REPEAT": "rfc5545",
+    "ATTACH": "rfc5545",
+    "DESCRIPTION": "rfc5545",
+    "SUMMARY": "rfc5545",
+    "ATTENDEE": "rfc5545",
+    "X-COMP": "rfc5545",
+    "IANA-COMP": "rfc5545",
+    "UID": "rfc5545",
+    "RELATED": "rfc5545",
+    "DATE-TIME": "rfc5545",
+    "OTHER-PARAM": "rfc5545",
+    "LOCATIONC": "rfc9073",
+    "IANA-TOKEN": "rfc5545",
+    "X-NAME": "rfc5545"
+  }
+}

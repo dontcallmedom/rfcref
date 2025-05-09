@@ -1,0 +1,314 @@
+authority = [userinfo "@"] host [":" port]
+dec-octet = DIGIT / %x31-39 DIGIT / "1" 2DIGIT / "2" %x30-34 DIGIT / "25" %x30-35
+fragment = *(pchar / "/" / "?")
+h16 = 1*4HEXDIG
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+host = IP-literal / IPv4address / rfc3986-REG-NAME
+IP-literal = "[" (IPv6address / IPvFuture) "]"
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+IPv6address = 6(h16 ":") ls32 / "::" 5(h16 ":") ls32 / [h16] "::" 4(h16 ":") ls32 / [[(h16 ":")] h16] "::" 3(h16 ":") ls32 / [*2(h16 ":") h16] "::" 2(h16 ":") ls32 / [*3(h16 ":") h16] "::" h16 ":" ls32 / [*4(h16 ":") h16] "::" ls32 / [*5(h16 ":") h16] "::" h16 / [*6(h16 ":") h16] "::"
+IPvFuture = "v" 1*HEXDIG "." 1*(unreserved / sub-delims / ":")
+ls32 = (h16 ":" h16) / IPv4address
+path-abempty = *("/" segment)
+path-absolute = "/" [segment-nz *("/" segment)]
+path-empty = 0<pchar>
+path-rootless = segment-nz *("/" segment)
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+pct-encoded = "%" HEXDIG HEXDIG
+port = *DIGIT
+query = *(pchar / "/" / "?")
+scheme = ALPHA *(ALPHA / DIGIT / "+" / "-" / ".")
+segment = *pchar
+segment-nz = 1*pchar
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+URI = scheme ":" hier-part ["?" query] ["#" fragment]
+userinfo = *(unreserved / pct-encoded / sub-delims / ":")
+UTF8-2 = %xc2-df UTF8-tail
+UTF8-3 = %d195 %xa0-bf UTF8-tail / %xe1-ec 2(UTF8-tail) / %d195 %x80-9f UTF8-tail / %xee-ef 2(UTF8-tail)
+UTF8-4 = %d195 %x90-bf 2(UTF8-tail) / %xf1-f3 3(UTF8-tail) / %d195 %x80-8f 2(UTF8-tail)
+UTF8-tail = %x80-bf
+rfc3986-REG-NAME = *(unreserved / pct-encoded / sub-delims)
+reg-name = 1*127reg-name-chars
+reg-name-chars = ALPHA / DIGIT / "!" / "#" / "$" / "&" / "." / "+" / "-" / "^" / "_"
+subtype-name = reg-name
+type-name = reg-name
+alphanum = (ALPHA / DIGIT)
+extension = singleton 1*("-" (2*8alphanum))
+extlang = 3ALPHA *2("-" 3ALPHA)
+grandfathered = irregular / regular
+irregular = "en-GB-oed" / "i-ami" / "i-bnn" / "i-default" / "i-enochian" / "i-hak" / "i-klingon" / "i-lux" / "i-mingo" / "i-navajo" / "i-pwn" / "i-tao" / "i-tay" / "i-tsu" / "sgn-BE-FR" / "sgn-BE-NL" / "sgn-CH-DE"
+langtag = rfc5646-LANGUAGE ["-" script] ["-" region] *("-" variant) *("-" extension) ["-" privateuse]
+Language-Tag = langtag / privateuse / grandfathered
+privateuse = "x" 1*("-" (1*8alphanum))
+region = 2ALPHA / 3DIGIT
+regular = "art-lojban" / "cel-gaulish" / "no-bok" / "no-nyn" / "zh-guoyu" / "zh-hakka" / "zh-min" / "zh-min-nan" / "zh-xiang"
+script = 4ALPHA
+singleton = DIGIT / %x41-57 / %x59-5a / %x61-77 / %x79-7a
+variant = 5*8alphanum / (DIGIT 3alphanum)
+rfc5646-LANGUAGE = 2*3ALPHA ["-" extlang] / 4ALPHA / 5*8ALPHA
+action = "ACTION" actionparam ":" actionvalue CRLF
+actionparam = *(";" other-param)
+actionvalue = "AUDIO" / "DISPLAY" / "EMAIL" / iana-token / x-name
+altrepparam = "ALTREP" "=" DQUOTE uri DQUOTE
+attach = "ATTACH" attachparam (":" uri) / (";" "ENCODING" "=" "BASE64" ";" "VALUE" "=" "BINARY" ":" binary) CRLF
+attachparam = *((";" fmttypeparam) / (";" other-param))
+attendee = "ATTENDEE" attparam ":" cal-address CRLF
+attparam = *((";" cutypeparam) / (";" memberparam) / (";" roleparam) / (";" partstatparam) / (";" rsvpparam) / (";" deltoparam) / (";" delfromparam) / (";" sentbyparam) / (";" cnparam) / (";" dirparam) / (";" languageparam) / (";" other-param))
+b-char = ALPHA / DIGIT / "+" / "/"
+b-end = (2b-char "==") / (3b-char "=")
+binary = *(4b-char) [b-end]
+cal-address = uri
+cnparam = "CN" "=" param-value
+contentline = rfc5545-NAME *(";" param) ":" value CRLF
+cutypeparam = "CUTYPE" "=" ("INDIVIDUAL" / "GROUP" / "RESOURCE" / "ROOM" / "UNKNOWN" / x-name / iana-token)
+date = date-value
+date-fullyear = 4DIGIT
+date-mday = 2DIGIT
+date-month = 2DIGIT
+date-time = date "T" time
+date-value = date-fullyear date-month date-mday
+delfromparam = "DELEGATED-FROM" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+deltoparam = "DELEGATED-TO" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+descparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+description = "DESCRIPTION" descparam ":" text CRLF
+dirparam = "DIR" "=" DQUOTE uri DQUOTE
+dur-date = dur-day [dur-time]
+dur-day = 1*DIGIT "D"
+dur-hour = 1*DIGIT "H" [dur-minute]
+dur-minute = 1*DIGIT "M" [dur-second]
+dur-second = 1*DIGIT "S"
+dur-time = "T" (dur-hour / dur-minute / dur-second)
+dur-value = (["+"] / "-") "P" (dur-date / dur-time / dur-week)
+dur-week = 1*DIGIT "W"
+duration = "DURATION" durparam ":" dur-value CRLF
+durparam = *(";" other-param)
+encodingparam = "ENCODING" "=" ("8BIT" / "BASE64")
+ESCAPED-CHAR = ("\\" / "\;" / "\," / "\N" / "\n")
+fbtypeparam = "FBTYPE" "=" ("FREE" / "BUSY" / "BUSY-UNAVAILABLE" / "BUSY-TENTATIVE" / x-name / iana-token)
+fmttypeparam = "FMTTYPE" "=" type-name "/" subtype-name
+iana-comp = "BEGIN" ":" iana-token CRLF 1*contentline "END" ":" iana-token CRLF
+iana-param = iana-token "=" param-value *("," param-value)
+iana-prop = iana-token *(";" icalparameter) ":" value CRLF
+iana-token = 1*(ALPHA / DIGIT / "-")
+icalparameter = altrepparam / cnparam / cutypeparam / delfromparam / deltoparam / dirparam / encodingparam / fmttypeparam / fbtypeparam / languageparam / memberparam / partstatparam / rangeparam / trigrelparam / reltypeparam / roleparam / rsvpparam / sentbyparam / tzidparam / valuetypeparam / other-param
+integer = (["+"] / "-") 1*DIGIT
+language = Language-Tag
+languageparam = "LANGUAGE" "=" language
+memberparam = "MEMBER" "=" DQUOTE cal-address DQUOTE *("," DQUOTE cal-address DQUOTE)
+NON-US-ASCII = UTF8-2 / UTF8-3 / UTF8-4
+other-param = (iana-param / x-param)
+param = param-name "=" param-value *("," param-value)
+param-name = iana-token / x-name
+param-value = paramtext / quoted-string
+paramtext = *SAFE-CHAR
+partstat-event = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / "TENTATIVE" / "DELEGATED" / x-name / iana-token)
+partstat-jour = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / x-name / iana-token)
+partstat-todo = ("NEEDS-ACTION" / "ACCEPTED" / "DECLINED" / "TENTATIVE" / "DELEGATED" / "COMPLETED" / "IN-PROCESS" / x-name / iana-token)
+partstatparam = "PARTSTAT" "=" (partstat-event / partstat-todo / partstat-jour)
+QSAFE-CHAR = WSP / %d33 / %x23-7e / NON-US-ASCII
+quoted-string = DQUOTE *QSAFE-CHAR DQUOTE
+rangeparam = "RANGE" "=" "THISANDFUTURE"
+related = "RELATED-TO" relparam ":" text CRLF
+relparam = *((";" reltypeparam) / (";" other-param))
+reltypeparam = "RELTYPE" "=" ("PARENT" / "CHILD" / "SIBLING" / iana-token / x-name)
+repeat = "REPEAT" repparam ":" integer CRLF
+repparam = *(";" other-param)
+roleparam = "ROLE" "=" ("CHAIR" / "REQ-PARTICIPANT" / "OPT-PARTICIPANT" / "NON-PARTICIPANT" / x-name / iana-token)
+rsvpparam = "RSVP" "=" ("TRUE" / "FALSE")
+SAFE-CHAR = WSP / %d33 / %x23-2b / %x2d-39 / %x3c-7e / NON-US-ASCII
+sentbyparam = "SENT-BY" "=" DQUOTE cal-address DQUOTE
+summary = "SUMMARY" summparam ":" text CRLF
+summparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+text = *(TSAFE-CHAR / ":" / DQUOTE / ESCAPED-CHAR)
+time = time-hour time-minute time-second [time-utc]
+time-hour = 2DIGIT
+time-minute = 2DIGIT
+time-second = 2DIGIT
+time-utc = "Z"
+trigabs = *((";" "VALUE" "=" "DATE-TIME") / (";" other-param)) ":" date-time
+trigger = "TRIGGER" (trigrel / trigabs) CRLF
+trigrel = *((";" "VALUE" "=" "DURATION") / (";" trigrelparam) / (";" other-param)) ":" dur-value
+trigrelparam = "RELATED" "=" ("START" / "END")
+TSAFE-CHAR = WSP / %d33 / %x23-2b / %x2d-39 / %x3c-5b / %x5d-7e / NON-US-ASCII
+tzidparam = "TZID" "=" [tzidprefix] paramtext
+tzidprefix = "/"
+uid = "UID" uidparam ":" text CRLF
+uidparam = *(";" other-param)
+value = *VALUE-CHAR
+VALUE-CHAR = WSP / %x21-7e / NON-US-ASCII
+valuetype = ("BINARY" / "BOOLEAN" / "CAL-ADDRESS" / "DATE" / "DATE-TIME" / "DURATION" / "FLOAT" / "INTEGER" / "PERIOD" / "RECUR" / "TEXT" / "TIME" / "URI" / "UTC-OFFSET" / x-name / iana-token)
+valuetypeparam = "VALUE" "=" valuetype
+vendorid = 3*(ALPHA / DIGIT)
+x-comp = "BEGIN" ":" x-name CRLF 1*contentline "END" ":" x-name CRLF
+x-name = "X-" [vendorid "-"] 1*(ALPHA / DIGIT / "-")
+x-param = x-name "=" param-value *("," param-value)
+x-prop = x-name *(";" icalparameter) ":" value CRLF
+alarmc = "BEGIN" ":" "VALARM" CRLF (audioprop / dispprop / emailprop) "END" ":" "VALARM" CRLF
+audioprop = *(action / trigger / duration / repeat / attach / x-prop / iana-prop)
+byhrlist = (hour *("," hour))
+byminlist = (minutes *("," minutes))
+bymodaylist = (monthdaynum *("," monthdaynum))
+bymolist = (monthnum *("," monthnum))
+byseclist = (seconds *("," seconds))
+bysplist = (setposday *("," setposday))
+bywdaylist = (weekdaynum *("," weekdaynum))
+bywknolist = (weeknum *("," weeknum))
+byyrdaylist = (yeardaynum *("," yeardaynum))
+categories = "CATEGORIES" catparam ":" text *("," text) CRLF
+catparam = *((";" languageparam) / (";" other-param))
+class = "CLASS" classparam ":" classvalue CRLF
+classparam = *(";" other-param)
+classvalue = "PUBLIC" / "PRIVATE" / "CONFIDENTIAL" / iana-token / x-name
+comment = "COMMENT" commparam ":" text CRLF
+commparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+completed = "COMPLETED" compparam ":" date-time CRLF
+compparam = *(";" other-param)
+contact = "CONTACT" contparam ":" text CRLF
+contparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+creaparam = *(";" other-param)
+created = "CREATED" creaparam ":" date-time CRLF
+dispprop = *(action / description / trigger / duration / repeat / x-prop / iana-prop)
+dtend = "DTEND" dtendparam ":" dtendval CRLF
+dtendparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dtendval = date-time / date
+dtstamp = "DTSTAMP" stmparam ":" date-time CRLF
+dtstart = "DTSTART" dtstparam ":" dtstval CRLF
+dtstparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dtstval = date-time / date
+due = "DUE" dueparam ":" dueval CRLF
+dueparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+dueval = date-time / date
+emailprop = *(action / description / trigger / summary / attendee / duration / repeat / attach / x-prop / iana-prop)
+enddate = date / date-time
+eventprop = *(dtstamp / uid / dtstart / class / created / description / geo / last-mod / location / organizer / priority / seq / status / summary / transp / url / recurid / rrule / dtend / duration / attach / attendee / categories / comment / contact / exdate / rstatus / related / resources / rdate / x-prop / iana-prop) / *(color / conference / image) / *styleddescription *sdataprop
+exdate = "EXDATE" exdtparam ":" exdtval *("," exdtval) CRLF
+exdtparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" other-param))
+exdtval = date-time / date
+extdata = text
+fbparam = *((";" fbtypeparam) / (";" other-param))
+fbprop = *(dtstamp / uid / contact / dtstart / dtend / organizer / url / attendee / comment / freebusy / rstatus / x-prop / iana-prop) / *styleddescription
+fbvalue = period *("," period)
+float = (["+"] / "-") 1*DIGIT ["." 1*DIGIT]
+freebusy = "FREEBUSY" fbparam ":" fbvalue CRLF
+freq = "SECONDLY" / "MINUTELY" / "HOURLY" / "DAILY" / "WEEKLY" / "MONTHLY" / "YEARLY"
+geo = "GEO" geoparam ":" geovalue CRLF
+geoparam = *(";" other-param)
+geovalue = float ";" float
+hour = 1*2DIGIT
+jourprop = *(dtstamp / uid / class / created / dtstart / last-mod / organizer / recurid / seq / status / summary / url / rrule / attach / attendee / categories / comment / contact / description / exdate / related / rdate / rstatus / x-prop / iana-prop) / *(color / image) / *styleddescription *sdataprop
+last-mod = "LAST-MODIFIED" lstparam ":" date-time CRLF
+location = "LOCATION" locparam ":" text CRLF
+locparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+lstparam = *(";" other-param)
+minus = "-"
+minutes = 1*2DIGIT
+monthdaynum = [plus / minus] ordmoday
+monthnum = 1*2DIGIT
+ordmoday = 1*2DIGIT
+ordwk = 1*2DIGIT
+ordyrday = 1*3DIGIT
+organizer = "ORGANIZER" orgparam ":" cal-address CRLF
+orgparam = *((";" cnparam) / (";" dirparam) / (";" sentbyparam) / (";" languageparam) / (";" other-param))
+pctparam = *(";" other-param)
+percent = "PERCENT-COMPLETE" pctparam ":" integer CRLF
+period = period-explicit / period-start
+period-explicit = date-time "/" date-time
+period-start = date-time "/" dur-value
+plus = "+"
+prioparam = *(";" other-param)
+priority = "PRIORITY" prioparam ":" priovalue CRLF
+priovalue = integer
+rdate = "RDATE" rdtparam ":" rdtval *("," rdtval) CRLF
+rdtparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE" / "PERIOD")) / (";" tzidparam) / (";" other-param))
+rdtval = date-time / date / period
+recur = recur-rule-part *(";" recur-rule-part)
+recur-rule-part = ("FREQ" "=" freq) / ("UNTIL" "=" enddate) / ("COUNT" "=" 1*DIGIT) / ("INTERVAL" "=" 1*DIGIT) / ("BYSECOND" "=" byseclist) / ("BYMINUTE" "=" byminlist) / ("BYHOUR" "=" byhrlist) / ("BYDAY" "=" bywdaylist) / ("BYMONTHDAY" "=" bymodaylist) / ("BYYEARDAY" "=" byyrdaylist) / ("BYWEEKNO" "=" bywknolist) / ("BYMONTH" "=" bymolist) / ("BYSETPOS" "=" bysplist) / ("WKST" "=" weekday)
+recurid = "RECURRENCE-ID" ridparam ":" ridval CRLF
+resources = "RESOURCES" resrcparam ":" text *("," text) CRLF
+resrcparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+ridparam = *((";" "VALUE" "=" ("DATE-TIME" / "DATE")) / (";" tzidparam) / (";" rangeparam) / (";" other-param))
+ridval = date-time / date
+rrule = "RRULE" rrulparam ":" recur CRLF
+rrulparam = *(";" other-param)
+rstatparam = *((";" languageparam) / (";" other-param))
+rstatus = "REQUEST-STATUS" rstatparam ":" statcode ";" statdesc [";" extdata] CRLF
+seconds = 1*2DIGIT
+seq = "SEQUENCE" seqparam ":" integer CRLF
+seqparam = *(";" other-param)
+setposday = yeardaynum
+statcode = 1*DIGIT 1*2("." 1*DIGIT)
+statdesc = text
+statparam = *(";" other-param)
+status = "STATUS" statparam ":" statvalue CRLF
+statvalue = (statvalue-event / statvalue-todo / statvalue-jour)
+statvalue-event = "TENTATIVE" / "CONFIRMED" / "CANCELLED"
+statvalue-jour = "DRAFT" / "FINAL" / "CANCELLED"
+statvalue-todo = "NEEDS-ACTION" / "COMPLETED" / "IN-PROCESS" / "CANCELLED"
+stmparam = *(";" other-param)
+todoprop = *(dtstamp / uid / class / completed / created / description / dtstart / geo / last-mod / location / organizer / percent / priority / recurid / seq / status / summary / url / rrule / due / duration / attach / attendee / categories / comment / contact / exdate / rstatus / related / resources / rdate / x-prop / iana-prop) / *(color / conference / image) / *styleddescription *sdataprop
+transp = "TRANSP" transparam ":" transvalue CRLF
+transparam = *(";" other-param)
+transvalue = "OPAQUE" / "TRANSPARENT"
+url = "URL" urlparam ":" uri CRLF
+urlparam = *(";" other-param)
+weekday = "SU" / "MO" / "TU" / "WE" / "TH" / "FR" / "SA"
+weekdaynum = [[plus / minus] ordwk] weekday
+weeknum = [plus / minus] ordwk
+yeardaynum = [plus / minus] ordyrday
+calparam = *(";" other-param)
+calprops = *(prodid / version / calscale / method / x-prop / iana-prop) / *(uid / last-mod / url / refresh / source / color name / description / categories / image)
+calscale = "CALSCALE" calparam ":" calvalue CRLF
+calvalue = "GREGORIAN"
+maxver = <A IANA-registered iCalendar version identifier>
+method = "METHOD" metparam ":" metvalue CRLF
+metparam = *(";" other-param)
+metvalue = iana-token
+minver = <A IANA-registered iCalendar version identifier>
+pidparam = *(";" other-param)
+pidvalue = text
+prodid = "PRODID" pidparam ":" pidvalue CRLF
+verparam = *(";" other-param)
+version = "VERSION" verparam ":" vervalue CRLF
+vervalue = "2.0" / maxver / (minver ";" maxver)
+rfc5545-NAME = iana-token / x-name
+name = "NAME" nameparam ":" text CRLF
+nameparam = *((";" altrepparam) / (";" languageparam) / (";" other-param))
+locationc = "BEGIN" ":" "VLOCATION" CRLF locprop "END" ":" "VLOCATION" CRLF
+locprop = *(uid / description / geo / loctype / name / url / sdataprop / iana-prop)
+loctype = "LOCATION-TYPE" loctypeparam ":" text *("," text) CRLF
+loctypeparam = *(";" other-param)
+schemaparam = "SCHEMA" "=" DQUOTE uri DQUOTE
+sdataparam = *((";" fmttypeparam) / (";" schemaparam) / (";" other-param))
+sdataprop = "STRUCTURED-DATA" sdataparam (";" "VALUE" "=" "TEXT" ":" text) / (";" "ENCODING" "=" "BASE64" ";" "VALUE" "=" "BINARY" ";" binary) / (";" "VALUE" "=" "URI" ":" uri) CRLF
+acknowledged = "ACKNOWLEDGED" *acknowledgedparam ":" date-time CRLF
+acknowledgedparam = ((";" other-param))
+actionprops = *audiopropext / *disppropext / *emailpropext
+alarm-subcomp = (x-comp / iana-comp) / (locationc)
+alarmcext = "BEGIN" ":" "VALARM" CRLF *alarmprop *alarm-subcomp "END" ":" "VALARM" CRLF
+alarmprop = (action / trigger / actionprops / x-prop / iana-prop) / (uid) / (related) / (acknowledged) / (proximity)
+audiopropext = (duration / repeat / attach)
+disppropext = (description / duration / repeat)
+emailpropext = (description / summary / attendee / duration / repeat attach)
+proximity = "PROXIMITY" *proximityparam ":" proximityvalue CRLF
+proximityparam = ((";" other-param))
+proximityvalue = "ARRIVE" / "DEPART" / "CONNECT" / "DISCONNECT" / iana-token / x-name
+color = "COLOR" colorparam ":" text CRLF
+conference = "CONFERENCE" confparam ":" uri CRLF
+image = "IMAGE" imageparam ((";" "VALUE" "=" "URI" ":" uri) / (";" "ENCODING" "=" "BASE64" ";" "VALUE" "=" "BINARY" ":" binary)) CRLF
+styleddescription = "STYLED-DESCRIPTION" styleddescparam ":" styleddescval CRLF
+refresh = "REFRESH-INTERVAL" refreshparam ":" dur-value CRLF
+source = "SOURCE" sourceparam ":" uri CRLF
+colorparam = *(";" other-param)
+confparam = *((";" "VALUE" "=" "URI") / (";" featureparam) / (";" labelparam) / (";" languageparam) / (";" other-param))
+imageparam = *((";" fmttypeparam) / (";" altrepparam) / (";" displayparam) / (";" other-param))
+styleddescparam = *((";" "VALUE" "=" ("URI" / "TEXT")) / (";" altrepparam) / (";" languageparam) / (";" fmttypeparam) / (";" derivedparam) / (";" other-param))
+styleddescval = (uri / text)
+refreshparam = *((";" "VALUE" "=" "DURATION") / (";" other-param))
+sourceparam = *(";" other-param)
+featureparam = "FEATURE" "=" featuretext *("," featuretext)
+labelparam = "LABEL" "=" param-value
+displayparam = "DISPLAY" "=" displayval *("," displayval)
+derivedparam = "DERIVED" "=" ("TRUE" / "FALSE")
+featuretext = ("AUDIO" / "CHAT" / "FEED" / "MODERATOR" / "PHONE" / "SCREEN" / "VIDEO" / x-name / iana-token)
+displayval = ("BADGE" / "GRAPHIC" / "FULLSIZE" / "THUMBNAIL" / x-name / iana-token)
