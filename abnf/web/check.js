@@ -1,6 +1,6 @@
 import { parse } from "abnfp";
 import serialize, { wrapper} from "../tools/lib/serialize.mjs";
-import {listMissingExtendedDefs, makeParsable} from "../tools/lib/processAbnf.mjs";
+import {listMissingExtendedDefs, makeParsable, coreNames} from "../tools/lib/processAbnf.mjs";
 import {processDependencies} from "../tools/lib/processDependencies.mjs";
 
 import html from "https://unpkg.com/escape-html-template-tag@2.2.3/dist/index.module.mjs";
@@ -114,7 +114,7 @@ async function validateAbnf(e) {
 
   importsContainer.innerHTML = "";
   rules.refs.forEach(ref => {
-    if (!rules.defs[ref.name.toUpperCase()]) {
+    if (!rules.defs[ref.name.toUpperCase()] && !coreNames.has(ref.name.toUpperCase())) {
       undefinedRefs.add(ref.name.toUpperCase());
       importedRefs.add(ref.name.toUpperCase());
     }
